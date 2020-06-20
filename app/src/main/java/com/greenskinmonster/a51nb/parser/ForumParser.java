@@ -90,7 +90,7 @@ public class ForumParser {
     private static List<Forum> parseForumCompat(Element forumEl) {
         List<Forum> forums = new ArrayList<>();
         for (Element tdEl : forumEl.children()) {
-            Element forumLink = tdEl.select("dt a[href*=forum]").first();
+            Element forumLink = tdEl.select("td h2 a[href*=forum-]").first();
             if (forumLink != null) {
                 Forum forum = parseForumLink(forumLink, Forum.FORUM);
                 forums.add(forum);
