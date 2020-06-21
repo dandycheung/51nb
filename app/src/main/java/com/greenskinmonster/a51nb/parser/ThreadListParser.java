@@ -285,7 +285,7 @@ public class ThreadListParser {
             String author = "", authorId = "";
             if (authorEl != null) {
                 author = authorEl.text();
-                authorId = Utils.getMiddleString(authorEl.attr("href"), "uid=", "&");
+                authorId = Utils.getMiddleString(authorEl.attr("href"), "space-uid-", ".");
             }
             TradeThreadBean bean = new TradeThreadBean();
 //            bean.setStick(title.contains("【公告】"));
