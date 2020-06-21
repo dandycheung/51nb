@@ -73,7 +73,7 @@ public class ThreadDetailParser {
         if (HiUtils.isValidId(tid))
             details.setTid(tid);
 
-        //get forum id
+        // get forum id
         Element forumLinkEl = doc.select("div#pt div.z a[href*=forumdisplay]").last();
         if (forumLinkEl != null) {
             int fid = Utils.parseInt(Utils.getMiddleString(forumLinkEl.attr("href"), "fid=", "&"));
@@ -97,7 +97,7 @@ public class ThreadDetailParser {
             return null;
         }
 
-        //update max posts in page, this is controlled by user setting
+        // update max posts in page, this is controlled by user setting
         if (last_page > page) {
             HiSettingsHelper.getInstance().setMaxPostsInPage(postES.size());
         }
@@ -118,13 +118,13 @@ public class ThreadDetailParser {
                 }
             }
 
-            //id
+            // id
             String postId = Utils.getMiddleString(postE.attr("id"), "pid", "");
             if (TextUtils.isEmpty(postId)) continue;
 
             detail.setPostId(postId);
 
-            //time
+            // time
             Element timeEl = postE.select("div.authi em").first();
             if (timeEl == null) {
                 continue;
@@ -148,7 +148,7 @@ public class ThreadDetailParser {
                 detail.setThreadAuthor(divAuthorEl.text().contains("楼主|"));
             }
 
-            //floor, 推荐帖子可能显示在第二楼位置，但是没有楼层号
+            // floor, 推荐帖子可能显示在第二楼位置，但是没有楼层号
             int floor = 0;
             Element floorEl = postE.select("div.pi strong").first();
             if (floorEl != null) {
@@ -160,14 +160,14 @@ public class ThreadDetailParser {
                 }
             }
 
-            //author
+            // author
             Element authorDiv = postE.select("div[id^=favatar]").first();
             if (authorDiv == null) {
                 continue;
             }
             Element authorLink = authorDiv.select("div.authi a").first();
             if (authorLink != null) {
-                String uid = Utils.getMiddleString(authorLink.attr("href"), "uid=", "&");
+                String uid = Utils.getMiddleString(authorLink.attr("href"), "space-uid-", ".");
                 if (!TextUtils.isEmpty(uid)) {
                     detail.setUid(uid);
                 } else {
@@ -199,10 +199,10 @@ public class ThreadDetailParser {
                 detail.setNickname(nicknameEl.text());
             }
 
-            //content
+            // content
             Elements postMessageES = postE.select("td[id^=postmessage_]");
 
-            //locked user content
+            // locked user content
             if (postMessageES.size() == 0) {
                 postMessageES = postE.select("table tbody tr td.postcontent div.defaultpost div.postmessage div.locked");
                 if (postMessageES.size() > 0) {
@@ -225,7 +225,7 @@ public class ThreadDetailParser {
                 continue;
             }
 
-            //post info
+            // post info
             Element divInfoEl = postE.select("#pid" + postId + " > tbody > tr:nth-child(1) > td.plc > div.pct > div > div.info").first();
             if (divInfoEl != null && !TextUtils.isEmpty(divInfoEl.text())) {
                 content.addInfo(divInfoEl.text());
@@ -236,14 +236,14 @@ public class ThreadDetailParser {
                 content.addInfo(creditInfoEl.text());
             }
 
-            //post status
+            // post status
             Element postStatusEl = postmessageE.select("i.pstatus").first();
             if (postStatusEl != null) {
                 content.addNotice(postStatusEl.text());
                 postStatusEl.remove();
             }
 
-            //评论
+            // 评论
             Element divCommtnetEl = postE.select("div#comment_" + postId).first();
             if (divCommtnetEl != null) {
                 Elements divCommentES = divCommtnetEl.select("div.pstl");
@@ -269,7 +269,7 @@ public class ThreadDetailParser {
                 divCommtnetEl.remove();
             }
 
-            //评分
+            // 评分
             Element divRateEl = postE.select("dl#ratelog_" + postId).first();
             if (divRateEl != null) {
                 Elements trRateES = divRateEl.select("tr[id^=rate_]");
@@ -323,7 +323,6 @@ public class ThreadDetailParser {
             int level = 1;
             boolean processChildren;
             while (level > 0 && contentN != null) {
-
                 textStyles.addLevel(level);
 
                 processChildren = parseNode(contentN, content, level, textStyles);
@@ -348,12 +347,12 @@ public class ThreadDetailParser {
                 }
             }
 
-            //管理员操作信息
+            // 管理员操作信息
             Element divModActEl = postE.select("div.modact").first();
             if (divModActEl != null)
                 content.addNotice(divModActEl.text());
 
-            //附件
+            // 附件
             Elements dlES = postE.select("div.pattl dl.tattl");
             for (Element dlEl : dlES) {
                 Element sizeEl = dlEl.select("em.xg1").first();
@@ -381,7 +380,7 @@ public class ThreadDetailParser {
                 }
             }
 
-            //投票
+            // 投票
             if (floor == 1) {
                 Element pollEl = doc.select("form#poll").first();
                 if (pollEl != null) {
@@ -534,7 +533,7 @@ public class ThreadDetailParser {
                     tocId = Utils.getMiddleString(replyLinkEl.attr("href"), "tocid=", "&").trim();
                 spanTime.remove();
             }
-            //去掉 回复 和 详情 链接
+            // 去掉 回复 和 详情 链接
             Elements links = contentDiv.select("a");
             for (Element link : links) {
                 if ("回复".equals(link.text()) || "详情".equals(link.text())) {
@@ -555,21 +554,20 @@ public class ThreadDetailParser {
 
     // return true for continue children, false for ignore children
     private static boolean parseNode(Node contentN, DetailBean.Contents content, int level, @NonNull TextStyleHolder textStyles) {
-
         if (contentN.nodeName().equals("font")) {
             Element elemFont = (Element) contentN;
             textStyles.setColor(level, Utils.nullToText(elemFont.attr("color")).trim());
             return true;
-        } else if (contentN.nodeName().equals("i")    //text in an alternate voice or mood
-                || contentN.nodeName().equals("u")    //text that should be stylistically different from normal text
-                || contentN.nodeName().equals("em")    //text emphasized
-                || contentN.nodeName().equals("strike")    //text strikethrough
-                || contentN.nodeName().equals("ol")    //ordered list
-                || contentN.nodeName().equals("ul")    //unordered list
-                || contentN.nodeName().equals("hr")   //a thematic change in the content(h line)
+        } else if (contentN.nodeName().equals("i")      // text in an alternate voice or mood
+                || contentN.nodeName().equals("u")      // text that should be stylistically different from normal text
+                || contentN.nodeName().equals("em")     // text emphasized
+                || contentN.nodeName().equals("strike") // text strikethrough
+                || contentN.nodeName().equals("ol")     // ordered list
+                || contentN.nodeName().equals("ul")     // unordered list
+                || contentN.nodeName().equals("hr")     // a thematic change in the content(h line)
                 || contentN.nodeName().equals("blockquote")) {
             textStyles.addStyle(level, contentN.nodeName());
-            //continue parse child node
+            // continue parse child node
             return true;
         } else if (contentN.nodeName().equals("strong")) {
             String tmp = ((Element) contentN).text();
@@ -591,7 +589,7 @@ public class ThreadDetailParser {
             textStyles.addStyle(level, contentN.nodeName());
             return true;
         } else if (contentN.nodeName().equals("#text")) {
-            //replace  < >  to &lt; &gt; , or they will become to unsupported tag
+            // replace  < >  to &lt; &gt; , or they will become to unsupported tag
             String text = ((TextNode) contentN).text()
                     .replace("<", "&lt;")
                     .replace(">", "&gt;");
@@ -629,7 +627,7 @@ public class ThreadDetailParser {
         } else if (contentN.nodeName().equals("br")) {    // single line break
             content.addText("<br>");
             return false;
-        } else if (contentN.nodeName().equals("p")) {    // paragraph
+        } else if (contentN.nodeName().equals("p")) {     // paragraph
             Element pE = (Element) contentN;
             if (pE.hasClass("imgtitle")) {
                 return false;
@@ -643,7 +641,7 @@ public class ThreadDetailParser {
             Boolean isInternalAttach = false;
             for (int attIdx = 0; attIdx < attachAES.size(); attIdx++) {
                 Element attachAE = attachAES.get(attIdx);
-                //it is an attachment and not an image attachment
+                // it is an attachment and not an image attachment
                 if (attachAE.attr("href").contains("forum.php?mod=attachment")
                         && !attachAE.attr("href").contains("nothumb=")) {
                     String desc = "";
@@ -678,7 +676,7 @@ public class ThreadDetailParser {
             }
 
             content.addLink(text, url);
-            //rare case, link tag contains images
+            // rare case, link tag contains images
             Elements imgEs = aE.select("img");
             if (imgEs.size() > 0) {
                 for (int i = 0; i < imgEs.size(); i++) {
@@ -735,27 +733,27 @@ public class ThreadDetailParser {
             return true;
         } else if (contentN.nodeName().equals("table")) {
             return true;
-        } else if (contentN.nodeName().equals("tbody")) {    //Groups the body content in a table
+        } else if (contentN.nodeName().equals("tbody")) { // Groups the body content in a table
             return true;
-        } else if (contentN.nodeName().equals("tr")) {    //a row in a table
+        } else if (contentN.nodeName().equals("tr")) {    // a row in a table
             content.addText("<br>");
             return true;
-        } else if (contentN.nodeName().equals("td")) {    //a cell in a table
+        } else if (contentN.nodeName().equals("td")) {    // a cell in a table
             content.addText(" ");
             return true;
-        } else if (contentN.nodeName().equals("dl")) {    //a description list
+        } else if (contentN.nodeName().equals("dl")) {    // a description list
             return true;
-        } else if (contentN.nodeName().equals("dt")) {    //a term/name in a description list
+        } else if (contentN.nodeName().equals("dt")) {    // a term/name in a description list
             return true;
-        } else if (contentN.nodeName().equals("dd")) {    //a description/value of a term in a description list
+        } else if (contentN.nodeName().equals("dd")) {    // a description/value of a term in a description list
             return true;
         } else if (contentN.nodeName().equals("script") || contentN.nodeName().equals("#data")) {
             // video
             String html = contentN.toString();
             String url = Utils.getMiddleString(html, "'src', '", "'");
             if (url.startsWith("http://player.youku.com/player.php")) {
-                //http://player.youku.com/player.php/sid/XNzIyMTUxMzEy.html/v.swf
-                //http://v.youku.com/v_show/id_XNzIyMTUxMzEy.html
+                // http://player.youku.com/player.php/sid/XNzIyMTUxMzEy.html/v.swf
+                // http://v.youku.com/v_show/id_XNzIyMTUxMzEy.html
                 url = Utils.getMiddleString(url, "sid/", "/v.swf");
                 url = "http://v.youku.com/v_show/id_" + url;
                 if (!url.endsWith(".html")) {
@@ -781,7 +779,7 @@ public class ThreadDetailParser {
     }
 
     private static ContentAttach parseAttach(Element contentN) {
-        //ignore_js_op Node
+        // ignore_js_op Node
         Element spanEl = contentN.select("span[id^=attach_]").first();
         if (spanEl != null) {
             String attachId = Utils.getMiddleString(spanEl.attr("id"), "attach_", "");
@@ -804,7 +802,7 @@ public class ThreadDetailParser {
         String id = e.attr("id");
 
         if (id.startsWith("aimg") && src.startsWith(HiUtils.BaseUrl)) {
-            //internal image
+            // internal image
             long size = 0;
             Elements divES = (e.parent().parent()).select("div#" + id + "_menu");
             if (divES.size() > 0) {
@@ -817,12 +815,12 @@ public class ThreadDetailParser {
             content.addImg(contentImg);
         } else if (src.contains(HiUtils.SmiliesPattern)
                 || src.contains(HiUtils.SmiliesPattern2)) {
-            //emotion added as img tag, will be parsed in TextViewWithEmoticon later
+            // emotion added as img tag, will be parsed in TextViewWithEmoticon later
             content.addText("<img src=\"" + src + "\"/>");
         } else if (src.contains(HiUtils.ForumCommonSmiliesPattern)) {
-            //skip common/default/attach icons
+            // skip common/default/attach icons
         } else if (src.contains("://")) {
-            //external image
+            // external image
             content.addImg(src);
         } else {
             content.addNotice("[[ERROR:UNPARSED IMG:" + src + "]]");
