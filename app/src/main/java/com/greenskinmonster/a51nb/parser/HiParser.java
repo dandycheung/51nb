@@ -57,9 +57,8 @@ public class HiParser {
     }
 
     public static SimpleListBean parseGuide(Document doc) {
-        if (doc == null) {
+        if (doc == null)
             return null;
-        }
 
         SimpleListBean list = new SimpleListBean();
 
@@ -73,19 +72,19 @@ public class HiParser {
                 }
             }
         }
+
         list.setMaxPage(last_page);
 
         Elements tbodyES = doc.select("div#threadlist tbody[id]");
         for (int i = 0; i < tbodyES.size(); ++i) {
-
             Element tbodyE = tbodyES.get(i);
             SimpleListItemBean thread = new SimpleListItemBean();
 
 			/* title and tid */
             String[] idSpil = tbodyE.attr("id").split("_");
-            if (idSpil.length != 2) {
+            if (idSpil.length != 2)
                 continue;
-            }
+
             String idType = idSpil[0];
             String idNum = idSpil[1];
 
@@ -94,24 +93,26 @@ public class HiParser {
             Element titleTh = tbodyE.select("th").first();
             if (titleTh == null)
                 continue;
-            Elements titleES = titleTh.select("a[href*=viewthread]");
-            if (titleES.size() == 0) {
+
+            Elements titleES = titleTh.select("a[href^=thread-]");
+            if (titleES.size() == 0)
                 continue;
-            }
+
             Element titleLink = titleES.first();
             String title = titleLink.text();
             thread.setTitle(EmojiParser.parseToUnicode(title));
 
             if (titleES.size() > 1) {
-                int lastpage = Utils.parseInt(Utils.getMiddleString(titleES.attr("href"), "page=", "&"));
-//                if (lastpage > 1)
-//                    thread.setMaxPage(lastpage);
+                // 虽然没用，但此处存疑 - dandy
+                int lastpage = Utils.parseInt(Utils.getMiddleString(titleES.attr("href"), "thread-", "-"));
+                // if (lastpage > 1)
+                //    thread.setMaxPage(lastpage);
             }
 
             String linkStyle = titleLink.attr("style");
-//            if (!TextUtils.isEmpty(linkStyle)) {
-//                thread.setTitleColor(Utils.getMiddleString(linkStyle, "color:", ";").trim());
-//            }
+            // if (!TextUtils.isEmpty(linkStyle)) {
+            //     thread.setTitleColor(Utils.getMiddleString(linkStyle, "color:", ";").trim());
+            // }
 
             // attachment and picture
             Elements imageAttachs = titleTh.select("th img[alt=attach_img]");
@@ -120,44 +121,45 @@ public class HiParser {
             thread.setHaveAttach(attachments.size() > 0);
 
             Elements tdES = tbodyE.select("td");
-            if (tdES.size() != 5) {
+            if (tdES.size() != 5)
                 continue;
-            }
-            //共5个td
-            //0，帖子类型
-            //1，版块
-            //2，作者，发帖时间
-            //3，回复数，查看数
-            //4，最后回帖用户，及时间
 
-//            Elements typeES = tbodyE.select("th.subject em a");
-//            if (typeES.size() > 0) {
-//                thread.setType(typeES.text());
-//            }
+            // 共 5 个 td（因为有一列是 th）
+            // 0，帖子类型
+            // 1，版块
+            // 2，作者，发帖时间
+            // 3，回复数，查看数
+            // 4，最后回帖用户，及时间
 
+            // Elements typeES = tbodyE.select("th.subject em a");
+            // if (typeES.size() > 0) {
+            //     thread.setType(typeES.text());
+            // }
+
+            // 此处元素没有看到，CSS 选择器是否仍然有用存疑 - dandy
             Elements threadIsNewES = tbodyE.select("td.folder img");
             if (threadIsNewES.size() > 0) {
                 String imgSrc = Utils.nullToText(threadIsNewES.first().attr("src"));
                 thread.setNew(imgSrc.contains("new"));
             }
 
-            //2，作者，发帖时间
+            // 2，作者，发帖时间
             Element authorLinkEl = tdES.get(2).select("cite a").first();
             String author = authorLinkEl.text();
             thread.setAuthor(author);
 
             String userLink = authorLinkEl.attr("href");
-            String authorId = Utils.getMiddleString(userLink, "uid=", "&");
-            if (!HiUtils.isValidId(authorId)) {
+            String authorId = Utils.getMiddleString(userLink, "space-uid-", ".");
+            if (!HiUtils.isValidId(authorId))
                 continue;
-            }
+
             if (HiSettingsHelper.getInstance().isInBlacklist(authorId))
                 continue;
-            thread.setAuthorId(authorId);
 
+            thread.setAuthorId(authorId);
             thread.setForum(tdES.get(1).text());
 
-            //发帖时间
+            // 发帖时间
             String threadCreateTime = tdES.get(2).select("em").text();
             thread.setCreateTime(threadCreateTime);
 
@@ -167,27 +169,27 @@ public class HiParser {
                 thread.setCreateTime(threadUpdateTime);
             }
 
-            //3，回复数，查看数
+            // 3，回复数，查看数
             thread.setReplyCount(Utils.parseInt(tdES.get(3).select("a").text()));
             thread.setViewCount(Utils.parseInt(tdES.get(3).select("em").text()));
 
-            //4，最后回帖用户，及时间
+            // 4，最后回帖用户，及时间
             String lastReplier = tdES.get(4).select("cite").text();
             thread.setReplier(lastReplier);
 
             list.add(thread);
         }
+
         return list;
     }
 
     private static SimpleListBean parseMyPost(Document doc) {
-        if (doc == null) {
+        if (doc == null)
             return null;
-        }
 
-        //tr class=th header
-        //tr child(td/th) size=5 主题
-        //tr td size=1 回复内容
+        // tr class=th header
+        // tr child(td/th) size=5 主题
+        // tr td size=1 回复内容
         Elements trES = doc.select("form#delform table tr");
         SimpleListBean list = new SimpleListBean();
 
@@ -195,15 +197,15 @@ public class HiParser {
         if (nextPageLink != null)
             list.setMaxPage(Utils.getMiddleInt(nextPageLink.attr("href"), "page=", "&"));
 
-        //first tr is title, skip
+        // first tr is title, skip
         for (int i = 1; i < trES.size(); ++i) {
             Elements tdES = trES.get(i).select("td,th");
             if (tdES.size() == 5) {
-                //0, icon
-                //1, 主题，页数
-                //2, 版块
-                //3, 回复/查看
-                //4, 最后发帖作者,时间
+                // 0, icon
+                // 1, 主题，页数
+                // 2, 版块
+                // 3, 回复/查看
+                // 4, 最后发帖作者,时间
 
                 SimpleListItemBean item = new SimpleListItemBean();
 
@@ -214,17 +216,21 @@ public class HiParser {
                 if (linkES.size() > 0) {
                     title = linkES.first().text();
                     String href = linkES.first().attr("href");
-                    tid = Utils.getMiddleString(href, "tid=", "&");
-                    pid = Utils.getMiddleString(href, "pid=", "&");
+
+                    // href 形如：thread-1954489-1-1.html
+                    String[] ids = href.split("-");
+                    tid = ids[1];
+                    pid = ids[2];
                 } else {
                     continue;
                 }
+
                 Element forumLinkEl = tdES.get(2).select("a").first();
-                //int fid = Utils.getMiddleInt(forumLinkEl.attr("href"), "fid=", "&");
+                // int fid = Utils.getMiddleInt(forumLinkEl.attr("href"), "forum-", "-");
                 String forum = forumLinkEl.text();
 
-                //int replyCount = Utils.parseInt(tdES.get(3).select("a").first().text());
-                //int viewCount = Utils.parseInt(tdES.get(3).select("em").text());
+                // int replyCount = Utils.parseInt(tdES.get(3).select("a").first().text());
+                // int viewCount = Utils.parseInt(tdES.get(3).select("em").text());
 
                 String time = tdES.get(4).select("em a").text();
 
@@ -236,6 +242,7 @@ public class HiParser {
 
                 list.add(item);
             } else if (tdES.size() == 1) {
+                // TODO: 此分支未测试到 - dandy
                 Elements postLinks = tdES.first().select("a[href*=pid]");
                 for (Element postLink : postLinks) {
                     String href = postLink.attr("href");
@@ -254,10 +261,10 @@ public class HiParser {
                             lastItem.setInfo(getRedirectUrl(tid, pid, postLink.text()));
                         }
                     }
-
                 }
             }
         }
+
         return list;
     }
 
@@ -266,28 +273,27 @@ public class HiParser {
     }
 
     public static SimpleListBean parseSMS(Document doc) {
-        if (doc == null) {
+        if (doc == null)
             return null;
-        }
 
         Elements pmlistES = doc.select("form#deletepmform dl[id^=pmlist]");
-        if (pmlistES.size() == 0) {
+        if (pmlistES.size() == 0)
             return null;
-        }
 
         SimpleListBean list = new SimpleListBean();
         for (Element dlEl : pmlistES) {
             SimpleListItemBean item = new SimpleListItemBean();
 
-            boolean isNew = dlEl.select("dd.newpm_avt").size() > 0;
+            boolean isNew = dlEl.select("div.newpm_avt").size() > 0;
             item.setNew(isNew);
 
-            Element spaceLink = dlEl.select("a[href*=\"&uid=\"]").last();
+            Element spaceLink = dlEl.select("a[href^=space-uid-]").last();
             if (spaceLink == null)
                 continue;
+
             // author and author uid
             item.setAuthor(spaceLink.text());
-            item.setAuthorId(Utils.getMiddleString(spaceLink.attr("href"), "uid=", "&"));
+            item.setAuthorId(Utils.getMiddleString(spaceLink.attr("href"), "space-uid-", "."));
 
             // time
             Element timeEl = dlEl.select("span.xg1").first();
@@ -296,10 +302,10 @@ public class HiParser {
 
             // info
             Element infoEl = dlEl.select("dd.ptm").first();
-            if (infoEl == null) {
+            if (infoEl == null)
                 continue;
-            }
-            //get content from 2 brs
+
+            // get content from 2 brs
             String info = infoEl.html();
             int lastBr = info.lastIndexOf("<br>");
             if (lastBr > 0) {
@@ -377,14 +383,12 @@ public class HiParser {
     }
 
     private static SimpleListBean parseSmsDetail(Document doc) {
-        if (doc == null) {
+        if (doc == null)
             return null;
-        }
 
         Elements smslistES = doc.select("div#pm_ul dl[id^=pmlist_]");
-        if (smslistES.size() < 1) {
+        if (smslistES.size() < 1)
             return null;
-        }
 
         SimpleListBean list = new SimpleListBean();
 
@@ -393,6 +397,7 @@ public class HiParser {
             String pmid = Utils.getMiddleString(formEl.attr("action"), "pmid=", "&");
             list.setPmid(pmid);
         }
+
         list.setFormhash(parseFormhash(doc));
 
         for (Element smsEl : smslistES) {
@@ -400,17 +405,19 @@ public class HiParser {
             String pmid = Utils.getMiddleString(smsEl.attr("id"), "pmlist_", "");
             if (!HiUtils.isValidId(pmid))
                 continue;
+
             item.setPmid(pmid);
 
-            boolean isNew = smsEl.select("dd.newpm_avt").size() > 0;
+            boolean isNew = smsEl.select("dd.m_avt").size() > 0;
             item.setNew(isNew);
 
-            Element spaceLink = smsEl.select("a[href*=\"&uid=\"]").last();
+            Element spaceLink = smsEl.select("a[href^=space-uid-]").last();
             if (spaceLink == null)
                 continue;
+
             // author and author uid
             item.setAuthor(spaceLink.text());
-            item.setAuthorId(Utils.getMiddleString(spaceLink.attr("href"), "uid=", "&"));
+            item.setAuthorId(Utils.getMiddleString(spaceLink.attr("href"), "space-uid-", "."));
 
             // time
             Element timeEl = smsEl.select("span.xg1").first();
@@ -419,9 +426,9 @@ public class HiParser {
 
             // info
             Element infoEl = smsEl.select("dd.ptm").first();
-            if (infoEl == null) {
+            if (infoEl == null)
                 continue;
-            }
+
             String html = infoEl.html();
             int firstBr = html.indexOf("<br>");
             if (firstBr != -1)
@@ -604,16 +611,15 @@ public class HiParser {
     }
 
     private static SimpleListBean parseFavorites(Document doc) {
-        if (doc == null) {
+        if (doc == null)
             return null;
-        }
 
         SimpleListBean list = new SimpleListBean();
 
         int last_page = 1;
-        //if this is the last page, page number is in <strong>
-        Elements pagesES = doc.select("div.pages a");
-        pagesES.addAll(doc.select("div.pages strong"));
+        // the current page number is in <strong>
+        Elements pagesES = doc.select("div.pgs div.pg a");
+        pagesES.addAll(doc.select("div.pgs div.pg strong"));
         if (pagesES.size() > 0) {
             for (Node n : pagesES) {
                 int tmp = Utils.getIntFromString(((Element) n).text());
@@ -629,11 +635,12 @@ public class HiParser {
             SimpleListItemBean item = new SimpleListItemBean();
 
             String favid = Utils.getMiddleString(liEl.attr("id"), "fav_", "");
-            Element linkEl = liEl.select("a[href*=viewthread]").first();
+            Element linkEl = liEl.select("a[href^=thread-]").first();
             if (linkEl == null)
                 continue;
+
             item.setTitle(linkEl.text());
-            String tid = Utils.getMiddleString(linkEl.attr("href"), "tid=", "&");
+            String tid = Utils.getMiddleString(linkEl.attr("href"), "thread-", "-");
             item.setTid(tid);
 
             if (TextUtils.isEmpty(favid) || TextUtils.isEmpty(tid))
@@ -645,10 +652,10 @@ public class HiParser {
             if (timeEl != null)
                 item.setCreateTime(timeEl.text());
 
-//            Elements forumES = liEl.select("td.forum");
-//            if (forumES.size() > 0) {
-//                item.setForum(forumES.first().text().trim());
-//            }
+            // Elements forumES = liEl.select("td.forum");
+            // if (forumES.size() > 0) {
+            //     item.setForum(forumES.first().text().trim());
+            // }
 
             list.add(item);
         }
@@ -832,5 +839,4 @@ public class HiParser {
         }
         return infos;
     }
-
 }
