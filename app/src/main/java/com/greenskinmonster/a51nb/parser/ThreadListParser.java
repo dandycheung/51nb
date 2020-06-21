@@ -117,7 +117,7 @@ public class ThreadListParser {
             Element titleTh = tdthES.get(subjectIndex);
             if (titleTh == null)
                 continue;
-            Elements linksES = titleTh.select("a[href*=viewthread]");
+            Elements linksES = titleTh.select("a[href*=thread]");
             Element titleLink = linksES.first();
             if (titleLink == null) {
                 continue;
@@ -180,7 +180,7 @@ public class ThreadListParser {
             thread.setAuthor(author);
 
             String userLink = authorLinkEl.attr("href");
-            String authorId = Utils.getMiddleString(userLink, "uid=", "&");
+            String authorId = Utils.getMiddleString(userLink, "space-uid-", ".");
             if (!HiUtils.isValidId(authorId)) {
                 continue;
             }
