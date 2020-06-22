@@ -284,6 +284,8 @@ public class HiParser {
         for (Element dlEl : pmlistES) {
             SimpleListItemBean item = new SimpleListItemBean();
 
+            // TODO: 目前论坛返回的页面有问题，每个会话都有这个元素，导致所有会话全部都显示为红色，
+            // 要么让论坛改，要么找一个其它的区别点
             boolean isNew = dlEl.select("div.newpm_avt").size() > 0;
             item.setNew(isNew);
 
@@ -448,7 +450,7 @@ public class HiParser {
         SimpleListBean list = new SimpleListBean();
         int last_page = 1;
 
-        //if this is the last page, page number is in <strong>
+        // TODO: if this is the last page, page number is in <strong>
         Elements pagesES = doc.select("div.pg a[href^=search.php]");
 
         if (pagesES.size() > 0) {
@@ -480,10 +482,10 @@ public class HiParser {
                     tid = Utils.getMiddleString(linkEl.attr("href"), "tid=", "&");
                 } else if (href.contains("space")) {
                     author = linkEl.text();
-                    uid = Utils.getMiddleString(linkEl.attr("href"), "uid=", "&");
-                } else if (href.contains("forumdisplay")) {
+                    uid = Utils.getMiddleString(linkEl.attr("href"), "space-uid-", ".");
+                } else if (href.contains("forum-")) {
                     forum = linkEl.text();
-                    fid = Utils.getMiddleString(linkEl.attr("href"), "fid=", "&");
+                    fid = Utils.getMiddleString(linkEl.attr("href"), "forum-", "-");
                 }
             }
 
@@ -778,34 +780,40 @@ public class HiParser {
     }
 
     public static NotificationBean parseNotification(Document doc) {
-        if (doc == null) {
+        if (doc == null)
             return null;
+
+        // 本函数从页面内容中分析这些通知/提醒：签到、私信、回帖、系统提醒。
+        // 目前假定 doc 参数来源页面为 HiUtils.NewSMS 的 URL，也即 https://forum.51nb.com/home.php?mod=space&do=pm&filter=newpm；
+        // 签到检查，其元素位于全站页面均包含的部分内，因此大概率可以于任意 doc 中适用，但其它的检测则未必可用。
+        NotificationBean bean = new NotificationBean();
+
+        // 1. 签到
+        Element mmEl = doc.select("ul#m_menu").first();
+        if (mmEl != null) {
+            Element qiandaoLink = mmEl.select("li a[onclick*=dsu_paulsign]").first();
+            if (qiandaoLink != null)
+                bean.setQiandao(true);
         }
 
-        NotificationBean bean = new NotificationBean();
-        Element umEl = doc.select("div#um").first();
-        if (umEl == null)
-            return null;
+        // 2. 私信（也即 SMS、PM、站内消息、悄悄话）
+        Element unEl = doc.select("div.header div.userbox ul.usernav").first();
+        if (unEl == null)
+            return bean;
 
-        Element smsLink = umEl.select("a#pm_ntc").first();
-        //Element notiLink = umEl.select("a#myprompt").first();
-
+        Element smsLink = unEl.select("a#msg_menu").first();
         if (smsLink != null && smsLink.hasClass("new")) {
             bean.setHasSms(true);
         }
-        Element qiandaoLink = umEl.select("a[onclick*=dsu_paulsign]").first();
-        if (qiandaoLink != null)
-            bean.setQiandao(true);
 
-        Element notiMenuEl = doc.select("ul#myprompt_menu").first();
+        // 3. 回帖、系统提醒
+        Element notiMenuEl = unEl.select("a#nte_menu").first();
         if (notiMenuEl != null) {
-            for (Element liEl : notiMenuEl.select("li")) {
-                String liText = liEl.text();
-                if (liText.contains("我的帖子")) {
-                    bean.setThreadCount(Utils.getMiddleInt(liText, "(", ")"));
-                } else if (liText.contains("系统提醒")) {
-                    bean.setSysNotiCount(Utils.getMiddleInt(liText, "(", ")"));
-                }
+            Element cntSpan = notiMenuEl.select("span.unread_num").first();
+            if (cntSpan != null) {
+                // TODO： 因为目前没有系统提醒，所以不知此处得到的数值是回帖的数目，还是回帖与系统提醒的总数
+                // 在没有系统提醒的情况下，此数确实是回帖数目
+                bean.setThreadCount(Utils.parseInt(cntSpan.text()));
             }
         }
 
