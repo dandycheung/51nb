@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">51NB专门网</string>
-    <string name="author">作者 ：绿皮怪兽</string>
+    <string name="app_name">51NB 专门网</string>
+    <string name="author">作者：绿皮怪兽</string>
     <string name="action_refresh">刷新</string>
     <string name="action_image_gallery">图片浏览</string>
     <string name="action_reply">回复</string>
@@ -97,7 +97,7 @@
 
     <string name="report_reminder">
         问题将反馈到客户端专贴
-        \n反馈前请先看 1楼 的要求以及常见问题
+        \n反馈前请先看 1 楼的要求以及常见问题
         \n提供必要信息，避免重复提问，以提高效率
         \n\n谢谢
     </string>

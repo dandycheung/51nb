@@ -284,8 +284,8 @@ public class HiParser {
         for (Element dlEl : pmlistES) {
             SimpleListItemBean item = new SimpleListItemBean();
 
-            // TODO: 目前论坛返回的页面有问题，每个会话都有这个元素，导致所有会话全部都显示为红色，
-            // 要么让论坛改，要么找一个其它的区别点
+            // NOTE: 目前论坛返回的页面有问题，每个会话都有这个元素，导致所有会话全部都显示为红色，
+            // 要么让论坛改，要么找一个其它的区别点，考虑论坛改好后这个 bug 自动消失吧。
             boolean isNew = dlEl.select("div.newpm_avt").size() > 0;
             item.setNew(isNew);
 
@@ -450,7 +450,7 @@ public class HiParser {
         SimpleListBean list = new SimpleListBean();
         int last_page = 1;
 
-        // TODO: if this is the last page, page number is in <strong>
+        // NOTE: the current page number is in <strong>
         Elements pagesES = doc.select("div.pg a[href^=search.php]");
 
         if (pagesES.size() > 0) {
@@ -784,8 +784,6 @@ public class HiParser {
             return null;
 
         // 本函数从页面内容中分析这些通知/提醒：签到、私信、回帖、系统提醒。
-        // 目前假定 doc 参数来源页面为 HiUtils.NewSMS 的 URL，也即 https://forum.51nb.com/home.php?mod=space&do=pm&filter=newpm；
-        // 签到检查，其元素位于全站页面均包含的部分内，因此大概率可以于任意 doc 中适用，但其它的检测则未必可用。
         NotificationBean bean = new NotificationBean();
 
         // 1. 签到
@@ -811,8 +809,8 @@ public class HiParser {
         if (notiMenuEl != null) {
             Element cntSpan = notiMenuEl.select("span.unread_num").first();
             if (cntSpan != null) {
-                // TODO： 因为目前没有系统提醒，所以不知此处得到的数值是回帖的数目，还是回帖与系统提醒的总数
-                // 在没有系统提醒的情况下，此数确实是回帖数目
+                // 已经证实，此处得到的数值是回帖的数目与系统提醒的总数，由于界面显示时也是显示总数，
+                // 因此此处不再强求分拆这两者的具体数量
                 bean.setThreadCount(Utils.parseInt(cntSpan.text()));
             }
         }
