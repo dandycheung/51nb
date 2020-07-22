@@ -799,6 +799,11 @@ public class ThreadDetailParser {
 
     private static void parseImageElement(Element e, Contents content) {
         String src = ParserUtil.getAbsoluteUrl(e.attr("src"));
+
+        // Do the best to find an alternative attribute
+        if (TextUtils.isEmpty(src))
+            src = ParserUtil.getAbsoluteUrl(e.attr("file"));
+
         String id = e.attr("id");
 
         if (id.startsWith("aimg") && src.startsWith(HiUtils.BaseUrl)) {

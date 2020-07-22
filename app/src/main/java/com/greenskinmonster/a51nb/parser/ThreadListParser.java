@@ -174,7 +174,7 @@ public class ThreadListParser {
                 }
             }
 
-            //  author, authorId
+            // author, authorId
             Element authorLinkEl = tdthES.get(authorIndex).select("cite a").first();
             String author = authorLinkEl.text();
             thread.setAuthor(author);
@@ -188,7 +188,7 @@ public class ThreadListParser {
                 continue;
             thread.setAuthorId(authorId);
 
-            //发帖时间
+            // 发帖时间
             String threadCreateTime = tdthES.get(threadTimeIndex).text();
             thread.setCreateTime(threadCreateTime);
 
