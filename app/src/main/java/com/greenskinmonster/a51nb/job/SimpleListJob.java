@@ -279,6 +279,8 @@ public class SimpleListJob extends BaseJob {
                 break;
             case TYPE_SMS:
                 url = HiUtils.SMSUrl;
+                if (mPage > 1)
+                    url += "&page=" + mPage;
                 break;
             case TYPE_THREAD_NOTIFY:
                 if (NOTIFY_AT.equals(extra)) {

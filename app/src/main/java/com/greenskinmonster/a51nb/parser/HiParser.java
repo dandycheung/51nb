@@ -31,7 +31,6 @@ import java.util.Map;
 public class HiParser {
 
     public static SimpleListBean parseSimpleList(int type, Document doc) {
-
         NotiHelper.fetchNotification(doc);
 
         switch (type) {
@@ -281,12 +280,30 @@ public class HiParser {
             return null;
 
         SimpleListBean list = new SimpleListBean();
+
+        // pagination
+        int last_page = 1;
+
+        Elements pagesES = doc.select("div.pgs div.pg a");
+        if (pagesES.size() != 0) {
+            for (Node n : pagesES) {
+                int tmp = Utils.getIntFromString(((Element) n).text());
+                if (tmp > last_page) {
+                    last_page = tmp;
+                }
+            }
+        }
+
+        list.setMaxPage(last_page);
+
         for (Element dlEl : pmlistES) {
             SimpleListItemBean item = new SimpleListItemBean();
 
-            // NOTE: 目前论坛返回的页面有问题，每个会话都有这个元素，导致所有会话全部都显示为红色，
-            // 要么让论坛改，要么找一个其它的区别点，考虑论坛改好后这个 bug 自动消失吧。
-            boolean isNew = dlEl.select("div.newpm_avt").size() > 0;
+            // NOTE: 目前论坛返回的页面有问题，每个会话都有以下元素，导致所有会话都判断为有新消息而显示为红色
+            // dlEl.select("div.newpm_avt").size() > 0;
+
+            // 论坛一直没有改，找到了以下判断方法
+            boolean isNew = dlEl.is(".newpm");
             item.setNew(isNew);
 
             Element spaceLink = dlEl.select("a[href^=space-uid-]").last();
