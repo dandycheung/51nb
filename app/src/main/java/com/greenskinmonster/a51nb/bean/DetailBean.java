@@ -14,6 +14,7 @@ public class DetailBean {
     public final static int CLIENT_IOS = 2;
 
     private String mAuthor;
+    private String mAuthorColor;
     private String mUid;
     private int mOnlineStatus = -1;
     private String mNickname;
@@ -181,16 +182,24 @@ public class DetailBean {
         return mAuthor;
     }
 
-    public void setAuthor(String mAuthor) {
-        this.mAuthor = mAuthor;
+    public void setAuthor(String author) {
+        this.mAuthor = author;
+    }
+
+    public String getAuthorColor() {
+        return mAuthorColor;
+    }
+
+    public void setAuthorColor(String authorColor) {
+        this.mAuthorColor = authorColor;
     }
 
     public String getUid() {
         return mUid;
     }
 
-    public void setUid(String mUid) {
-        this.mUid = mUid;
+    public void setUid(String uid) {
+        this.mUid = uid;
     }
 
     public int getOnlineStatus() {
@@ -213,16 +222,16 @@ public class DetailBean {
         return mPostId;
     }
 
-    public void setPostId(String mPostId) {
-        this.mPostId = mPostId;
+    public void setPostId(String postId) {
+        this.mPostId = postId;
     }
 
     public String getTimePost() {
         return mTimePost;
     }
 
-    public void setTimePost(String mTimePost) {
-        this.mTimePost = mTimePost;
+    public void setTimePost(String timePost) {
+        this.mTimePost = timePost;
     }
 
     public int getFloor() {

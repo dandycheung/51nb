@@ -162,28 +162,34 @@ public class ThreadDetailParser {
 
             // author
             Element authorDiv = postE.select("div[id^=favatar]").first();
-            if (authorDiv == null) {
+            if (authorDiv == null)
                 continue;
-            }
+
             Element authorLink = authorDiv.select("div.authi a").first();
             if (authorLink != null) {
                 String uid = Utils.getMiddleString(authorLink.attr("href"), "space-uid-", ".");
-                if (!TextUtils.isEmpty(uid)) {
-                    detail.setUid(uid);
-                } else {
+                if (TextUtils.isEmpty(uid))
                     continue;
-                }
+
+                detail.setUid(uid);
+
                 String author = authorLink.text();
                 if (HiSettingsHelper.getInstance().isInBlacklist(uid)) {
                     detail.setAuthor("[[黑名单用户]]");
                     details.add(detail);
                     continue;
-                } else {
-                    detail.setAuthor(author);
+                }
+
+                detail.setAuthor(author);
+
+                String linkStyle = authorLink.attr("style");
+                if (!TextUtils.isEmpty(linkStyle)) {
+                    detail.setAuthorColor(Utils.getMiddleString(linkStyle, "color:", ";").trim());
                 }
             } else {
                 detail.setAuthor(authorDiv.text());
             }
+
             Element onlineImg = authorDiv.select("img[src*=userstatus]").first();
             if (onlineImg != null) {
                 String src = onlineImg.attr("src");

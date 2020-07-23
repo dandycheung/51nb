@@ -188,6 +188,11 @@ public class ThreadListParser {
                 continue;
             thread.setAuthorId(authorId);
 
+            linkStyle = authorLinkEl.attr("style");
+            if (!TextUtils.isEmpty(linkStyle)) {
+                thread.setAuthorColor(Utils.getMiddleString(linkStyle, "color:", ";").trim());
+            }
+
             // 发帖时间
             String threadCreateTime = tdthES.get(threadTimeIndex).text();
             thread.setCreateTime(threadCreateTime);

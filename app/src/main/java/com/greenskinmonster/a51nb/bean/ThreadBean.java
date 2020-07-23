@@ -13,6 +13,7 @@ public class ThreadBean {
     private int mFid;
 
     private String mAuthor;
+    private String mAuthorColor;
     private String mAuthorId;
     private String mCreateTime;
 
@@ -84,6 +85,14 @@ public class ThreadBean {
 
     public void setAuthorId(String authorId) {
         this.mAuthorId = authorId;
+    }
+
+    public String getAuthorColor() {
+        return mAuthorColor;
+    }
+
+    public void setAuthorColor(String authorColor) {
+        this.mAuthorColor = authorColor;
     }
 
     public int getViewCount() {

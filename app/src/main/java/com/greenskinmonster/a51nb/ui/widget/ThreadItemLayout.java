@@ -16,6 +16,7 @@ import com.greenskinmonster.a51nb.bean.ThreadBean;
 import com.greenskinmonster.a51nb.glide.GlideHelper;
 import com.greenskinmonster.a51nb.utils.ColorHelper;
 import com.greenskinmonster.a51nb.utils.Utils;
+import com.greenskinmonster.a51nb.utils.WebColors;
 
 /**
  * Created by GreenSkinMonster on 2016-04-21.
@@ -52,14 +53,25 @@ public class ThreadItemLayout extends LinearLayout implements ItemLayout {
     public void fillData(final ThreadBean thread) {
         mTvAuthor.setText(thread.getAuthor());
 
+        String color = Utils.nullToText(thread.getAuthorColor()).trim();
+
+        if (color.startsWith("#")) {
+            try {
+                mTvAuthor.setTextColor(WebColors.parseColor(color));
+            } catch (Exception ignored) {
+                mTvAuthor.setTextColor(ColorHelper.getTextColorPrimary(getContext()));
+            }
+        } else
+            mTvAuthor.setTextColor(ColorHelper.getTextColorPrimary(getContext()));
+
         mTvTitle.setTextSize(HiSettingsHelper.getInstance().getTitleTextSize());
         mTvTitle.setText(thread.getTitle());
 
-        String titleColor = Utils.nullToText(thread.getTitleColor()).trim();
+        color = Utils.nullToText(thread.getTitleColor()).trim();
 
-        if (titleColor.startsWith("#")) {
+        if (color.startsWith("#")) {
             try {
-                mTvTitle.setTextColor(Color.parseColor(titleColor));
+                mTvTitle.setTextColor(WebColors.parseColor(color));
             } catch (Exception ignored) {
                 mTvTitle.setTextColor(ColorHelper.getTextColorPrimary(getContext()));
             }

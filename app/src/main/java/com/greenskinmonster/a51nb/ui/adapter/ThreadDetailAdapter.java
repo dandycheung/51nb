@@ -151,7 +151,12 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
         holder.ivMenu.setTag(detail);
         holder.ivMenu.setOnClickListener(mDetailListener.getMenuListener());
 
-        holder.author.setText(detail.getAuthor());
+        String authorColor = detail.getAuthorColor();
+        if (TextUtils.isEmpty(authorColor))
+            holder.author.setText(detail.getAuthor());
+        else
+            holder.author.setText(HtmlCompat.fromHtml("<font color=" + authorColor + ">" + detail.getAuthor() + "</font>"));
+
         if (TextUtils.isEmpty(detail.getNickname())) {
             holder.nickname.setText("");
         } else {
