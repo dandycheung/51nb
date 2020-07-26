@@ -96,9 +96,11 @@ public class TextViewWithEmoticon extends AppCompatTextView {
     private Html.ImageGetter imageGetter = new Html.ImageGetter() {
         public Drawable getDrawable(String src) {
             src = Utils.nullToText(src);
+
             Drawable drawable = TextViewWithEmoticon.this.getDrawable(src);
             if (drawable == null)
                 drawable = TextViewWithEmoticon.this.getDrawable2(src);
+
             return drawable;
         }
     };
@@ -106,48 +108,58 @@ public class TextViewWithEmoticon extends AppCompatTextView {
     @Nullable
     private Drawable getDrawable(String src) {
         int idx = src.indexOf(HiUtils.SmiliesPattern);
-        Drawable icon = null;
-        if (idx != -1 && src.indexOf(".", idx) != -1) {
-            int lastSlash = src.lastIndexOf("/");
-            int lastDot = src.lastIndexOf(".");
-            if (lastDot > lastSlash && lastSlash > 0) {
-                String s = src.substring(lastSlash + 1, lastDot);
-                int id = EmojiHandler.getDrawableResId(s);
-                if (id != 0) {
-                    icon = ContextCompat.getDrawable(mCtx, id);
-                    if (icon != null)
-                        icon.setBounds(0, 0, (int) (getLineHeight() * 1.2), (int) (getLineHeight() * 1.2));
-                }
-            }
+        if (idx == -1 || src.indexOf(".", idx) == -1)
+            return null;
+
+        int lastSlash = src.lastIndexOf("/");
+        int lastDot = src.lastIndexOf(".");
+        if (lastDot < lastSlash + 2)
+            return null;
+
+        String s = src.substring(lastSlash + 1, lastDot);
+        int id = EmojiHandler.getDrawableResId(s);
+        if (id == 0)
+            return null;
+
+        Drawable icon = ContextCompat.getDrawable(mCtx, id);
+        if (icon != null) {
+            int size = (int) (getLineHeight() * 1.2);
+            icon.setBounds(0, 0, size, size);
         }
+
         return icon;
     }
 
 
     @NonNull
     private Drawable getDrawable2(String source) {
-        final LevelListDrawable mDrawable = new LevelListDrawable();
+        final LevelListDrawable drawable = new LevelListDrawable();
         Glide.with(mCtx).load(source).asBitmap().into(new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                 BitmapDrawable d = new BitmapDrawable(mCtx.getResources(), resource);
-                mDrawable.addLevel(1, 1, d);
-                mDrawable.setBounds(0, 0, (int) (getLineHeight() * 1.2), (int) (getLineHeight() * 1.2));
-                mDrawable.setLevel(1);
-                if (mHandler == null) {
-                    mHandler = new Handler();
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            setText(getText());
-                            invalidate();
-                            mHandler = null;
-                        }
-                    }, 30);
-                }
+                drawable.addLevel(1, 1, d);
+                drawable.setLevel(1);
+
+                int size = (int) (getLineHeight() * 1.2);
+                drawable.setBounds(0, 0, size, size);
+
+                if (mHandler != null)
+                    return;
+
+                mHandler = new Handler();
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        setText(getText());
+                        invalidate();
+                        mHandler = null;
+                    }
+                }, 30);
             }
         });
-        return mDrawable;
+
+        return drawable;
     }
 
     private SpannableStringBuilder trimSpannable(SpannableStringBuilder spannable) {
@@ -158,12 +170,12 @@ public class TextViewWithEmoticon extends AppCompatTextView {
 
         while (text.length() > 0 && text.startsWith("\n")) {
             text = text.substring(1);
-            trimStart += 1;
+            trimStart ++;
         }
 
         while (text.length() > 0 && text.endsWith("\n")) {
             text = text.substring(0, text.length() - 1);
-            trimEnd += 1;
+            trimEnd ++;
         }
 
         return spannable.delete(0, trimStart).delete(spannable.length() - trimEnd, spannable.length());
@@ -172,40 +184,40 @@ public class TextViewWithEmoticon extends AppCompatTextView {
     private URLSpan getFragmentArgsUrlSpan(final String url) {
         return new URLSpan(url) {
             public void onClick(View view) {
-                if (mFragment == null) {
+                if (mFragment == null)
                     return;
-                }
-                FragmentArgs args = FragmentUtils.parseUrl(url);
-                if (args != null) {
 
-                    int floor = 0;
-                    if (args.getType() == FragmentArgs.TYPE_THREAD
-                            && mFragment instanceof ThreadDetailFragment) {
-                        //redirect by goto floor in same fragment
-                        ThreadDetailFragment detailFragment = (ThreadDetailFragment) mFragment;
-                        if (!TextUtils.isEmpty(args.getTid()) && args.getTid().equals(detailFragment.getTid())) {
-                            if (args.getFloor() != 0) {
-                                floor = args.getFloor();
-                            } else if (!TextUtils.isEmpty(args.getPostId())) {
-                                //get floor if postId is cached
-                                DetailBean detailBean = detailFragment.getCachedPost(args.getPostId());
-                                if (detailBean != null)
-                                    floor = detailBean.getFloor();
-                            } else {
-                                floor = 1;
-                            }
+                FragmentArgs args = FragmentUtils.parseUrl(url);
+                if (args == null)
+                    return;
+
+                int floor = 0;
+                if (args.getType() == FragmentArgs.TYPE_THREAD
+                        && mFragment instanceof ThreadDetailFragment) {
+                    // redirect by goto floor in same fragment
+                    ThreadDetailFragment detailFragment = (ThreadDetailFragment) mFragment;
+                    if (!TextUtils.isEmpty(args.getTid()) && args.getTid().equals(detailFragment.getTid())) {
+                        if (args.getFloor() != 0) {
+                            floor = args.getFloor();
+                        } else if (!TextUtils.isEmpty(args.getPostId())) {
+                            // get floor if postId is cached
+                            DetailBean detailBean = detailFragment.getCachedPost(args.getPostId());
+                            if (detailBean != null)
+                                floor = detailBean.getFloor();
+                        } else {
+                            floor = 1;
                         }
                     }
+                }
 
-                    if (floor > 0 || floor == ThreadDetailFragment.LAST_FLOOR) {
-                        //redirect in same thread
-                        ((ThreadDetailFragment) mFragment).gotoFloor(floor);
+                if (floor > 0 || floor == ThreadDetailFragment.LAST_FLOOR) {
+                    // redirect in same thread
+                    ((ThreadDetailFragment) mFragment).gotoFloor(floor);
+                } else {
+                    if (args.getType() == FragmentArgs.TYPE_THREAD) {
+                        FragmentUtils.showThreadActivity(mFragment.getActivity(), args.isSkipEnterAnim(), args.getTid(), "", args.getPage(), args.getFloor(), args.getPostId(), -1);
                     } else {
-                        if (args.getType() == FragmentArgs.TYPE_THREAD) {
-                            FragmentUtils.showThreadActivity(mFragment.getActivity(), args.isSkipEnterAnim(), args.getTid(), "", args.getPage(), args.getFloor(), args.getPostId(), -1);
-                        } else {
-                            FragmentUtils.show(mFragment.getActivity(), args);
-                        }
+                        FragmentUtils.show(mFragment.getActivity(), args);
                     }
                 }
             }
@@ -218,14 +230,14 @@ public class TextViewWithEmoticon extends AppCompatTextView {
                 try {
                     String fileName = "";
 
-                    //clean way to get fileName
+                    // clean way to get fileName
                     SpannableStringBuilder b = new SpannableStringBuilder(((TextView) view).getText());
                     URLSpan[] urls = b.getSpans(0, b.length(), URLSpan.class);
                     if (urls.length > 0) {
                         fileName = b.toString().substring(b.getSpanStart(urls[0]), b.getSpanEnd(urls[0]));
                     }
                     if (TextUtils.isEmpty(fileName)) {
-                        //failsafe dirty way,  to get rid of ( xxx K ) file size string
+                        // failsafe dirty way, to get rid of ( xxx K ) file size string
                         fileName = ((TextView) view).getText().toString();
                         if (fileName.contains(" ("))
                             fileName = fileName.substring(0, fileName.lastIndexOf(" (")).trim();
@@ -234,7 +246,7 @@ public class TextViewWithEmoticon extends AppCompatTextView {
                     Utils.download(mCtx, getURL(), fileName);
                 } catch (Exception e) {
                     Logger.e(e);
-                    UIUtils.toast("下载出现错误，请使用浏览器下载\n" + e.getMessage());
+                    UIUtils.toast("下载出现错误，请使用浏览器下载。\n" + e.getMessage());
                 }
             }
         };
@@ -245,46 +257,45 @@ public class TextViewWithEmoticon extends AppCompatTextView {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        int action = event.getAction();
+        if (action != MotionEvent.ACTION_UP && action != MotionEvent.ACTION_DOWN)
+            return false;
+
         boolean ret = false;
         CharSequence text = getText();
         Spannable stext = Spannable.Factory.getInstance().newSpannable(text);
-        int action = event.getAction();
 
-        if (action == MotionEvent.ACTION_UP ||
-                action == MotionEvent.ACTION_DOWN) {
-            int x = (int) event.getX();
-            int y = (int) event.getY();
+        int x = (int) event.getX();
+        int y = (int) event.getY();
 
-            x -= getTotalPaddingLeft();
-            y -= getTotalPaddingTop();
+        x -= getTotalPaddingLeft();
+        y -= getTotalPaddingTop();
 
-            x += getScrollX();
-            y += getScrollY();
+        x += getScrollX();
+        y += getScrollY();
 
-            Layout layout = getLayout();
-            int line = layout.getLineForVertical(y);
-            int off = layout.getOffsetForHorizontal(line, x);
+        Layout layout = getLayout();
+        int line = layout.getLineForVertical(y);
+        int off = layout.getOffsetForHorizontal(line, x);
 
-            ClickableSpan[] link = stext.getSpans(off, off, ClickableSpan.class);
+        ClickableSpan[] link = stext.getSpans(off, off, ClickableSpan.class);
+        if (link.length == 0)
+            return false;
 
-            if (link.length != 0) {
-                if (action == MotionEvent.ACTION_UP) {
-                    long currentClickTime = System.currentTimeMillis();
-                    long elapsedTime = currentClickTime - mLastClickTime;
-                    mLastClickTime = currentClickTime;
+        if (action == MotionEvent.ACTION_UP) {
+            long currentClickTime = System.currentTimeMillis();
+            long elapsedTime = currentClickTime - mLastClickTime;
+            mLastClickTime = currentClickTime;
 
-                    if (elapsedTime > MIN_CLICK_INTERVAL) {
-                        try {
-                            link[0].onClick(this);
-                        } catch (Exception e) {
-                            UIUtils.toast("发生错误 : " + e.getMessage());
-                        }
-                    }
+            if (elapsedTime > MIN_CLICK_INTERVAL) {
+                try {
+                    link[0].onClick(this);
+                } catch (Exception e) {
+                    UIUtils.toast("发生错误: " + e.getMessage());
                 }
-                ret = true;
             }
         }
-        return ret;
-    }
 
+        return true;
+    }
 }
