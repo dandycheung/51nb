@@ -47,7 +47,6 @@ import java.util.regex.Pattern;
  * Created by GreenSkinMonster on 2015-03-23.
  */
 public class Utils {
-
     private static Whitelist mWhitelist = null;
     private static int mScreenWidth = -1;
     private static int mScreenHeight = -1;
@@ -62,9 +61,9 @@ public class Utils {
     public final static String REPLACE_URL_REGEX = "(" + URL_REGEX + ")";
 
     public static String nullToText(CharSequence text) {
-        if (TextUtils.isEmpty(text)) {
+        if (TextUtils.isEmpty(text))
             return "";
-        }
+
         return text.toString();
     }
 
@@ -84,27 +83,27 @@ public class Utils {
         if (System.currentTimeMillis() - UPDATE_TIME > 10 * 60 * 1000 || THIS_YEAR == null) {
             SimpleDateFormat dayFormatter = new SimpleDateFormat("yyyy-M-d", Locale.US);
             SimpleDateFormat yearFormatter = new SimpleDateFormat("yyyy", Locale.US);
+
             Date now = new Date();
+
             THIS_YEAR = yearFormatter.format(now) + "-";
             TODAY = dayFormatter.format(now);
             YESTERDAY = dayFormatter.format(new Date(now.getTime() - 24 * 60 * 60 * 1000));
             UPDATE_TIME = System.currentTimeMillis();
         }
 
-        if (time.contains(TODAY)) {
+        if (time.contains(TODAY))
             time = time.replace(TODAY, "今天");
-        } else if (time.contains(YESTERDAY)) {
+        else if (time.contains(YESTERDAY))
             time = time.replace(YESTERDAY, "昨天");
-        } else if (time.contains(THIS_YEAR)) {
+        else if (time.contains(THIS_YEAR))
             time = time.replace(THIS_YEAR, "");
-        }
+
         return time;
     }
 
     public static String shortyTime(Date date) {
-        if (date == null)
-            return " - ";
-        return Utils.shortyTime(Utils.formatDate(date, "yyyy-M-d HH:mm"));
+        return (date == null) ? " - " : Utils.shortyTime(Utils.formatDate(date, "yyyy-M-d HH:mm"));
     }
 
     /**
@@ -138,15 +137,14 @@ public class Utils {
         // Transfer bytes from in to out
         byte[] buf = new byte[1024];
         int len;
-        while ((len = in.read(buf)) > 0) {
+        while ((len = in.read(buf)) > 0)
             out.write(buf, 0, len);
-        }
+
         in.close();
         out.close();
     }
 
     public static String getImageFileName(String prefix, String mime) {
-
         SimpleDateFormat formatter = new SimpleDateFormat("yyMMdd_HHmmss", Locale.US);
         String filename = prefix + "_" + formatter.format(new Date());
 
@@ -156,13 +154,14 @@ public class Utils {
 
     public static String getImageFileSuffix(String mime) {
         String suffix = "jpg";
-        if (mime.toLowerCase().contains("gif")) {
+
+        if (mime.toLowerCase().contains("gif"))
             suffix = "gif";
-        } else if (mime.toLowerCase().contains("png")) {
+        else if (mime.toLowerCase().contains("png"))
             suffix = "png";
-        } else if (mime.toLowerCase().contains("bmp")) {
+        else if (mime.toLowerCase().contains("bmp"))
             suffix = "bmp";
-        }
+
         return suffix;
     }
 
@@ -177,7 +176,7 @@ public class Utils {
 
     public static boolean isInTimeRange(String begin, String end) {
         try {
-            //format hh:mm
+            // format hh:mm
             String[] bPieces = begin.split(":");
             int bHour = Integer.parseInt(bPieces[0]);
             int bMinute = Integer.parseInt(bPieces[1]);
@@ -185,7 +184,6 @@ public class Utils {
             String[] ePieces = end.split(":");
             int eHour = Integer.parseInt(ePieces[0]);
             int eMinute = Integer.parseInt(ePieces[1]);
-
 
             Calendar now = Calendar.getInstance();
             Calendar beginCal = Calendar.getInstance();
@@ -201,9 +199,9 @@ public class Utils {
             endCal.set(Calendar.SECOND, 59);
             endCal.set(Calendar.MILLISECOND, 999);
 
-            if (endCal.before(beginCal)) {
+            if (endCal.before(beginCal))
                 endCal.add(Calendar.DATE, 1);
-            }
+
             if (beginCal.after(now)) {
                 beginCal.add(Calendar.DATE, -1);
                 endCal.add(Calendar.DATE, -1);
@@ -230,11 +228,14 @@ public class Utils {
         if (mScreenWidth <= 0) {
             WindowManager wm = (WindowManager) HiApplication.getAppContext().getSystemService(Context.WINDOW_SERVICE);
             Display display = wm.getDefaultDisplay();
+
             Point size = new Point();
             display.getSize(size);
+
             mScreenWidth = Math.min(size.x, size.y);
             mScreenHeight = Math.max(size.x, size.y);
         }
+
         return mScreenWidth;
     }
 
@@ -242,43 +243,51 @@ public class Utils {
         if (mScreenHeight <= 0) {
             WindowManager wm = (WindowManager) HiApplication.getAppContext().getSystemService(Context.WINDOW_SERVICE);
             Display display = wm.getDefaultDisplay();
+
             Point size = new Point();
             display.getSize(size);
+
             mScreenWidth = Math.min(size.x, size.y);
             mScreenHeight = Math.max(size.x, size.y);
         }
+
         return mScreenHeight;
     }
 
     public static void restartActivity(Activity activity) {
         ColorHelper.clear();
         activity.finish();
+
         Intent intent = new Intent(activity.getApplicationContext(), activity.getClass());
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
         activity.startActivity(intent);
         activity.overridePendingTransition(0, 0);
+
         System.exit(0);
     }
 
     public static void cleanShareTempFiles() {
         File destFile = HiApplication.getAppContext().getExternalCacheDir();
-        if (destFile != null && destFile.exists() && destFile.isDirectory() && destFile.canWrite()) {
-            File[] files = destFile.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String filename) {
-                    return filename.startsWith(Constants.FILE_SHARE_PREFIX);
-                }
-            });
-            if (files != null) {
-                for (File f : files) {
-                    f.delete();
-                }
+        if (destFile == null || !destFile.exists() || !destFile.isDirectory() || !destFile.canWrite())
+            return;
+
+        File[] files = destFile.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String filename) {
+                return filename.startsWith(Constants.FILE_SHARE_PREFIX);
             }
-        }
+        });
+
+        if (files == null)
+            return;
+
+        for (File f : files)
+            f.delete();
     }
 
     public static void cleanPictures() {
-        //defined in provider_paths.xml
+        // defined in provider_paths.xml
         try {
             File destFile = HiApplication.getAppContext().getExternalFilesDir("Pictures");
             if (destFile != null && destFile.exists() && destFile.isDirectory()) {
@@ -308,19 +317,20 @@ public class Utils {
     }
 
     private static boolean deleteDir(File file) {
-        if (file != null) {
-            if (file.isDirectory()) {
-                String[] children = file.list();
-                for (String aChildren : children) {
-                    boolean success = deleteDir(new File(file, aChildren));
-                    if (!success) {
-                        return false;
-                    }
-                }
-            }
+        if (file == null)
+            return false;
+
+        if (!file.isDirectory())
             return file.delete();
+
+        String[] children = file.list();
+        for (String aChildren : children) {
+            boolean success = deleteDir(new File(file, aChildren));
+            if (!success)
+                return false;
         }
-        return false;
+
+        return true;
     }
 
     public static void clearInternalCache() {
@@ -355,10 +365,7 @@ public class Utils {
 
     public static boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
+        return Environment.MEDIA_MOUNTED.equals(state);
     }
 
     public static boolean isFromGooglePlay(Context context) {
@@ -371,45 +378,48 @@ public class Utils {
         return false;
     }
 
-
     public static long parseSizeText(String sizeText) {
-        //708 Bytes
-        //100.1 KB
-        //2.22 MB
+        // 708 Bytes
+        // 100.1 KB
+        // 2.22 MB
         sizeText = Utils.nullToText(sizeText).trim().toUpperCase();
         try {
-            if (sizeText.endsWith("KB")) {
+            if (sizeText.endsWith("KB"))
                 return Math.round(Double.parseDouble(sizeText.replace("KB", "").trim()) * 1024);
-            } else if (sizeText.endsWith("MB")) {
+
+            if (sizeText.endsWith("MB"))
                 return Math.round(Double.parseDouble(sizeText.replace("MB", "").trim()) * 1024 * 1024);
-            } else if (sizeText.endsWith("BYTES")) {
+
+            if (sizeText.endsWith("BYTES"))
                 return Long.parseLong(sizeText.replace("BYTES", "").trim());
-            }
         } catch (Exception ignored) {
         }
+
         return -1;
     }
 
     public static String toSizeText(long fileSize) {
         DecimalFormat df = new DecimalFormat("#.#");
-        if (fileSize > 1024 * 1024) {
+        if (fileSize > 1024 * 1024)
             return df.format(fileSize * 1.0 / 1024 / 1024) + " MB";
-        }
+
         return df.format(fileSize * 1.0 / 1024) + " KB";
     }
 
     public static String toCountText(int count) {
         if (count > 99999) {
             DecimalFormat df = new DecimalFormat("#.#");
-            return df.format(count * 1.0 / 10000) + "万";
+            return df.format(count * 1.0 / 10000) + " 万";
         }
+
         return String.valueOf(count);
     }
 
     public static String removeLeadingBlank(String s) {
+        String[] blanks = {"<br>", (char) 160 + "", (char) 32 + ""};
+
         int cutIndex = 0;
         boolean match = true;
-        String[] blanks = {"<br>", (char) 160 + "", (char) 32 + ""};
         while (match) {
             match = false;
             for (String blank : blanks) {
@@ -421,15 +431,17 @@ public class Utils {
                 }
             }
         }
+
         if (cutIndex > 0)
             s = s.substring(cutIndex);
+
         return s;
     }
 
     public static String replaceUrlWithTag(String content) {
-        if (!TextUtils.isEmpty(content) && !content.contains("[/")) {
+        if (!TextUtils.isEmpty(content) && !content.contains("[/"))
             return content.replaceAll(REPLACE_URL_REGEX, "[url]$1[/url]");
-        }
+
         return content;
     }
 
@@ -437,20 +449,21 @@ public class Utils {
         int start_idx = source.indexOf(start);
         if (start_idx == -1)
             return "";
+
         start_idx += start.length();
+
         int end_idx;
         if (TextUtils.isEmpty(end)) {
             end_idx = source.length();
         } else {
             end_idx = source.indexOf(end, start_idx);
-            if (end_idx == -1) {
+            if (end_idx == -1)
                 end_idx = source.length();
-            }
         }
 
-        if (end_idx == -1 || end_idx <= start_idx) {
+        if (end_idx == -1 || end_idx <= start_idx)
             return "";
-        }
+
         return source.substring(start_idx, end_idx);
     }
 
@@ -459,13 +472,14 @@ public class Utils {
     }
 
     public static int getIntFromString(String s) {
-        if (s == null) return 0;
-        String tmp = s.replaceAll("[^\\d]", "");
-        if (!TextUtils.isEmpty(tmp) && TextUtils.isDigitsOnly(tmp)) {
-            return parseInt(tmp);
-        } else {
+        if (s == null)
             return 0;
-        }
+
+        String tmp = s.replaceAll("[^\\d]", "");
+        if (!TextUtils.isEmpty(tmp) && TextUtils.isDigitsOnly(tmp))
+            return parseInt(tmp);
+
+        return 0;
     }
 
     public static int parseInt(String s) {
@@ -478,26 +492,28 @@ public class Utils {
 
     public static void download(Context ctx, String url, String filename) {
         if (TextUtils.isEmpty(url) || TextUtils.isEmpty(filename)) {
-            UIUtils.toast("下载信息不完整，无法进行下载");
+            UIUtils.toast("下载信息不完整，无法进行下载。");
             return;
         }
 
-        if (UIUtils.askForStoragePermission(ctx)) {
+        if (UIUtils.askForStoragePermission(ctx))
             return;
-        }
 
         if (DownloadManagerResolver.resolve(ctx)) {
-            String authCookie = OkHttpHelper.getInstance().getAuthCookie();
-            DownloadManager dm = (DownloadManager) ctx.getSystemService(Context.DOWNLOAD_SERVICE);
             DownloadManager.Request req = new DownloadManager.Request(Uri.parse(url));
             req.addRequestHeader("User-agent", HiUtils.getUserAgent());
-            if (url.contains(HiUtils.ForumUrlPattern) && !TextUtils.isEmpty(authCookie)) {
+
+            String authCookie = OkHttpHelper.getInstance().getAuthCookie();
+            if (url.contains(HiUtils.ForumUrlPattern) && !TextUtils.isEmpty(authCookie))
                 req.addRequestHeader("Cookie", HiUtils.AuthCookie + "=" + authCookie);
-            }
+
             req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
             req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
+
             if (filename.toLowerCase().endsWith(".apk"))
                 req.setMimeType("application/vnd.android.package-archive");
+
+            DownloadManager dm = (DownloadManager) ctx.getSystemService(Context.DOWNLOAD_SERVICE);
             dm.enqueue(req);
         }
     }
@@ -517,7 +533,7 @@ public class Utils {
 
     public static String getDeviceInfo() {
         StringBuilder sb = new StringBuilder();
-        sb.append("设备名称 : ");
+        sb.append("设备名称: ");
         String manufacturer = Build.MANUFACTURER;
         String model = Build.MODEL;
         if (model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
@@ -526,17 +542,17 @@ public class Utils {
             sb.append(manufacturer).append(" ").append(model);
         }
         sb.append("\n");
-        sb.append("内存限制 : ").append(toSizeText(Runtime.getRuntime().maxMemory())).append("\n");
-        sb.append("系统版本 : ").append(Build.VERSION.RELEASE).append("\n");
-        sb.append("客户端版本 : ").append(HiApplication.getAppVersion()).append("\n");
+        sb.append("内存限制: ").append(toSizeText(Runtime.getRuntime().maxMemory())).append("\n");
+        sb.append("系统版本: ").append(Build.VERSION.RELEASE).append("\n");
+        sb.append("客户端版本: ").append(HiApplication.getAppVersion()).append("\n");
         return sb.toString();
     }
 
     public static String getRingtoneTitle(Context context, Uri uri) {
         try {
-            if (uri == null || TextUtils.isEmpty(uri.toString())) {
+            if (uri == null || TextUtils.isEmpty(uri.toString()))
                 return "无";
-            }
+
             Ringtone ringtone = RingtoneManager.getRingtone(context, uri);
             return ringtone.getTitle(context);
         } catch (Exception e) {
@@ -545,35 +561,33 @@ public class Utils {
     }
 
     public static String md5(String content) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        byte[] hash;
-        hash = MessageDigest.getInstance("MD5").digest(content.getBytes("UTF-8"));
+        byte[] hash = MessageDigest.getInstance("MD5").digest(content.getBytes("UTF-8"));
 
         StringBuilder hex = new StringBuilder(hash.length * 2);
         for (byte b : hash) {
-            if ((b & 0xFF) < 0x10) {
+            if ((b & 0xFF) < 0x10)
                 hex.append("0");
-            }
+
             hex.append(Integer.toHexString(b & 0xFF));
         }
+
         return hex.toString();
     }
 
     public static boolean isDestroyed(Activity activity) {
         if (activity == null)
             return true;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
             return activity.isDestroyed() || activity.isFinishing();
-        } else {
-            return activity.isFinishing();
-        }
-    }
+
+        return activity.isFinishing();
+ }
 
     public static void writeFile(File destFile, String content) throws IOException {
-        FileWriter fWriter;
-        fWriter = new FileWriter(destFile, true);
+        FileWriter fWriter = new FileWriter(destFile, true);
         fWriter.write(content);
         fWriter.flush();
         fWriter.close();
     }
-
 }

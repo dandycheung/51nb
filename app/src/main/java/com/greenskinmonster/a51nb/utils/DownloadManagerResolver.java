@@ -14,7 +14,6 @@ import android.support.v7.widget.AppCompatTextView;
  * https://gist.github.com/Folyd/b9412bb6e2b06eb511f7
  */
 public final class DownloadManagerResolver {
-
     private static final String DOWNLOAD_MANAGER_PACKAGE_NAME = "com.android.providers.downloads";
 
     /**
@@ -45,16 +44,18 @@ public final class DownloadManagerResolver {
             return !(state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED ||
                     state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
                     || state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED);
-        } else {
-            return !(state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED ||
-                    state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER);
         }
+
+        return !(state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED ||
+                state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER);
     }
 
     private static AlertDialog createDialog(final Context context) {
         AppCompatTextView messageTextView = new AppCompatTextView(context);
+
         messageTextView.setTextSize(16f);
-        messageTextView.setText("下载管理器已停用，请启用");
+        messageTextView.setText("下载管理器已停用，请启用。");
+
         return new AlertDialog.Builder(context)
                 .setView(messageTextView, 50, 30, 50, 30)
                 .setPositiveButton(context.getResources().getString(android.R.string.ok), new DialogInterface.OnClickListener() {
@@ -72,13 +73,13 @@ public final class DownloadManagerResolver {
      */
     private static void enableDownloadManager(Context context) {
         try {
-            //Open the specific App Info page:
+            // Open the specific App Info page:
             Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
             intent.setData(Uri.parse("package:" + DOWNLOAD_MANAGER_PACKAGE_NAME));
             context.startActivity(intent);
         } catch (ActivityNotFoundException e) {
             Logger.e(e);
-            //Open the generic Apps page:
+            // Open the generic Apps page:
             Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
             context.startActivity(intent);
         }

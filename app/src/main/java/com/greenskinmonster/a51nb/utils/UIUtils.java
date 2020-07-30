@@ -56,7 +56,6 @@ import java.util.List;
  * Created by GreenSkinMonster on 2016-04-05.
  */
 public class UIUtils {
-
     public static Toast mToast = null;
 
     public static void infoSnack(View view, CharSequence message) {
@@ -87,10 +86,10 @@ public class UIUtils {
                             "详细信息",
                             message + "\n" + detail, true);
                     snackbar.dismiss();
-
                 }
             });
         }
+
         return snackbar;
     }
 
@@ -142,7 +141,7 @@ public class UIUtils {
             releaseNotes = e.getMessage();
         }
 
-        //String info = "*** 问题反馈请到 “设置”-“客户端发布帖”，不要另开新帖或短消息。\n*** 反馈前请阅读1楼红色字体须知，提供必需的信息和详细错误描述。\n\n";
+        // String info = "*** 问题反馈请到 “设置”-“客户端发布帖”，不要另开新帖或短消息。\n*** 反馈前请阅读1楼红色字体须知，提供必需的信息和详细错误描述。\n\n";
 
         showMessageDialog(activity, "更新记录", releaseNotes, false);
     }
@@ -166,7 +165,9 @@ public class UIUtils {
                 != PackageManager.PERMISSION_GRANTED;
         boolean askStorage = ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED;
+
         String[] perms = null;
+
         if (askCamera && askStorage) {
             HiSettingsHelper.getInstance().setCameraPermAsked(true);
             perms = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -177,17 +178,19 @@ public class UIUtils {
             perms = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
             UIUtils.toast("需要授予 \"存储空间\" 权限");
         }
+
         if (perms != null) {
-            ActivityCompat.requestPermissions(activity, perms,
-                    PostActivity.PERMISSIONS_REQUEST_CODE_BOTH);
+            ActivityCompat.requestPermissions(activity, perms, PostActivity.PERMISSIONS_REQUEST_CODE_BOTH);
             return true;
         }
+
         return false;
     }
 
     public static void setLineSpacing(TextView textView) {
         float lineSpacingExtra = 2;
         float lineSpacingMultiplier = 1.1f;
+
         if (HiSettingsHelper.getInstance().getPostLineSpacing() == 1) {
             lineSpacingExtra = 4;
             lineSpacingMultiplier = 1.2f;
@@ -198,6 +201,7 @@ public class UIUtils {
             lineSpacingExtra = 8;
             lineSpacingMultiplier = 1.4f;
         }
+
         textView.setLineSpacing(lineSpacingExtra, lineSpacingMultiplier);
     }
 
@@ -213,38 +217,41 @@ public class UIUtils {
     public static void shareImage(final Activity activity, final View view, String url) {
         if (activity == null || view == null)
             return;
+
         if (askForStoragePermission(activity))
             return;
 
         final ImageInfo imageInfo = ImageContainer.getImageInfo(url);
-        if (!imageInfo.isReady()) {
-            FileDownTask fileDownTask = new FileDownTask(activity) {
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    super.onPostExecute(aVoid);
-                    if (imageInfo.isReady())
-                        shareImage(activity, view, imageInfo);
-                    else
-                        errorSnack(view, "分享时发生错误", mException != null ? mException.getMessage() : "");
-                }
-            };
-            fileDownTask.execute(url);
-        } else {
+        if (imageInfo.isReady()) {
             shareImage(activity, view, imageInfo);
+            return;
         }
+
+        FileDownTask fileDownTask = new FileDownTask(activity) {
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                if (imageInfo.isReady())
+                    shareImage(activity, view, imageInfo);
+                else
+                    errorSnack(view, "分享时发生错误", mException != null ? mException.getMessage() : "");
+            }
+        };
+
+        fileDownTask.execute(url);
     }
 
     private static void shareImage(Activity activity, final View view, ImageInfo imageInfo) {
         try {
             String filename = Utils.getImageFileName(Constants.FILE_SHARE_PREFIX, imageInfo.getMime());
             File cacheDirectory = HiApplication.getAppContext().getExternalCacheDir();
+
             File destFile = new File(cacheDirectory, filename);
             Utils.copy(new File(imageInfo.getPath()), destFile);
 
             Uri uri;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                uri = FileProvider.getUriForFile(
-                        activity,
+                uri = FileProvider.getUriForFile(activity,
                         BuildConfig.APPLICATION_ID + ".provider",
                         destFile);
             } else {
@@ -264,26 +271,29 @@ public class UIUtils {
     public static void saveImage(final Activity activity, final View view, String url) {
         if (activity == null || view == null)
             return;
+
         if (askForStoragePermission(activity))
             return;
 
         final ImageInfo imageInfo = ImageContainer.getImageInfo(url);
-        if (!imageInfo.isReady()) {
-            FileDownTask fileDownTask = new FileDownTask(activity) {
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    super.onPostExecute(aVoid);
-                    if (imageInfo.isReady()) {
-                        saveImage(activity, view, imageInfo);
-                    } else {
-                        errorSnack(view, "分享时发生错误", mException != null ? mException.getMessage() : "");
-                    }
-                }
-            };
-            fileDownTask.execute(url);
-        } else {
+        if (imageInfo.isReady()) {
             saveImage(activity, view, imageInfo);
+            return;
         }
+
+        FileDownTask fileDownTask = new FileDownTask(activity) {
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                if (imageInfo.isReady()) {
+                    saveImage(activity, view, imageInfo);
+                } else {
+                    errorSnack(view, "分享时发生错误", mException != null ? mException.getMessage() : "");
+                }
+            }
+        };
+
+        fileDownTask.execute(url);
     }
 
     private static void saveImage(final Activity activity, final View view, final ImageInfo imageInfo) {
@@ -325,12 +335,14 @@ public class UIUtils {
 
     public static File getSaveFolder() {
         String saveFolder = HiSettingsHelper.getInstance().getStringValue(HiSettingsHelper.PERF_SAVE_FOLDER, "");
+
         File dir = new File(saveFolder);
-        if (saveFolder.startsWith("/") && dir.exists() && dir.isDirectory() && dir.canWrite()) {
+        if (saveFolder.startsWith("/") && dir.exists() && dir.isDirectory() && dir.canWrite())
             return dir;
-        }
+
         dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         HiSettingsHelper.getInstance().setStringValue(HiSettingsHelper.PERF_SAVE_FOLDER, dir.getAbsolutePath());
+
         return dir;
     }
 
@@ -340,9 +352,10 @@ public class UIUtils {
     }
 
     public static View getSnackView(Activity activity) {
-        if (activity != null)
-            return activity.getWindow().getDecorView().getRootView().findViewById(R.id.main_frame_container);
-        return null;
+        if (activity == null)
+            return null;
+
+        return activity.getWindow().getDecorView().getRootView().findViewById(R.id.main_frame_container);
     }
 
     public static int getWindowWidth(Window window) {
@@ -355,6 +368,7 @@ public class UIUtils {
     public static void toast(String text) {
         if (mToast != null)
             mToast.cancel();
+
         mToast = Toast.makeText(HiApplication.getAppContext(), text, Toast.LENGTH_SHORT);
         mToast.show();
     }
@@ -376,37 +390,37 @@ public class UIUtils {
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(Uri.parse(url), "text/html");
+
             List<ResolveInfo> list = context.getPackageManager().queryIntentActivities(intent, 0);
-
-            if (list.size() == 0) {
-                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                list = context.getPackageManager().queryIntentActivities(intent, 0);
-
-                ArrayList<Intent> targetIntents = new ArrayList<>();
-                String myPkgName = BuildConfig.APPLICATION_ID;
-                for (ResolveInfo currentInfo : list) {
-                    String packageName = currentInfo.activityInfo.packageName;
-                    if (!myPkgName.equals(packageName)) {
-                        Intent targetIntent = new Intent(android.content.Intent.ACTION_VIEW);
-                        targetIntent.setData(Uri.parse(url));
-                        targetIntent.setPackage(packageName);
-                        targetIntents.add(targetIntent);
-                    }
-                }
-
-                if (targetIntents.size() > 0) {
-                    Intent chooserIntent = Intent.createChooser(targetIntents.remove(0), context.getString(R.string.action_open_url));
-                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetIntents.toArray(new Parcelable[targetIntents.size()]));
-                    context.startActivity(chooserIntent);
-                } else {
-                    UIUtils.toast("没有找到浏览器应用");
-                }
-
-            } else {
+            if (list.size() > 0) {
                 context.startActivity(intent);
+                return;
+            }
+
+            intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            list = context.getPackageManager().queryIntentActivities(intent, 0);
+
+            ArrayList<Intent> targetIntents = new ArrayList<>();
+            String myPkgName = BuildConfig.APPLICATION_ID;
+            for (ResolveInfo currentInfo : list) {
+                String packageName = currentInfo.activityInfo.packageName;
+                if (!myPkgName.equals(packageName)) {
+                    Intent targetIntent = new Intent(android.content.Intent.ACTION_VIEW);
+                    targetIntent.setData(Uri.parse(url));
+                    targetIntent.setPackage(packageName);
+                    targetIntents.add(targetIntent);
+                }
+            }
+
+            if (targetIntents.size() > 0) {
+                Intent chooserIntent = Intent.createChooser(targetIntents.remove(0), context.getString(R.string.action_open_url));
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetIntents.toArray(new Parcelable[targetIntents.size()]));
+                context.startActivity(chooserIntent);
+            } else {
+                UIUtils.toast("没有找到浏览器应用");
             }
         } catch (Exception e) {
-            UIUtils.toast("没有找到浏览器应用 : " + e.getMessage());
+            UIUtils.toast("没有找到浏览器应用: " + e.getMessage());
         }
     }
 
@@ -418,9 +432,8 @@ public class UIUtils {
         final EditText etRecipient = (EditText) viewlayout.findViewById(R.id.et_sms_receipient);
         final AlertDialog.Builder popDialog = new AlertDialog.Builder(activity);
 
-        if (!TextUtils.isEmpty(uid)) {
+        if (!TextUtils.isEmpty(uid))
             etRecipient.setVisibility(View.GONE);
-        }
 
         popDialog.setTitle("发送悄悄话" + (!TextUtils.isEmpty(uid) ? "给 " + Utils.nullToText(username) : ""));
         popDialog.setView(viewlayout);
@@ -432,7 +445,6 @@ public class UIUtils {
             etRecipient.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
                 }
 
                 @Override
@@ -444,7 +456,6 @@ public class UIUtils {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-
                 }
             });
         }
@@ -452,7 +463,6 @@ public class UIUtils {
         etSmsContent.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
@@ -464,7 +474,6 @@ public class UIUtils {
 
             @Override
             public void afterTextChanged(Editable s) {
-
             }
         });
 
@@ -483,10 +492,12 @@ public class UIUtils {
                     UIUtils.toast("请填写收件人");
                     return;
                 }
+
                 if (TextUtils.isEmpty(content)) {
                     UIUtils.toast("请填写内容");
                     return;
                 }
+
                 new PostSmsAsyncTask(activity, formhash, "", uid, recipient, listener, dialog).execute(content);
                 UIUtils.hideSoftKeyboard(activity);
             }
@@ -494,5 +505,4 @@ public class UIUtils {
 
         theButton.setEnabled(false);
     }
-
 }

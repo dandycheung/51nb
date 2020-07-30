@@ -15,7 +15,6 @@ import java.util.HashMap;
  * Created by GreenSkinMonster on 2015-05-09.
  */
 public class ColorHelper {
-
     private static HashMap<Integer, Integer> COLOR_IDS = new HashMap<>();
     private final static int DAY_REF_COLOR = Color.parseColor("#ffffff");
     private final static int NIGHT_REF_COLOR = Color.parseColor("#000000");
@@ -29,8 +28,8 @@ public class ColorHelper {
             return COLOR_IDS.get(attrId);
 
         int colorId = getColor(ctx, attrId);
-
         COLOR_IDS.put(attrId, colorId);
+
         return colorId;
     }
 
@@ -83,5 +82,4 @@ public class ColorHelper {
         ColorUtils.colorToHSL(HiSettingsHelper.getInstance().isNightMode() ? NIGHT_REF_COLOR : DAY_REF_COLOR, refHslColor);
         return Math.abs(textHslColor[2] - refHslColor[2]) >= delta;
     }
-
 }

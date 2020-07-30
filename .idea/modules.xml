@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/51nb.iml" filepath="$PROJECT_DIR$/51nb.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/emoji/emoji.iml" filepath="$PROJECT_DIR$/emoji/emoji.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/51nb-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/51nb-app.iml" group="51nb/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/emoji/51nb-emoji.iml" filepath="$PROJECT_DIR$/.idea/modules/emoji/51nb-emoji.iml" group="51nb/emoji" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app-51nb.iml" filepath="$PROJECT_DIR$/.idea/modules/app-51nb.iml" group="51nb" />
     </modules>
   </component>
 </project>

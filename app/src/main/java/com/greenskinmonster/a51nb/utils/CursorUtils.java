@@ -18,20 +18,19 @@ import java.io.File;
  * Created by GreenSkinMonster on 2015-04-14.
  */
 public class CursorUtils {
-
     public static ImageFileInfo getImageFileInfo(Context context, Uri uri) {
         ImageFileInfo result;
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT || uri.toString().startsWith("content://media")) {
             result = getImageInfo_API11to18(context, uri);
-            if (result == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (result == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
                 result = getImageInfo_API19(context, uri);
-            }
         } else {
             result = getImageInfo_API19(context, uri);
-            if (result == null) {
+            if (result == null)
                 result = getImageInfo_API11to18(context, uri);
-            }
         }
+
         if (result == null || TextUtils.isEmpty(result.getFilePath()))
             return new ImageFileInfo();
 
@@ -42,7 +41,7 @@ public class CursorUtils {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
 
-        //Returns null, sizes are in the options variable
+        // Returns null, sizes are in the options variable
         BitmapFactory.decodeFile(result.getFilePath(), options);
         int width = options.outWidth;
         int height = options.outHeight;
@@ -57,6 +56,7 @@ public class CursorUtils {
             int orientation = getOrientationFromExif(result.getFilePath());
             result.setOrientation(orientation);
         }
+
         return result;
     }
 
@@ -65,8 +65,8 @@ public class CursorUtils {
         try {
             ExifInterface exif = new ExifInterface(path);
             String orientString = exif.getAttribute(ExifInterface.TAG_ORIENTATION);
-            orientation = orientString != null ? Integer.parseInt(orientString) : ExifInterface.ORIENTATION_NORMAL;
 
+            orientation = orientString != null ? Integer.parseInt(orientString) : ExifInterface.ORIENTATION_NORMAL;
             switch (orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     orientation = 90;
@@ -78,6 +78,7 @@ public class CursorUtils {
         } catch (Exception e) {
             Logger.e(e);
         }
+
         return orientation;
     }
 
@@ -94,6 +95,7 @@ public class CursorUtils {
 
             cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     column, sel, new String[]{id}, null);
+
             int pathIndex = cursor.getColumnIndex(column[0]);
             int orientationIndex = cursor.getColumnIndex(column[1]);
 
@@ -110,9 +112,9 @@ public class CursorUtils {
             if (cursor != null)
                 cursor.close();
         }
+
         return result;
     }
-
 
     private static ImageFileInfo getImageInfo_API11to18(Context context, Uri contentUri) {
         ImageFileInfo result = new ImageFileInfo();
@@ -138,8 +140,7 @@ public class CursorUtils {
             if (cursor != null)
                 cursor.close();
         }
+
         return result;
     }
-
 }
-

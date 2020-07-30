@@ -8,7 +8,6 @@ import com.greenskinmonster.a51nb.BuildConfig;
  * https://github.com/qii/weiciyuan/blob/0.50/src/org/qii/weiciyuan/support/debug/AppLogger.java
  */
 public class Logger {
-
     private static final String TAG = "HiLogger";
 
     private Logger() {
@@ -62,7 +61,6 @@ public class Logger {
         Log.e(TAG, buildMessage("error"), thr);
     }
 
-
     public static void e(String msg, Throwable thr) {
         Log.e(TAG, buildMessage(msg), thr);
     }
@@ -77,5 +75,4 @@ public class Logger {
     public static boolean isDebug() {
         return BuildConfig.DEBUG;
     }
-
 }

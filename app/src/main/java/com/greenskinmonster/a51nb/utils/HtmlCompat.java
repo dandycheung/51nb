@@ -9,23 +9,19 @@ import android.text.Spanned;
  */
 
 public class HtmlCompat {
-
     @SuppressWarnings("deprecation")
     public static Spanned fromHtml(String source) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             return Html.fromHtml(source, Html.FROM_HTML_MODE_LEGACY);
-        } else {
-            return Html.fromHtml(source);
-        }
+
+        return Html.fromHtml(source);
     }
 
     @SuppressWarnings("deprecation")
     public static Spanned fromHtml(String source, Html.ImageGetter imageGetter, Html.TagHandler tagHandler) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             return Html.fromHtml(source, Html.FROM_HTML_MODE_LEGACY, imageGetter, tagHandler);
-        } else {
-            return Html.fromHtml(source, imageGetter, tagHandler);
-        }
-    }
 
+        return Html.fromHtml(source, imageGetter, tagHandler);
+    }
 }

@@ -10,6 +10,9 @@ import com.greenskinmonster.a51nb.bean.Forum;
 import com.greenskinmonster.a51nb.bean.HiSettingsHelper;
 import com.greenskinmonster.a51nb.glide.GlideHelper;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +49,6 @@ public class HiUtils {
     public final static String EditUrl = BaseUrl + "forum.php?mod=post&action=edit&extra=&editsubmit=yes";
     public final static String PreNewThreadUrl = BaseUrl + "forum.php?mod=post&action=newthread&fid={fid}&special={special}";
     public final static String NewThreadUrl = BaseUrl + "forum.php?mod=post&action=newthread&fid={fid}&extra=&topicsubmit=yes";
-    //public final static String MyPostUrl = BaseUrl + "forum.php?mod=guide&view=my";
     public final static String MyPostUrl = BaseUrl + "home.php?mod=space&uid={uid}&do=thread&view=me&from=space&type={type}";
     public final static String LastPageUrl = BaseUrl + "forum.php?mod=redirect&tid={tid}&goto=lastpost#lastpost";
     public final static String RedirectToPostUrl = BaseUrl + "forum.php?mod=redirect&goto=findpost&ptid={tid}&pid={pid}";
@@ -64,7 +66,7 @@ public class HiUtils {
     public final static String NewSMS = BaseUrl + "home.php?mod=space&do=pm&filter=newpm";
     public final static String DeleteAllSMS = BaseUrl + "home.php?mod=spacecp&ac=pm&op=delete&folder=";
     public final static String DeleteSingleSMS = BaseUrl + "home.php?mod=spacecp&ac=pm&op=delete&deletepm_pmid[]={pmid}&touid={uid}&deletesubmit=1&handlekey=pmdeletehk_{pmid}&formhash={formhash}&inajax=1&ajaxtarget=";
-    //    public final static String UploadImgUrl = BaseUrl + "misc.php?mod=swfupload&operation=upload&simple=1&type=image";
+    // public final static String UploadImgUrl = BaseUrl + "misc.php?mod=swfupload&operation=upload&simple=1&type=image";
     public final static String UploadImgUrl = BaseUrl + "misc.php?mod=swfupload&action=swfupload&operation=upload";
     public final static String DeleteImgUrl = BaseUrl + "forum.php?mod=ajax&action=deleteattach&inajax=yes&tid={tid}&pid={pid}&aids[]={aid}";
     public final static String SearchUrl = BaseUrl + "search.php?mod=forum&adv=yes";
@@ -93,7 +95,6 @@ public class HiUtils {
     public final static String SecCodeImageUrl = HiUtils.BaseUrl + "misc.php?mod=seccode&update={update}&idhash={idhash}";
     public final static String VotePollUrl = HiUtils.BaseUrl + "forum.php?mod=misc&action=votepoll&fid={fid}&tid={tid}&pollsubmit=yes&quickforward=yes&inajax=1";
 
-
     // max upload file size : 8M
     public final static int DEFAULT_MAX_UPLOAD_FILE_SIZE = 8 * 1024 * 1024;
 
@@ -110,32 +111,32 @@ public class HiUtils {
     }
 
     public final static Forum[] FORUMS = {
-            new Forum(136, 0, "ThinkPad技术论坛"),
-            new Forum(1, 1, "ThinkPad专区"),
-            new Forum(117, 1, "T50/X62/T70/X210定制专区"),
-            new Forum(137, 1, "ThinkPad Retro/Classic专区"),
+            new Forum(136, 0, "ThinkPad 技术论坛"),
+            new Forum(1, 1, "ThinkPad 专区"),
+            new Forum(117, 1, "T50/X62/T70/X210 定制专区"),
+            new Forum(137, 1, "ThinkPad Retro/Classic 专区"),
             new Forum(38, 0, "其它笔记本技术论坛"),
-            new Forum(54, 1, "HP/Compaq(惠普)专区"),
-            new Forum(106, 2, "HP版有奖征文专区"),
-            new Forum(59, 1, "DELL(戴尔)专区"),
-            new Forum(60, 1, "Mac(苹果)专区"),
-            new Forum(69, 1, "ASUS(华硕)专区"),
+            new Forum(54, 1, "HP/Compaq（惠普）专区"),
+            new Forum(106, 2, "HP 版有奖征文专区"),
+            new Forum(59, 1, "DELL（戴尔）专区"),
+            new Forum(60, 1, "Mac（苹果）专区"),
+            new Forum(69, 1, "ASUS（华硕）专区"),
             new Forum(43, 1, "其它品牌笔记本"),
-            new Forum(71, 2, "FUJITSU(富士通)专区"),
-            new Forum(86, 2, "Lenovo(联想)专区"),
-            new Forum(66, 2, "Acer(宏碁)专区"),
-            new Forum(67, 2, "Toshiba(东芝)专区"),
-            new Forum(68, 2, "SONY(索尼)专区"),
-            new Forum(110, 2, "Panasonic(松下)笔记本电脑专区"),
+            new Forum(71, 2, "FUJITSU（富士通）专区"),
+            new Forum(86, 2, "Lenovo（联想）专区"),
+            new Forum(66, 2, "Acer（宏碁）专区"),
+            new Forum(67, 2, "Toshiba（东芝）专区"),
+            new Forum(68, 2, "SONY（索尼）专区"),
+            new Forum(110, 2, "Panasonic（松下）笔记本电脑专区"),
             new Forum(80, 2, "◇Essentials of 51nb.com in English◇"),
             new Forum(47, 1, "评机品机--笔记本产品库"),
             new Forum(58, 1, "选件与外设"),
             new Forum(104, 0, "智能手机与平板论坛"),
             new Forum(2, 1, "智能手机讨论区"),
             new Forum(112, 1, "手机拆解与维护"),
-            new Forum(103, 1, "ThinkPad Slate Tablet平板电脑"),
-            new Forum(114, 1, "Galaxy Tab平板专区"),
-            new Forum(78, 1, "iPad, Surface, Kindle Fire等平板与电子书"),
+            new Forum(103, 1, "ThinkPad Slate Tablet 平板电脑"),
+            new Forum(114, 1, "Galaxy Tab 平板专区"),
+            new Forum(78, 1, "iPad, Surface, Kindle Fire 等平板与电子书"),
             new Forum(40, 0, "交易与市场论坛"),
             new Forum(41, 1, "认证交易区"),
             new Forum(3, 1, "市场行情与购机交流"),
@@ -144,20 +145,20 @@ public class HiUtils {
             new Forum(119, 1, "专门抢购"),
             new Forum(105, 1, "海淘交流区"),
             new Forum(61, 0, "笔记本相关论坛"),
-            new Forum(9, 1, "Windows平台软件交流"),
-            new Forum(17, 1, "Linux与BSD等平台"),
+            new Forum(9, 1, "Windows 平台软件交流"),
+            new Forum(17, 1, "Linux 与 BSD 等平台"),
             new Forum(21, 1, "网络技术"),
             new Forum(62, 1, "数码、摄影"),
             new Forum(28, 1, "台式机与服务器专区"),
             new Forum(111, 1, "存储交流专区"),
             new Forum(44, 0, "论坛与站务公告"),
             new Forum(37, 1, "论坛与站务公告区"),
-            new Forum(135, 2, "秀出不一样的ThinkPad专区"),
-            new Forum(133, 2, "ThinkPad答题王专区"),
-            new Forum(134, 2, "我为ThinkPad证言专区"),
+            new Forum(135, 2, "秀出不一样的 ThinkPad 专区"),
+            new Forum(133, 2, "ThinkPad 答题王专区"),
+            new Forum(134, 2, "我为 ThinkPad 证言专区"),
             new Forum(121, 2, "“最美的笔记本”摄影大赛专区"),
-            new Forum(84, 2, "ThinkPad十五周年设计大赛专区"),
-            new Forum(82, 2, "2011年度“写体会、拿工具”征文专区"),
+            new Forum(84, 2, "ThinkPad 十五周年设计大赛专区"),
+            new Forum(82, 2, "2011 年度“写体会、拿工具”征文专区"),
             new Forum(118, 2, "“ThinkPad，一路有你”活动专区"),
             new Forum(88, 1, "网友联谊区"),
             new Forum(96, 1, "区域事务论坛封存"),
@@ -191,32 +192,31 @@ public class HiUtils {
     }
 
     public static Forum getForumByFid(int fid) {
-        if (HiSettingsHelper.getInstance() == null) {
-            for (Forum forum : HiUtils.FORUMS) {
-                if (forum.getId() == fid)
-                    return forum;
-            }
-        } else {
-            for (Forum forum : HiSettingsHelper.getInstance().getAllForums()) {
-                if (forum.getId() == fid)
-                    return forum;
-            }
+        HiSettingsHelper sh = HiSettingsHelper.getInstance();
+
+        List<Forum> forums = (sh != null) ? sh.getAllForums() : Arrays.asList(HiUtils.FORUMS);
+        for (Forum forum : HiUtils.FORUMS) {
+            if (forum.getId() == fid)
+                return forum;
         }
+
         return null;
     }
 
     public static String getAvatarUrlByUid(String uid) {
-        if (SYSTEM_UID.equals(uid))
-            return GlideHelper.SYSTEM_AVATAR_FILE.getAbsolutePath();
-        return AvatarBaseUrl + uid;
+        return SYSTEM_UID.equals(uid)
+                ? GlideHelper.SYSTEM_AVATAR_FILE.getAbsolutePath()
+                : AvatarBaseUrl + uid;
     }
 
     public static int getThemeValue(Context context, String theme, int primaryColor) {
-        if (HiSettingsHelper.THEME_DARK.equals(theme)) {
+        if (HiSettingsHelper.THEME_DARK.equals(theme))
             return R.style.ThemeDark;
-        } else if (HiSettingsHelper.THEME_BLACK.equals(theme)) {
+
+        if (HiSettingsHelper.THEME_BLACK.equals(theme))
             return R.style.ThemeBlack;
-        } else if (HiSettingsHelper.THEME_LIGHT.equals(theme)) {
+
+        if (HiSettingsHelper.THEME_LIGHT.equals(theme)) {
             if (primaryColor == ContextCompat.getColor(context, R.color.md_red_700))
                 return R.style.ThemeLight_Red;
             if (primaryColor == ContextCompat.getColor(context, R.color.md_pink_700))
@@ -260,8 +260,10 @@ public class HiUtils {
             if (primaryColor == ContextCompat.getColor(context, R.color.md_black_1000))
                 return R.style.ThemeLight_Black;
         }
+
         HiSettingsHelper.getInstance().setTheme(HiSettingsHelper.THEME_LIGHT);
         HiSettingsHelper.getInstance().setPrimaryColor(ContextCompat.getColor(context, R.color.md_blue_grey_700));
+
         return R.style.ThemeLight_BlueGrey;
     }
 
@@ -275,6 +277,7 @@ public class HiUtils {
 
     public static String getForumsSummary() {
         List<Forum> forums = HiSettingsHelper.getInstance().getFreqForums();
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < forums.size(); i++) {
             Forum forum = forums.get(i);
@@ -282,6 +285,7 @@ public class HiUtils {
             if (i != forums.size() - 1)
                 sb.append(", ");
         }
+
         return sb.toString();
     }
 }
