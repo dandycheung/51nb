@@ -195,7 +195,7 @@ public class HiUtils {
         HiSettingsHelper sh = HiSettingsHelper.getInstance();
 
         List<Forum> forums = (sh != null) ? sh.getAllForums() : Arrays.asList(HiUtils.FORUMS);
-        for (Forum forum : HiUtils.FORUMS) {
+        for (Forum forum : forums) {
             if (forum.getId() == fid)
                 return forum;
         }

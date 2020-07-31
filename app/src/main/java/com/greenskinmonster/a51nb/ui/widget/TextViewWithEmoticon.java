@@ -98,7 +98,10 @@ public class TextViewWithEmoticon extends AppCompatTextView {
             src = Utils.nullToText(src);
 
             Drawable drawable = TextViewWithEmoticon.this.getDrawable(src);
-            if (drawable == null)
+            // NOTE: 在 Android 10 上，以上调用会使动画 gif 返回一个 AnimatedImageDrawable，
+            //   但是该对象不会正确处理 setBounds() 的意图，因此将之强制弃用。不做此特殊处理的话，
+            //   表情（即动图首帧）会以本来大小显示，看上去非常小。此问题可能在 Android 9 上就有。
+            if (drawable == null || !(drawable instanceof BitmapDrawable))
                 drawable = TextViewWithEmoticon.this.getDrawable2(src);
 
             return drawable;
