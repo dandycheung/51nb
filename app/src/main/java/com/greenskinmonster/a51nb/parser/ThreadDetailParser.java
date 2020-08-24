@@ -461,7 +461,7 @@ public class ThreadDetailParser {
                     if (supportEl != null)
                         detail.setSupportCount(Utils.getIntFromString(supportEl.text()));
                     Element againstEl = divActionEl.select("a.replysubtract").first();
-                    if (supportEl != null)
+                    if (againstEl != null)
                         detail.setAgainstCount(Utils.getIntFromString(againstEl.text()));
                 }
             }
