@@ -96,6 +96,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jsoup.Jsoup;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -158,7 +159,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     private Animation mBlinkAnim;
 
     private boolean mDataReceived = false;
-    private boolean mInloading = false;
+    private boolean mLoading = false;
     private boolean mHeaderLoading = false;
     private boolean mFooterLoading = false;
 
@@ -193,38 +194,38 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mCtx = getActivity();
-
         setHasOptionsMenu(false);
 
-        if (getArguments() != null) {
-            if (getArguments().containsKey(ARG_TID_KEY)) {
-                mTid = getArguments().getString(ARG_TID_KEY);
-            }
-            if (getArguments().containsKey(ARG_PID_KEY)) {
-                mGotoPostId = getArguments().getString(ARG_PID_KEY);
-            }
-            if (getArguments().containsKey(ARG_AUTHOR_ID_KEY)) {
-                mAuthorId = getArguments().getString(ARG_AUTHOR_ID_KEY);
-            }
-            if (getArguments().containsKey(ARG_TITLE_KEY)) {
-                mTitle = getArguments().getString(ARG_TITLE_KEY);
-            }
-            if (getArguments().containsKey(ARG_PAGE_KEY)) {
-                mCurrentPage = getArguments().getInt(ARG_PAGE_KEY);
-                if (mCurrentPage <= 0 && mCurrentPage != LAST_PAGE)
-                    mCurrentPage = 1;
-            }
-            if (getArguments().containsKey(ARG_MAX_PAGE_KEY)) {
-                mMaxPage = getArguments().getInt(ARG_MAX_PAGE_KEY);
-            }
-            if (getArguments().containsKey(ARG_FLOOR_KEY)) {
-                mGotoFloor = getArguments().getInt(ARG_FLOOR_KEY);
-            }
+        mCtx = getActivity();
+        mBlinkAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.blink);
+
+        Bundle bundle = getArguments();
+        if (bundle == null)
+            return;
+
+        if (bundle.containsKey(ARG_TID_KEY))
+            mTid = bundle.getString(ARG_TID_KEY);
+
+        if (bundle.containsKey(ARG_PID_KEY))
+            mGotoPostId = bundle.getString(ARG_PID_KEY);
+
+        if (bundle.containsKey(ARG_AUTHOR_ID_KEY))
+            mAuthorId = bundle.getString(ARG_AUTHOR_ID_KEY);
+
+        if (bundle.containsKey(ARG_TITLE_KEY))
+            mTitle = bundle.getString(ARG_TITLE_KEY);
+
+        if (bundle.containsKey(ARG_PAGE_KEY)) {
+            mCurrentPage = bundle.getInt(ARG_PAGE_KEY);
+            if (mCurrentPage <= 0 && mCurrentPage != LAST_PAGE)
+                mCurrentPage = 1;
         }
 
-        mBlinkAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.blink);
+        if (bundle.containsKey(ARG_MAX_PAGE_KEY))
+            mMaxPage = bundle.getInt(ARG_MAX_PAGE_KEY);
+
+        if (bundle.containsKey(ARG_FLOOR_KEY))
+            mGotoFloor = bundle.getInt(ARG_FLOOR_KEY);
     }
 
     @Override
@@ -294,11 +295,10 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
 
             @Override
             public void onFooterError() {
-                if (mCurrentPage == mMaxPage) {
+                if (mCurrentPage == mMaxPage)
                     atEnd();
-                } else {
+                else
                     prefetchNextPage();
-                }
             }
 
             @Override
@@ -311,7 +311,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
         mLoadingView.setErrorStateListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!mInloading) {
+                if (!mLoading) {
                     mLoadingView.setState(ContentLoadingView.LOAD_NOW);
                     refresh();
                 }
@@ -328,7 +328,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
             public void onSingleClick(View v) {
                 String replyText = mEtReply.getText().toString();
                 if (Utils.getWordCount(replyText) < 4) {
-                    UIUtils.toast("字数必须大于4");
+                    UIUtils.toast("字数必须大于 4");
                 } else {
                     PostBean postBean = new PostBean();
                     postBean.setContent(replyText);
@@ -373,23 +373,25 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
+
+        if (savedInstanceState != null)
             mCtx = getActivity();
-        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
         if (!EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().register(this);
-        if (!mInloading) {
-            if (mDetailBeans.size() == 0) {
-                refresh();
-            } else {
-                mLoadingView.setState(ContentLoadingView.CONTENT);
-            }
-        }
+
+        if (mLoading)
+            return;
+
+        if (mDetailBeans.size() == 0)
+            refresh();
+        else
+            mLoadingView.setState(ContentLoadingView.CONTENT);
     }
 
     @Override
@@ -413,33 +415,23 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+
         MenuItem favoritesMenuItem = menu.findItem(R.id.action_add_favorite);
         if (favoritesMenuItem != null) {
-            if (FavoriteHelper.getInstance().isInFavorite(mTid)) {
-                favoritesMenuItem.setTitle(R.string.action_remove_favorite);
-            } else {
-                favoritesMenuItem.setTitle(R.string.action_add_favorite);
-            }
+            favoritesMenuItem.setTitle(FavoriteHelper.getInstance().isInFavorite(mTid)
+                    ? R.string.action_remove_favorite
+                    : R.string.action_add_favorite);
             favoritesMenuItem.setEnabled(LoginHelper.isLoggedIn());
         }
+
         menu.findItem(R.id.action_reply).setEnabled(LoginHelper.isLoggedIn());
 
         MenuItem authorMenuItem = menu.findItem(R.id.action_only_author);
-        if (authorMenuItem != null) {
-            if (isInAuthorOnlyMode()) {
-                authorMenuItem.setTitle(R.string.action_show_all);
-            } else {
-                authorMenuItem.setTitle(R.string.action_only_author);
-            }
-        }
+        if (authorMenuItem != null)
+            authorMenuItem.setTitle(isInAuthorOnlyMode() ? R.string.action_show_all : R.string.action_only_author);
 
-        if (mShowAllMenuItem != null) {
-            if (TextUtils.isEmpty(mAuthorId)) {
-                mShowAllMenuItem.setVisible(false);
-            } else {
-                mShowAllMenuItem.setVisible(true);
-            }
-        }
+        if (mShowAllMenuItem != null)
+            mShowAllMenuItem.setVisible(!TextUtils.isEmpty(mAuthorId));
     }
 
     @Override
@@ -452,12 +444,8 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                 if (isInAuthorOnlyMode()) {
                     cancelAuthorOnlyMode();
                 } else {
-                    if (mCache.get(1) != null) {
-                        DetailBean detailBean = mCache.get(1).getAll().get(0);
-                        enterAuthorOnlyMode(detailBean.getUid());
-                    } else {
-                        enterAuthorOnlyMode(ThreadDetailJob.FIND_AUTHOR_ID);
-                    }
+                    DetailListBean list = mCache.get(1);
+                    enterAuthorOnlyMode(list == null ? ThreadDetailJob.FIND_AUTHOR_ID : list.getAll().get(0).getUid());
                 }
                 return true;
             case R.id.action_open_url:
@@ -467,9 +455,11 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                 try {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setDataAndType(Uri.parse(url), "text/html");
-                    List<ResolveInfo> list = mCtx.getPackageManager().queryIntentActivities(intent, 0);
 
-                    if (list.size() == 0) {
+                    List<ResolveInfo> list = mCtx.getPackageManager().queryIntentActivities(intent, 0);
+                    if (list.size() > 0) {
+                        startActivity(intent);
+                    } else {
                         intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                         list = mCtx.getPackageManager().queryIntentActivities(intent, 0);
 
@@ -477,12 +467,13 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                         String myPkgName = BuildConfig.APPLICATION_ID;
                         for (ResolveInfo currentInfo : list) {
                             String packageName = currentInfo.activityInfo.packageName;
-                            if (!myPkgName.equals(packageName)) {
-                                Intent targetIntent = new Intent(android.content.Intent.ACTION_VIEW);
-                                targetIntent.setData(Uri.parse(url));
-                                targetIntent.setPackage(packageName);
-                                targetIntents.add(targetIntent);
-                            }
+                            if (myPkgName.equals(packageName))
+                                continue;
+
+                            Intent targetIntent = new Intent(android.content.Intent.ACTION_VIEW);
+                            targetIntent.setData(Uri.parse(url));
+                            targetIntent.setPackage(packageName);
+                            targetIntents.add(targetIntent);
                         }
 
                         if (targetIntents.size() > 0) {
@@ -492,12 +483,9 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                         } else {
                             UIUtils.toast("没有找到浏览器应用");
                         }
-
-                    } else {
-                        startActivity(intent);
                     }
                 } catch (Exception e) {
-                    UIUtils.toast("没有找到浏览器应用 : " + e.getMessage());
+                    UIUtils.toast("没有找到浏览器应用: " + e.getMessage());
                 }
                 return true;
             case R.id.action_copy_url:
@@ -509,8 +497,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
             case R.id.action_share_thread:
                 Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
                 sharingIntent.setType("text/plain");
-                String shareBody = HiUtils.DetailListUrl + mTid + "\n"
-                        + "主题：" + mTitle + "\n";
+                String shareBody = HiUtils.DetailListUrl + mTid + "\n" + "主题：" + mTitle + "\n";
                 if (mCache.get(1) != null && mCache.get(1).getAll().size() > 0)
                     shareBody += ("作者：" + mCache.get(1).getAll().get(0).getAuthor());
                 sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
@@ -545,21 +532,21 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
 
     @Override
     void setupFab() {
-        if (mMainFab != null) {
-            if (!mDataReceived) {
-                mMainFab.hide();
-            } else {
-                mMainFab.show();
-            }
+        if (mMainFab == null)
+            return;
 
-            mMainFab.setImageResource(R.drawable.ic_reply_white_24dp);
-            mMainFab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    showQuickReply();
-                }
-            });
-        }
+        if (!mDataReceived)
+            mMainFab.hide();
+        else
+            mMainFab.show();
+
+        mMainFab.setImageResource(R.drawable.ic_reply_white_24dp);
+        mMainFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showQuickReply();
+            }
+        });
     }
 
     private void showPost(String text) {
@@ -577,7 +564,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     }
 
     public void refresh() {
-        mInloading = true;
+        mLoading = true;
         mLoadingView.setState(ContentLoadingView.LOADING);
         startJob(mCurrentPage, FETCH_REFRESH, POSITION_NORMAL);
     }
@@ -621,7 +608,6 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     }
 
     private class OnItemClickListener implements RecyclerItemClickListener.OnItemClickListener {
-
         @Override
         public void onItemClick(View view, int position) {
         }
@@ -630,12 +616,12 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
         public void onLongItemClick(View view, int position) {
             DetailBean detailBean = mDetailAdapter.getItem(position);
             View menuView = view.findViewById(R.id.iv_menu);
-            if (menuView != null) {
+            if (menuView != null)
                 detailBean = (DetailBean) menuView.getTag();
-            }
-            if (detailBean == null) {
+
+            if (detailBean == null)
                 return;
-            }
+
             showGridMenu(detailBean);
         }
 
@@ -648,6 +634,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     private void showGridMenu(final DetailBean detailBean) {
         if (mGridMenu != null)
             return;
+
         mGridMenu = new SimpleGridMenu(getActivity());
         mGridMenu.setTitle(detailBean.getFloorText() + "# " + detailBean.getAuthor());
         mGridMenu.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -657,7 +644,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
             }
         });
 
-        mGridMenu.add("copy", "复制文字", new AdapterView.OnItemClickListener() {
+        mGridMenu.add("copy", "完整复制", new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
@@ -666,6 +653,17 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                 UIUtils.toast("文字已复制");
             }
         });
+        mGridMenu.add("select_text", "选择复制",
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        detailBean.setSelectMode(true);
+                        int pos = mDetailAdapter.getPositionByPostId(detailBean.getPostId());
+                        if (pos != -1)
+                            mDetailAdapter.notifyItemChanged(pos);
+                    }
+                });
+
         String authorText = isInAuthorOnlyMode() ? getString(R.string.action_show_all) : getString(R.string.action_only_floor_author);
         mGridMenu.add("author", authorText,
                 new AdapterView.OnItemClickListener() {
@@ -686,90 +684,76 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                         sharingIntent.setType("text/plain");
                         String shareBody = "帖子 ：" + mTitle + "\n" +
                                 HiUtils.RedirectToPostUrl.replace("{tid}", mTid).replace("{pid}", detailBean.getPostId()) + "\n" +
-                                detailBean.getFloorText() + "#  作者 ：" + detailBean.getAuthor() + "\n\n" +
+                                detailBean.getFloorText() + "#  作者：" + detailBean.getAuthor() + "\n\n" +
                                 detailBean.getContents().getCopyText();
                         sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
                         startActivity(Intent.createChooser(sharingIntent, "分享文字内容"));
                     }
                 });
-        mGridMenu.add("select_text", "文字选择",
-                new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        detailBean.setSelectMode(true);
-                        int pos = mDetailAdapter.getPositionByPostId(detailBean.getPostId());
-                        if (pos != -1)
-                            mDetailAdapter.notifyItemChanged(pos);
-//                        UIUtils.showMessageDialog(getActivity(),
-//                                detailBean.getFloor() + "# " + detailBean.getAuthor(),
-//                                detailBean.getContents().getCopyText().trim(),
-//                                true);
-                    }
-                });
 
         if (detailBean.isSupportable()) {
-            mGridMenu.add("support", "支持" + (detailBean.getSupportCount() > 0 ? " (" + detailBean.getSupportCount() + ")" : ""),
-                    new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            if (HiSettingsHelper.getInstance().getUid().equals(detailBean.getUid())) {
-                                UIUtils.toast("您不能对自己的回帖进行投票");
-                                return;
-                            }
-                            ThreadActionHelper.support(mTid, detailBean.getPostId(), mFormhash,
-                                    new OkHttpHelper.ResultCallback() {
-                                        @Override
-                                        public void onError(Request request, Exception e) {
-                                            UIUtils.toast(OkHttpHelper.getErrorMessage(e).getMessage());
-                                        }
+            final int supportCount = detailBean.getSupportCount();
+            final int againstCount = detailBean.getAgainstCount();
 
-                                        @Override
-                                        public void onResponse(String response) {
-                                            if (response.contains("投票成功")) {
-                                                UIUtils.toast("投票成功");
-                                                detailBean.setSupportCount(detailBean.getSupportCount() + 1);
-                                                int position = mDetailAdapter.getPositionByPostId(detailBean.getPostId());
-                                                if (position != -1)
-                                                    mDetailAdapter.notifyItemChanged(position);
-                                            } else {
-                                                String msg = ParserUtil.parseXmlMessage(response);
-                                                UIUtils.toast(Jsoup.parse(msg).text());
-                                            }
-                                        }
-                                    });
-                        }
-                    });
-            mGridMenu.add("against", "反对" + (detailBean.getAgainstCount() > 0 ? " (" + detailBean.getAgainstCount() + ")" : ""),
-                    new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            if (HiSettingsHelper.getInstance().getUid().equals(detailBean.getUid())) {
-                                UIUtils.toast("您不能对自己的回帖进行投票");
-                                return;
-                            }
-                            ThreadActionHelper.against(mTid, detailBean.getPostId(), mFormhash,
-                                    new OkHttpHelper.ResultCallback() {
-                                        @Override
-                                        public void onError(Request request, Exception e) {
-                                            UIUtils.toast(OkHttpHelper.getErrorMessage(e).getMessage());
-                                        }
+            class CVoteActionClickListener implements AdapterView.OnItemClickListener {
+                private boolean mSupport = true;
+                public CVoteActionClickListener(boolean support) {
+                    super();
+                    mSupport = support;
+                }
 
-                                        @Override
-                                        public void onResponse(String response) {
-                                            if (response.contains("投票成功")) {
-                                                UIUtils.toast("投票成功");
-                                                detailBean.setAgainstCount(detailBean.getAgainstCount() + 1);
-                                                int position = mDetailAdapter.getPositionByPostId(detailBean.getPostId());
-                                                if (position != -1)
-                                                    mDetailAdapter.notifyItemChanged(position);
-                                            } else {
-                                                String msg = ParserUtil.parseXmlMessage(response);
-                                                UIUtils.toast(Jsoup.parse(msg).text());
-                                            }
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (HiSettingsHelper.getInstance().getUid().equals(detailBean.getUid())) {
+                        UIUtils.toast("您不能对自己的回帖进行投票");
+                        return;
+                    }
+
+                    try {
+                        Method action = ThreadActionHelper.class.getMethod(mSupport ? "support" : "against",
+                                String.class, String.class, String.class, OkHttpHelper.ResultCallback.class);
+
+                        action.invoke(null, mTid, detailBean.getPostId(), mFormhash,
+                                new OkHttpHelper.ResultCallback() {
+                                    @Override
+                                    public void onError(Request request, Exception e) {
+                                        UIUtils.toast(OkHttpHelper.getErrorMessage(e).getMessage());
+                                    }
+
+                                    @Override
+                                    public void onResponse(String response) {
+                                        if (response.contains("投票成功")) {
+                                            UIUtils.toast("投票成功");
+
+                                            int count = mSupport ? supportCount : againstCount;
+                                            count++;
+
+                                            if (mSupport)
+                                                detailBean.setSupportCount(count);
+                                            else
+                                                detailBean.setAgainstCount(count);
+
+                                            int position = mDetailAdapter.getPositionByPostId(detailBean.getPostId());
+                                            if (position != -1)
+                                                mDetailAdapter.notifyItemChanged(position);
+                                        } else {
+                                            String msg = ParserUtil.parseXmlMessage(response);
+                                            UIUtils.toast(Jsoup.parse(msg).text());
                                         }
-                                    });
-                        }
-                    });
+                                    }
+                                });
+                    } catch (Exception e) {
+                    }
+                }
+            }
+
+            // NOTE: 论坛于 2020 年 8 月份的一次改版，此处原来的支持即优化过的点赞功能，反对功能调整为同时扣除双方 nb 的评负分方式实现，
+            // 故而此处移除该功能。目前没有检测客户端内的评分输入是否支持负分值。
+            mGridMenu.add("support", "点赞" + (supportCount > 0 ? " (" + supportCount + ")" : ""),
+                    new CVoteActionClickListener(true));
+
+            // mGridMenu.add("against", "投票" + "反对" + (againstCount > 0 ? " (" + againstCount + ")" : ""),
+            //         new CVoteActionClickListener(false));
         }
 
         if (detailBean.isRateable() && !HiSettingsHelper.getInstance().getUid().equals(detailBean.getUid())) {
@@ -810,6 +794,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     @Override
     public void onStop() {
         super.onStop();
+
         if (mGridMenu != null)
             mGridMenu.dismiss();
     }
@@ -818,6 +803,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     public void onDestroy() {
         if (Utils.isMemoryUsageHigh())
             Glide.get(getActivity()).clearMemory();
+
         super.onDestroy();
     }
 
@@ -828,9 +814,9 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     }
 
     public void scrollToBottom() {
-        if (HiSettingsHelper.getInstance().isAppBarCollapsible()) {
+        if (HiSettingsHelper.getInstance().isAppBarCollapsible())
             ((BaseActivity) getActivity()).mAppBarLayout.setExpanded(false, true);
-        }
+
         mRecyclerView.scrollToBottom();
     }
 
@@ -839,39 +825,47 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     }
 
     private synchronized void prefetchNextPage() {
-        if (mCurrentPage < mMaxPage) {
-            if (mCache.get(mCurrentPage + 1) == null) {
-                if (!mFooterLoading) {
-                    mFooterLoading = true;
-                    prefetchPage(mCurrentPage + 1, FETCH_NEXT, POSITION_FOOTER);
-                    mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
-                }
-            } else {
-                mRecyclerView.setFooterState(XFooterView.STATE_READY);
-            }
+        if (mCurrentPage >= mMaxPage)
+            return;
+
+        if (mCache.get(mCurrentPage + 1) != null) {
+            mRecyclerView.setFooterState(XFooterView.STATE_READY);
+            return;
         }
+
+        if (mFooterLoading)
+            return;
+
+        mFooterLoading = true;
+        prefetchPage(mCurrentPage + 1, FETCH_NEXT, POSITION_FOOTER);
+        mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
     }
 
     private synchronized void prefetchPreviousPage() {
-        if (mCurrentPage > 1) {
-            if (mCache.get(mCurrentPage - 1) == null) {
-                if (!mHeaderLoading) {
-                    mHeaderLoading = true;
-                    prefetchPage(mCurrentPage - 1, FETCH_PREVIOUS, POSITION_HEADER);
-                    mRecyclerView.setHeaderState(XHeaderView.STATE_LOADING);
-                }
-            } else {
-                mRecyclerView.setHeaderState(XHeaderView.STATE_READY);
-            }
+        if (mCurrentPage < 2)
+            return;
+
+        if (mCache.get(mCurrentPage - 1) != null) {
+            mRecyclerView.setHeaderState(XHeaderView.STATE_READY);
+            return;
         }
+
+        if (mHeaderLoading)
+            return;
+
+        mHeaderLoading = true;
+        prefetchPage(mCurrentPage - 1, FETCH_PREVIOUS, POSITION_HEADER);
+        mRecyclerView.setHeaderState(XHeaderView.STATE_LOADING);
     }
 
     private void prefetchPage(int page, int fetchType, int loadingPosition) {
-        if (mCache.get(page) == null) {
-            if (page < 1 || page > mMaxPage)
-                return;
-            startJob(page, fetchType, loadingPosition);
-        }
+        if (mCache.get(page) != null)
+            return;
+
+        if (page < 1 || page > mMaxPage)
+            return;
+
+        startJob(page, fetchType, loadingPosition);
     }
 
     private void showGotoPageDialog() {
@@ -921,7 +915,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
         sbGotoPage.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mGoToPage = progress + 1; //start from 0
+                mGoToPage = progress + 1; // start from 0
                 tvPage.setText("第 " + String.valueOf(mGoToPage) + " / " + (mMaxPage) + " 页");
             }
 
@@ -997,6 +991,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
             UIUtils.toast("您需要登录后才能使用本功能");
             return;
         }
+
         mCountdownButton.setCountdown(PostHelper.getWaitTimeToPost());
 
         mQuickReplyMode = mode;
@@ -1011,20 +1006,18 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
             mCountdownButton.setImageDrawable(new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_send).sizeDp(28).color(Color.GRAY));
         }
 
-        if (mode == PostHelper.MODE_REPLY_POST) {
+        if (mode == PostHelper.MODE_REPLY_POST)
             mEtReply.setHint("回复 " + detailBean.getFloorText() + "# " + detailBean.getAuthor());
-        } else if (mode == PostHelper.MODE_REPLY_COMMENT) {
+        else if (mode == PostHelper.MODE_REPLY_COMMENT)
             mEtReply.setHint("点评 " + detailBean.getFloorText() + "# " + detailBean.getAuthor());
-        } else {
+        else
             mEtReply.setHint(R.string.action_quick_reply);
-        }
 
         if (clearContent)
             mEtReply.setText("");
 
-        if (!TextUtils.isEmpty(replyTo)) {
+        if (!TextUtils.isEmpty(replyTo))
             mEtReply.setText("@" + replyTo + " ");
-        }
 
         mQuickReply.setVisibility(View.VISIBLE);
         mQuickReply.bringToFront();
@@ -1034,23 +1027,24 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
         if (HiSettingsHelper.getInstance().isGestureBack())
             ((ThreadDetailActivity) getActivity()).setSwipeBackEnable(false);
 
-        if (mode != PostHelper.MODE_NEW_THREAD && mQuickReplyToPost != null) {
-            int pos = mDetailAdapter.getPositionByPostId(mQuickReplyToPost.getPostId());
-            if (pos != -1) {
-                View view = mLayoutManager.findViewByPosition(pos);
-                if (view != null) {
-                    View rootView = ((ThreadDetailActivity) getActivity()).getRootView();
-                    mPostViewTop = UIUtils.getRelativeTop(view, (ViewGroup) rootView);
-                    mPostViewHeight = view.getHeight();
-                }
-            }
-
-            highlightPost(mQuickReplyToPost.getPostId());
-            mPendingScrollPostId = mQuickReplyToPost.getPostId();
-            mQuickReply.addOnLayoutChangeListener(mOnLayoutChangeListener);
-        } else {
+        if (mode == PostHelper.MODE_NEW_THREAD || mQuickReplyToPost == null) {
             deHighlightPostId();
+            return;
         }
+
+        int pos = mDetailAdapter.getPositionByPostId(mQuickReplyToPost.getPostId());
+        if (pos != -1) {
+            View view = mLayoutManager.findViewByPosition(pos);
+            if (view != null) {
+                View rootView = ((ThreadDetailActivity) getActivity()).getRootView();
+                mPostViewTop = UIUtils.getRelativeTop(view, (ViewGroup) rootView);
+                mPostViewHeight = view.getHeight();
+            }
+        }
+
+        highlightPost(mQuickReplyToPost.getPostId());
+        mPendingScrollPostId = mQuickReplyToPost.getPostId();
+        mQuickReply.addOnLayoutChangeListener(mOnLayoutChangeListener);
     }
 
     public boolean hideQuickReply(boolean clearReplyTo) {
@@ -1062,11 +1056,14 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
             mQuickReplyMode = PostHelper.MODE_REPLY_THREAD;
             mQuickReplyToPost = null;
         }
+
         mMainFab.show();
+
         if (mQuickReply.getVisibility() == View.VISIBLE) {
             mQuickReply.setVisibility(View.INVISIBLE);
             return true;
         }
+
         return false;
     }
 
@@ -1089,8 +1086,8 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
             UIUtils.toast("您需要登录后才能使用本功能");
             return;
         }
-        new AsyncTask<Void, Void, PreRateBean>() {
 
+        new AsyncTask<Void, Void, PreRateBean>() {
             private HiProgressDialog mProgressDialog;
             private String mMessage;
 
@@ -1101,16 +1098,19 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
 
             @Override
             protected void onPostExecute(PreRateBean preRateBean) {
-                if (preRateBean != null) {
-                    mProgressDialog.dismiss();
-                    preRateBean.setFormhash(mFormhash);
-                    preRateBean.setTid(mTid);
-                    preRateBean.setPid(detailBean.getPostId());
-                    RateDialog dialog = new RateDialog(getActivity(), preRateBean, ThreadDetailFragment.this);
-                    dialog.show();
-                } else {
+                if (preRateBean == null) {
                     mProgressDialog.dismissError(mMessage);
+                    return;
                 }
+
+                mProgressDialog.dismiss();
+
+                preRateBean.setFormhash(mFormhash);
+                preRateBean.setTid(mTid);
+                preRateBean.setPid(detailBean.getPostId());
+
+                RateDialog dialog = new RateDialog(getActivity(), preRateBean, ThreadDetailFragment.this);
+                dialog.show();
             }
 
             @Override
@@ -1185,6 +1185,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                 UIUtils.toast("请先退出只查看该作者模式");
                 return;
             }
+
             int floor = (Integer) view.getTag();
             gotoFloor(floor);
         }
@@ -1202,9 +1203,9 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
             int position = mDetailAdapter.getPositionByFloor(floor);
             mRecyclerView.scrollToPosition(position);
             DetailBean detailBean = mDetailAdapter.getItem(position);
-            if (detailBean != null) {
+            if (detailBean != null)
                 blinkItemView(detailBean.getPostId());
-            }
+
             mGotoFloor = -1;
         }
     }
@@ -1227,6 +1228,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     private void highlightPost(final String postId) {
         if (mHighlightPostId != null && !mHighlightPostId.equals(postId))
             deHighlightPostId();
+
         int pos = mDetailAdapter.getPositionByPostId(postId);
         if (pos != -1) {
             DetailBean detailBean = mDetailAdapter.getItem(pos);
@@ -1239,6 +1241,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     private void deHighlightPostId() {
         if (mHighlightPostId == null)
             return;
+
         int pos = mDetailAdapter.getPositionByPostId(mHighlightPostId);
         DetailBean detailBean = mDetailAdapter.getItem(pos);
         if (detailBean != null) {
@@ -1263,16 +1266,8 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
             mDetailBeans = mCache.get(mCurrentPage).getAll();
             mDetailAdapter.setDatas(mDetailBeans);
 
-            if (mCurrentPage == 1) {
-                mRecyclerView.setHeaderState(XHeaderView.STATE_HIDDEN);
-            } else {
-                mRecyclerView.setHeaderState(XHeaderView.STATE_READY);
-            }
-            if (mCurrentPage == mMaxPage) {
-                mRecyclerView.setFooterState(XFooterView.STATE_END);
-            } else {
-                mRecyclerView.setFooterState(XFooterView.STATE_READY);
-            }
+            mRecyclerView.setHeaderState(mCurrentPage == 1 ? XHeaderView.STATE_HIDDEN : XHeaderView.STATE_READY);
+            mRecyclerView.setFooterState(mCurrentPage == mMaxPage ? XFooterView.STATE_END : XFooterView.STATE_READY);
 
             mRecyclerView.post(new Runnable() {
                 @Override
@@ -1292,39 +1287,38 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                         position = mDetailAdapter.getPositionByFloor(mGotoFloor);
                     }
 
-                    if (toBottom) {
+                    if (toBottom)
                         mRecyclerView.scrollToBottom();
-                    } else if (position >= 0) {
+                    else if (position >= 0)
                         mRecyclerView.scrollToPosition(position);
-                    }
 
                     mGotoPostId = null;
                     mGotoFloor = -1;
 
                     if (mPendingBlinkFloor > 0) {
                         int pos = mDetailAdapter.getPositionByFloor(mPendingBlinkFloor);
+
                         DetailBean detailBean = mDetailAdapter.getItem(pos);
                         if (detailBean != null)
                             blinkItemView(detailBean.getPostId());
+
                         mPendingBlinkFloor = 0;
                     }
 
-                    if (position < 8) {
+                    if (position < 8)
                         prefetchPreviousPage();
-                    } else if (position > mDetailAdapter.getItemCount() - 8) {
+                    else if (position > mDetailAdapter.getItemCount() - 8)
                         prefetchNextPage();
-                    }
                 }
             });
 
             showMainFab();
-
         } else {
             int fetchType = FETCH_NORMAL;
-            if (refresh || mCurrentPage == mMaxPage || mCurrentPage == LAST_PAGE) {
+            if (refresh || mCurrentPage == mMaxPage || mCurrentPage == LAST_PAGE)
                 fetchType = FETCH_REFRESH;
-            }
-            mInloading = true;
+
+            mLoading = true;
             mLoadingView.setState(ContentLoadingView.LOADING);
             startJob(mCurrentPage, fetchType, POSITION_NORMAL);
         }
@@ -1341,7 +1335,8 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
         @Override
         public void onSingleClick(View view) {
             String uid = (String) view.getTag(R.id.avatar_tag_uid);
-            if (!HiUtils.isValidId(uid)) return;
+            if (!HiUtils.isValidId(uid))
+                return;
 
             String username = (String) view.getTag(R.id.avatar_tag_username);
             FragmentUtils.showUserInfoActivity(getActivity(), false, uid, username);
@@ -1363,18 +1358,17 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             firstVisiblesItem = mLayoutManager.findFirstVisibleItemPosition();
             lastVisibleItem = mLayoutManager.findLastVisibleItemPosition();
+
             if (dy > 0) {
                 visibleItemCount = mLayoutManager.getChildCount();
                 totalItemCount = mLayoutManager.getItemCount();
                 if ((visibleItemCount + firstVisiblesItem) >= totalItemCount - 3) {
-                    if (!mFooterLoading && mCurrentPage < mMaxPage) {
+                    if (!mFooterLoading && mCurrentPage < mMaxPage)
                         prefetchNextPage();
-                    }
                 }
             } else if (dy < 0) {
-                if (!mHeaderLoading && firstVisiblesItem < 3 && mCurrentPage > 1) {
+                if (!mHeaderLoading && firstVisiblesItem < 3 && mCurrentPage > 1)
                     prefetchPreviousPage();
-                }
             }
         }
 
@@ -1390,14 +1384,12 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     }
 
     public void startImageGallery(int imageIndex, GlideImageView imageView) {
-        if (getActivity() == null) {
+        if (getActivity() == null)
             return;
-        }
 
         DetailListBean detailListBean = mCache.get(mCurrentPage);
-        if (detailListBean == null) {
+        if (detailListBean == null)
             return;
-        }
 
         imageView.stopCurrentGif();
         if (detailListBean.getContentImages().size() > 0) {
@@ -1416,43 +1408,46 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
 
     @Override
     public boolean onBackPressed() {
-        if (mEmojiPopup != null && mEmojiPopup.isShowing()) {
+        if (mEmojiPopup != null && mEmojiPopup.isShowing())
             mEmojiPopup.dismiss();
-        }
+
         return hideQuickReply(true);
     }
 
     private void scrollPostForReply(final int newTop) {
-        if (mPendingScrollPostId != null && mQuickReplyToPost != null) {
-            int pos = mDetailAdapter.getPositionByPostId(mPendingScrollPostId);
-            mPendingScrollPostId = null;
-            if (pos != -1 && mQuickReply.getVisibility() == View.VISIBLE) {
-                View v = mLayoutManager.getChildAt(0);
-                TextView tv = (TextView) v.findViewById(R.id.floor);
-                if (tv == null || Utils.parseInt(tv.getText().toString()) != mQuickReplyToPost.getFloor()) {
-                    //minus height of quick reply view
-                    int replyTop = newTop - 30;
-                    View view = mLayoutManager.findViewByPosition(pos);
-                    if (view != null) {
-                        //post view is visable
-                        View rootView = ((ThreadDetailActivity) getActivity()).getRootView();
-                        int postTop = UIUtils.getRelativeTop(view, (ViewGroup) rootView);
-                        int scroll = postTop - replyTop + view.getHeight();
-                        if (scroll > 0)
-                            mRecyclerView.smoothScrollBy(0, scroll);
-                    } else if (mPostViewTop > 0 && mPostViewHeight > 0) {
-                        //post view is not visable, get stored position
-                        int scroll = mPostViewTop - replyTop + mPostViewHeight;
-                        if (scroll > 0)
-                            mRecyclerView.smoothScrollBy(0, scroll);
-                    } else {
-                        mRecyclerView.smoothScrollToPosition(pos);
-                    }
+        if (mPendingScrollPostId == null || mQuickReplyToPost == null)
+            return;
+
+        int pos = mDetailAdapter.getPositionByPostId(mPendingScrollPostId);
+        mPendingScrollPostId = null;
+
+        if (pos != -1 && mQuickReply.getVisibility() == View.VISIBLE) {
+            View v = mLayoutManager.getChildAt(0);
+            TextView tv = (TextView) v.findViewById(R.id.floor);
+            if (tv == null || Utils.parseInt(tv.getText().toString()) != mQuickReplyToPost.getFloor()) {
+                // minus height of quick reply view
+                int replyTop = newTop - 30;
+                View view = mLayoutManager.findViewByPosition(pos);
+                if (view != null) {
+                    // post view is visable
+                    View rootView = ((ThreadDetailActivity) getActivity()).getRootView();
+                    int postTop = UIUtils.getRelativeTop(view, (ViewGroup) rootView);
+                    int scroll = postTop - replyTop + view.getHeight();
+                    if (scroll > 0)
+                        mRecyclerView.smoothScrollBy(0, scroll);
+                } else if (mPostViewTop > 0 && mPostViewHeight > 0) {
+                    // post view is not visable, get stored position
+                    int scroll = mPostViewTop - replyTop + mPostViewHeight;
+                    if (scroll > 0)
+                        mRecyclerView.smoothScrollBy(0, scroll);
+                } else {
+                    mRecyclerView.smoothScrollToPosition(pos);
                 }
             }
-            mPostViewHeight = -1;
-            mPostViewTop = -1;
         }
+
+        mPostViewHeight = -1;
+        mPostViewTop = -1;
     }
 
     private class ThreadDetailEventCallback extends EventCallback<ThreadDetailEvent> {
@@ -1465,10 +1460,10 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                 mFooterLoading = false;
                 mRecyclerView.setFooterState(XFooterView.STATE_ERROR);
             } else {
-                mInloading = false;
-                if (mDetailBeans.size() == 0) {
+                mLoading = false;
+                if (mDetailBeans.size() == 0)
                     mLoadingView.setState(ContentLoadingView.ERROR);
-                }
+
                 UIUtils.errorSnack(getView(), event.mMessage, event.mDetail);
             }
         }
@@ -1483,9 +1478,8 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                 mAuthorId = event.mAuthorId;
 
             // Set title
-            if (details.getTitle() != null && !details.getTitle().isEmpty()) {
+            if (details.getTitle() != null && !details.getTitle().isEmpty())
                 mTitle = details.getTitle();
-            }
 
             mFid = details.getFid();
             if (TextUtils.isEmpty(mTid))
@@ -1501,30 +1495,32 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                 mRecyclerView.setHeaderState(XHeaderView.STATE_READY);
             } else if (event.mLoadingPosition == POSITION_FOOTER) {
                 mFooterLoading = false;
-                if (event.mFectchType == FETCH_NEXT) {
+                if (event.mFectchType == FETCH_NEXT)
                     mRecyclerView.setFooterState(mCurrentPage < mMaxPage ? XFooterView.STATE_READY : XFooterView.STATE_END);
-                }
             } else {
-                mInloading = false;
+                mLoading = false;
                 mLoadingView.setState(ContentLoadingView.CONTENT);
             }
 
             if (event.mFectchType == FETCH_NORMAL || event.mFectchType == FETCH_REFRESH) {
                 if (!mDataReceived) {
                     mDataReceived = true;
+
                     setHasOptionsMenu(true);
                     getActivity().invalidateOptionsMenu();
                     showMainFab();
                 }
+
                 mDetailBeans = details.getAll();
                 mDetailAdapter.setDatas(mDetailBeans);
-                mCurrentPage = details.getPage();
 
+                mCurrentPage = details.getPage();
                 showOrLoadPage();
             }
 
             if (!mHistorySaved || details.getPage() == 1) {
                 mHistorySaved = true;
+
                 String uid = null, username = null, postTime = null;
                 if (details.getPage() == 1 && details.getCount() > 0) {
                     DetailBean detailBean = details.getAll().get(0);
@@ -1532,18 +1528,19 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                     username = detailBean.getAuthor();
                     postTime = detailBean.getTimePost();
                 }
+
                 HistoryDao.saveHistoryInBackground(mTid, String.valueOf(mFid), mTitle, uid, username, postTime);
             }
         }
 
         @Override
         public void onFailRelogin(ThreadDetailEvent event) {
-            mInloading = false;
+            mLoading = false;
+
             mDetailBeans.clear();
             mDetailAdapter.notifyDataSetChanged();
             mLoadingView.setState(ContentLoadingView.NOT_LOGIN);
         }
-
     }
 
     @SuppressWarnings("unused")
@@ -1570,20 +1567,23 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
             mEtReply.setText("");
             hideQuickReply(true);
 
-            if (mPostProgressDialog != null) {
+            if (mPostProgressDialog != null)
                 mPostProgressDialog.dismiss(message);
-            }
+
             if (event.fromQuickReply)
                 mFooterLoading = false;
 
             mGotoFloor = postResult.getFloor();
+
             DetailListBean details = postResult.getDetailListBean();
             if (details != null) {
                 if (mCurrentPage != details.getPage()) {
                     mCache.remove(mCurrentPage);
                     mMaxPage = details.getLastPage();
                 }
+
                 mCache.put(details.getPage(), details);
+
                 mTitle = details.getTitle();
                 setActionBarTitle(mTitle);
             }
@@ -1591,26 +1591,31 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
             if (event.mMode == PostHelper.MODE_REPLY_COMMENT) {
                 if (postResult.getCommentListBean() != null) {
                     CommentListBean commentList = postResult.getCommentListBean();
+
                     int position = mDetailAdapter.getPositionByPostId(postResult.getPid());
                     DetailBean detailBean = mDetailAdapter.getItem(position);
                     detailBean.setCommentLists(commentList);
+
                     mDetailAdapter.notifyItemChanged(position);
                 }
             } else if (isInAuthorOnlyMode() && event.mMode != PostHelper.MODE_EDIT_POST) {
                 mCache.clear();
-                if (details != null) {
+                if (details != null)
                     mCache.put(details.getPage(), details);
-                }
+
                 mCurrentPage = LAST_PAGE;
                 mGotoFloor = LAST_FLOOR;
                 mAuthorId = "";
+
                 mShowAllMenuItem.setVisible(false);
                 showOrLoadPage(true);
             } else {
                 boolean append = false;
                 DetailBean lastpost = null;
+
                 if (mDetailBeans.size() > 0)
                     lastpost = mDetailBeans.get(mDetailBeans.size() - 1);
+
                 if (lastpost != null && event.fromQuickReply && details != null
                         && mCurrentPage == details.getPage() && mCurrentPage == details.getLastPage()) {
                     List<DetailBean> newBeans = details.getAll();
@@ -1619,16 +1624,18 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                         append = oldLastpost.getPostId().equals(lastpost.getPostId());
                     }
                 }
+
                 if (append) {
                     List<DetailBean> newBeans = details.getAll();
                     for (int i = mDetailBeans.size(); i < newBeans.size(); i++) {
                         DetailBean bean = newBeans.get(i);
                         mDetailBeans.add(bean);
+
                         mDetailAdapter.notifyItemInserted(mDetailBeans.size() + mDetailAdapter.getHeaderCount() - 1);
-                        if (bean.getAuthor().equals(HiSettingsHelper.getInstance().getUsername())) {
+                        if (bean.getAuthor().equals(HiSettingsHelper.getInstance().getUsername()))
                             blinkItemView(bean.getPostId());
-                        }
                     }
+
                     mRecyclerView.smoothScrollToPosition(mDetailAdapter.getItemCount() - 1 - mDetailAdapter.getFooterCount());
                     mRecyclerView.setFooterState(XFooterView.STATE_END);
                 } else {
@@ -1636,32 +1643,32 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                         mCurrentPage = mMaxPage;
                         mGotoFloor = LAST_FLOOR;
                     }
+
                     showOrLoadPage(false);
                 }
             }
         } else {
             if (event.fromQuickReply) {
                 mFooterLoading = false;
-                if (!TextUtils.isEmpty(mEtReply.getText())) {
+                if (!TextUtils.isEmpty(mEtReply.getText()))
                     ContentDao.saveContent(mSessionId, mEtReply.getText().toString());
-                }
+
                 showQuickReply(false);
                 mRecyclerView.setFooterState(XFooterView.STATE_ERROR);
             }
-            if (mPostProgressDialog != null) {
+
+            if (mPostProgressDialog != null)
                 mPostProgressDialog.dismissError(message);
-            } else {
+            else
                 UIUtils.toast(message);
-            }
         }
     }
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(NetworkReadyEvent event) {
-        if (!mInloading && mDetailBeans.size() == 0) {
+        if (!mLoading && mDetailBeans.size() == 0)
             refresh();
-        }
     }
 
     @SuppressWarnings("unused")
@@ -1669,6 +1676,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     public void onEvent(ThreadDetailEvent event) {
         if (!mSessionId.equals(event.mSessionId))
             return;
+
         EventBus.getDefault().removeStickyEvent(event);
         mEventCallback.process(event);
     }
@@ -1725,11 +1733,11 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
                     @Override
                     public void onResponse(String response) {
                         String message = ParserUtil.parseXmlErrorMessage(response);
-                        if (!TextUtils.isEmpty(message)) {
+                        if (!TextUtils.isEmpty(message))
                             mPostProgressDialog.dismissError(message);
-                        } else {
+                        else
                             mPostProgressDialog.dismiss("投票成功");
-                        }
+
                         refresh();
                     }
                 });

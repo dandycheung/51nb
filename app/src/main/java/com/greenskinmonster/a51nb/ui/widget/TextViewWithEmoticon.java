@@ -75,23 +75,21 @@ public class TextViewWithEmoticon extends AppCompatTextView {
         SpannableStringBuilder b = (SpannableStringBuilder) HtmlCompat.fromHtml(t, imageGetter, new HiHtmlTagHandler());
         for (URLSpan s : b.getSpans(0, b.length(), URLSpan.class)) {
             String url = s.getURL();
-            if (url.contains(HiUtils.ForumAttatchUrlPattern)) {
-                URLSpan newSpan = getDownloadUrlSpan(url);
-                b.setSpan(newSpan, b.getSpanStart(s), b.getSpanEnd(s), b.getSpanFlags(s));
-                b.removeSpan(s);
-            } else {
+
+            boolean attachment = url.contains(HiUtils.ForumAttatchUrlPattern);
+            if (!attachment) {
                 FragmentArgs args = FragmentUtils.parseUrl(url);
-                if (args != null) {
-                    URLSpan newSpan = getFragmentArgsUrlSpan(url);
-                    b.setSpan(newSpan, b.getSpanStart(s), b.getSpanEnd(s), b.getSpanFlags(s));
-                    b.removeSpan(s);
-                }
+                if (args == null)
+                    continue;
             }
+
+            URLSpan newSpan = attachment ? getDownloadUrlSpan(url) : getFragmentArgsUrlSpan(url);
+            b.setSpan(newSpan, b.getSpanStart(s), b.getSpanEnd(s), b.getSpanFlags(s));
+            b.removeSpan(s);
         }
+
         setText(trimSpannable(b));
     }
-
-    private Handler mHandler;
 
     private Html.ImageGetter imageGetter = new Html.ImageGetter() {
         public Drawable getDrawable(String src) {
@@ -101,7 +99,7 @@ public class TextViewWithEmoticon extends AppCompatTextView {
             // NOTE: 在 Android 10 上，以上调用会使动画 gif 返回一个 AnimatedImageDrawable，
             //   但是该对象不会正确处理 setBounds() 的意图，因此将之强制弃用。不做此特殊处理的话，
             //   表情（即动图首帧）会以本来大小显示，看上去非常小。此问题可能在 Android 9 上就有。
-            if (drawable == null || !(drawable instanceof BitmapDrawable))
+            if (!(drawable instanceof BitmapDrawable))
                 drawable = TextViewWithEmoticon.this.getDrawable2(src);
 
             return drawable;
@@ -133,6 +131,8 @@ public class TextViewWithEmoticon extends AppCompatTextView {
         return icon;
     }
 
+
+    private Handler mHandler;
 
     @NonNull
     private Drawable getDrawable2(String source) {
