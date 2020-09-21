@@ -2,6 +2,10 @@ package com.greenskinmonster.a51nb.ui.widget;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
@@ -23,8 +27,12 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.Request;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.ViewTarget;
 import com.greenskinmonster.a51nb.bean.DetailBean;
 import com.greenskinmonster.a51nb.ui.BaseFragment;
 import com.greenskinmonster.a51nb.ui.FragmentArgs;
@@ -38,6 +46,9 @@ import com.greenskinmonster.a51nb.utils.Logger;
 import com.greenskinmonster.a51nb.utils.UIUtils;
 import com.greenskinmonster.a51nb.utils.Utils;
 import com.vanniktech.emoji.EmojiHandler;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class TextViewWithEmoticon extends AppCompatTextView {
     private Context mCtx;
@@ -72,7 +83,7 @@ public class TextViewWithEmoticon extends AppCompatTextView {
 
     public void setRichText(CharSequence text) {
         String t = text.toString().trim();
-        SpannableStringBuilder b = (SpannableStringBuilder) HtmlCompat.fromHtml(t, imageGetter, new HiHtmlTagHandler());
+        SpannableStringBuilder b = (SpannableStringBuilder) HtmlCompat.fromHtml(t, imageGetterEx, new HiHtmlTagHandler());
         for (URLSpan s : b.getSpans(0, b.length(), URLSpan.class)) {
             String url = s.getURL();
 
@@ -90,6 +101,8 @@ public class TextViewWithEmoticon extends AppCompatTextView {
 
         setText(trimSpannable(b));
     }
+
+    private Html.ImageGetter imageGetterEx = new GlideImageGetter();
 
     private Html.ImageGetter imageGetter = new Html.ImageGetter() {
         public Drawable getDrawable(String src) {
@@ -200,15 +213,17 @@ public class TextViewWithEmoticon extends AppCompatTextView {
                     // redirect by goto floor in same fragment
                     ThreadDetailFragment detailFragment = (ThreadDetailFragment) mFragment;
                     if (!TextUtils.isEmpty(args.getTid()) && args.getTid().equals(detailFragment.getTid())) {
-                        if (args.getFloor() != 0) {
-                            floor = args.getFloor();
-                        } else if (!TextUtils.isEmpty(args.getPostId())) {
-                            // get floor if postId is cached
-                            DetailBean detailBean = detailFragment.getCachedPost(args.getPostId());
-                            if (detailBean != null)
-                                floor = detailBean.getFloor();
-                        } else {
-                            floor = 1;
+                        floor = args.getFloor();
+                        if (floor == 0) {
+                            String postId = args.getPostId();
+                            if (TextUtils.isEmpty(postId))
+                                floor = 1;
+                            else {
+                                // get floor if postId is cached
+                                DetailBean detailBean = detailFragment.getCachedPost(postId);
+                                if (detailBean != null)
+                                    floor = detailBean.getFloor();
+                            }
                         }
                     }
                 }
@@ -217,11 +232,10 @@ public class TextViewWithEmoticon extends AppCompatTextView {
                     // redirect in same thread
                     ((ThreadDetailFragment) mFragment).gotoFloor(floor);
                 } else {
-                    if (args.getType() == FragmentArgs.TYPE_THREAD) {
+                    if (args.getType() == FragmentArgs.TYPE_THREAD)
                         FragmentUtils.showThreadActivity(mFragment.getActivity(), args.isSkipEnterAnim(), args.getTid(), "", args.getPage(), args.getFloor(), args.getPostId(), -1);
-                    } else {
+                    else
                         FragmentUtils.show(mFragment.getActivity(), args);
-                    }
                 }
             }
         };
@@ -300,5 +314,158 @@ public class TextViewWithEmoticon extends AppCompatTextView {
         }
 
         return true;
+    }
+
+    /*
+     * New image getter implementation
+     */
+
+    public class GlideImageGetter implements Html.ImageGetter, Drawable.Callback {
+        private final TextView mTextView;
+        private final Set<ImageGetterViewTarget> mTargets;
+
+        public void clear() {
+            for (ImageGetterViewTarget target : mTargets)
+                Glide.clear(target);
+        }
+
+        public GlideImageGetter() {
+            mTextView = TextViewWithEmoticon.this;
+            mTargets = new HashSet<>();
+        }
+
+        @Override
+        public Drawable getDrawable(String url) {
+            final UrlDrawableGlide urlDrawable = new UrlDrawableGlide();
+
+            System.out.println("Downloading from: " + url);
+            Glide.with(mCtx)
+                    .load(url)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(new ImageGetterViewTarget(mTextView, urlDrawable));
+
+            return urlDrawable;
+        }
+
+        @Override
+        public void invalidateDrawable(Drawable who) {
+            mTextView.invalidate();
+        }
+
+        @Override
+        public void scheduleDrawable(Drawable who, Runnable what, long when) {
+        }
+
+        @Override
+        public void unscheduleDrawable(Drawable who, Runnable what) {
+        }
+
+        private class ImageGetterViewTarget extends ViewTarget<TextView, GlideDrawable> {
+            private final UrlDrawableGlide mDrawable;
+
+            private ImageGetterViewTarget(TextView view, UrlDrawableGlide drawable) {
+                super(view);
+
+                mTargets.add(this);
+                mDrawable = drawable;
+            }
+
+            @Override
+            public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
+                int width = resource.getIntrinsicWidth();
+                int height = resource.getIntrinsicHeight();
+
+                int size = (int) (getLineHeight() * 1.2);
+                // if (width > size)
+                    width = size;
+
+                // if (height > size)
+                    height = size;
+
+                Rect rect = new Rect(0, 0, width, height);
+                resource.setBounds(rect);
+
+                mDrawable.setBounds(rect);
+                mDrawable.setDrawable(resource);
+
+                if (resource.isAnimated()) {
+                    mDrawable.setCallback(GlideImageGetter.this);
+                    resource.setLoopCount(GlideDrawable.LOOP_FOREVER);
+                    resource.start();
+                }
+
+                getView().setText(getView().getText());
+                getView().invalidate();
+            }
+
+            private Request request;
+
+            @Override
+            public Request getRequest() {
+                return request;
+            }
+
+            @Override
+            public void setRequest(Request request) {
+                this.request = request;
+            }
+        }
+    }
+
+    // Nullable GlideDrawable wrapper/container, with default Drawable callback
+    public class UrlDrawableGlide extends Drawable implements Drawable.Callback {
+        private GlideDrawable mDrawable;
+
+        @Override
+        public void draw(Canvas canvas) {
+            if (mDrawable != null)
+                mDrawable.draw(canvas);
+        }
+
+        @Override
+        public void setAlpha(int alpha) {
+            if (mDrawable != null)
+                mDrawable.setAlpha(alpha);
+        }
+
+        @Override
+        public void setColorFilter(ColorFilter cf) {
+            if (mDrawable != null)
+                mDrawable.setColorFilter(cf);
+        }
+
+        @Override
+        public int getOpacity() {
+            if (mDrawable != null)
+                return mDrawable.getOpacity();
+
+            return PixelFormat.UNKNOWN;
+        }
+
+        public void setDrawable(GlideDrawable drawable) {
+            if (mDrawable != null)
+                mDrawable.setCallback(null);
+
+            drawable.setCallback(this);
+            mDrawable = drawable;
+        }
+
+        @Override
+        public void invalidateDrawable(Drawable who) {
+            if (getCallback() != null)
+                getCallback().invalidateDrawable(who);
+        }
+
+        @Override
+        public void scheduleDrawable(Drawable who, Runnable what, long when) {
+            if (getCallback() != null)
+                getCallback().scheduleDrawable(who, what, when);
+        }
+
+        @Override
+        public void unscheduleDrawable(Drawable who, Runnable what) {
+            if (getCallback() != null)
+                getCallback().unscheduleDrawable(who, what);
+        }
     }
 }
