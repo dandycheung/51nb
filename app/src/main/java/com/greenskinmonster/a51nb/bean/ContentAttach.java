@@ -25,5 +25,4 @@ public class ContentAttach extends ContentAbs {
     public String getCopyText() {
         return "[附件:" + mTitle + "]";
     }
-
 }

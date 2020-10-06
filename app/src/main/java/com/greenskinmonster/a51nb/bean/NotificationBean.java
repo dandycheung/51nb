@@ -101,5 +101,4 @@ public class NotificationBean {
     public int getTotalNotiCount() {
         return getThreadCount() + getSysNotiCount();
     }
-
 }

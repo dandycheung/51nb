@@ -29,7 +29,6 @@ import java.util.List;
  * @param <T>
  */
 public class KeyValueArrayAdapter extends ArrayAdapter<KeyValueArrayAdapter.KeyValue> {
-
     /**
      * Key and Value
      */
@@ -46,7 +45,6 @@ public class KeyValueArrayAdapter extends ArrayAdapter<KeyValueArrayAdapter.KeyV
             this.key = key;
             this.value = value;
         }
-
     }
 
     /**
@@ -140,14 +138,12 @@ public class KeyValueArrayAdapter extends ArrayAdapter<KeyValueArrayAdapter.KeyV
      * @param vaules
      */
     public void setKeyValue(final String[] keys, final String[] vaules) {
-        if (keys.length != vaules.length) {
+        if (keys.length != vaules.length)
             throw new RuntimeException("The length of keys and values is not in agreement.");
-        }
 
         final int N = keys.length;
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < N; i++)
             add(new KeyValue(keys[i], vaules[i]));
-        }
     }
 
     /**
@@ -157,9 +153,8 @@ public class KeyValueArrayAdapter extends ArrayAdapter<KeyValueArrayAdapter.KeyV
      */
     public void setKeyValue(final String[][] keysVaules) {
         final int N = keysVaules.length;
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < N; i++)
             add(new KeyValue(keysVaules[i][0], keysVaules[i][1]));
-        }
     }
 
     private String[] entries;
@@ -172,9 +167,8 @@ public class KeyValueArrayAdapter extends ArrayAdapter<KeyValueArrayAdapter.KeyV
      */
     public void setEntries(final String[] entries) {
         this.entries = entries;
-        if (entryValues != null) {
+        if (entryValues != null)
             setKeyValue(entryValues, entries);
-        }
     }
 
     /**
@@ -184,9 +178,8 @@ public class KeyValueArrayAdapter extends ArrayAdapter<KeyValueArrayAdapter.KeyV
      */
     public void setEntryValues(final String[] entryValues) {
         this.entryValues = entryValues;
-        if (entries != null) {
+        if (entries != null)
             setKeyValue(entryValues, entries);
-        }
     }
 
     /**
@@ -228,5 +221,4 @@ public class KeyValueArrayAdapter extends ArrayAdapter<KeyValueArrayAdapter.KeyV
     public String getEntryValue(final int position) {
         return getKey(position);
     }
-
 }

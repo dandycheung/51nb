@@ -33,7 +33,6 @@ import java.util.UUID;
  * Created by GreenSkinMonster on 2015-05-09.
  */
 public abstract class BaseFragment extends Fragment {
-
     public String mSessionId;
     protected EmojiPopup mEmojiPopup;
     protected IconicsDrawable mKeyboardDrawable;
@@ -42,42 +41,43 @@ public abstract class BaseFragment extends Fragment {
     protected FloatingActionButton mNotificationFab;
 
     protected void setActionBarTitle(CharSequence title) {
-        if (getActivity() != null) {
-            ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-            String t = Utils.nullToText(title);
-            if (actionBar != null && !t.equals(actionBar.getTitle())) {
-                actionBar.setTitle(t);
-            }
-        }
+        if (getActivity() == null)
+            return;
+
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        String t = Utils.nullToText(title);
+        if (actionBar != null && !t.equals(actionBar.getTitle()))
+            actionBar.setTitle(t);
     }
 
     protected void setActionBarTitle(@StringRes int resId) {
-        if (getActivity() != null) {
-            ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-            if (actionBar != null)
-                actionBar.setTitle(resId);
-        }
+        if (getActivity() == null)
+            return;
+
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null)
+            actionBar.setTitle(resId);
     }
 
     protected void setActionBarSubtitle(CharSequence title) {
-        if (getActivity() != null) {
-            ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-            String t = Utils.nullToText(title);
-            if (actionBar != null && !t.equals(actionBar.getTitle())) {
-                actionBar.setSubtitle(t);
-            }
-        }
+        if (getActivity() == null)
+            return;
+
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        String t = Utils.nullToText(title);
+        if (actionBar != null && !t.equals(actionBar.getTitle()))
+            actionBar.setSubtitle(t);
     }
 
     void setupFab() {
-        if (getActivity() != null) {
-            if (mMainFab != null) {
-                mMainFab.setVisibility(View.GONE);
-            }
-            if (mNotificationFab != null) {
-                mNotificationFab.setVisibility(View.GONE);
-            }
-        }
+        if (getActivity() == null)
+            return;
+
+        if (mMainFab != null)
+            mMainFab.setVisibility(View.GONE);
+
+        if (mNotificationFab != null)
+            mNotificationFab.setVisibility(View.GONE);
     }
 
     @Override
@@ -110,6 +110,7 @@ public abstract class BaseFragment extends Fragment {
     public void onDestroy() {
         if (mEmojiPopup != null)
             mEmojiPopup.cleanup();
+
         super.onDestroy();
     }
 
@@ -144,6 +145,7 @@ public abstract class BaseFragment extends Fragment {
     protected void setUpEmojiPopup(final EmojiEditText mEtContent, final ImageButton mIbEmojiSwitch) {
         if (mKeyboardDrawable == null)
             mKeyboardDrawable = new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_keyboard).sizeDp(28).color(Color.GRAY);
+
         if (mFaceDrawable == null)
             mFaceDrawable = new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_tag_faces).sizeDp(28).color(Color.GRAY);
 
@@ -186,5 +188,4 @@ public abstract class BaseFragment extends Fragment {
                     }
                 }).build(mEtContent);
     }
-
 }

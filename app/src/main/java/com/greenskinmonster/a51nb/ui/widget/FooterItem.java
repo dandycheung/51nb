@@ -16,7 +16,6 @@ import java.util.List;
  */
 
 public class FooterItem extends AbstractItem<FooterItem, FooterItem.ViewHolder> {
-
     private boolean mLoading;
 
     public FooterItem withLoading() {
@@ -58,12 +57,12 @@ public class FooterItem extends AbstractItem<FooterItem, FooterItem.ViewHolder> 
     }
 
     protected static class ViewHolder extends RecyclerView.ViewHolder {
-
         ProgressBar mProgressBar;
         TextView mTextView;
 
         public ViewHolder(View view) {
             super(view);
+
             mProgressBar = (ProgressBar) view.findViewById(R.id.footer_progressbar);
             mProgressBar.getIndeterminateDrawable()
                     .setColorFilter(Color.LTGRAY, android.graphics.PorterDuff.Mode.SRC_IN);

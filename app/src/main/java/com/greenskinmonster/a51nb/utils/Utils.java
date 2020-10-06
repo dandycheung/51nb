@@ -112,15 +112,9 @@ public class Utils {
     public static String clean(String html) {
         if (mWhitelist == null) {
             mWhitelist = new Whitelist();
-            mWhitelist.addTags(
-                    "a",
-                    "br", "p",
-                    "b", "i", "strike", "strong", "u",
-                    "font")
-
+            mWhitelist.addTags("a", "br", "p", "b", "i", "strike", "strong", "u", "font")
                     .addAttributes("a", "href")
                     .addAttributes("font", "color")
-
                     .addProtocols("a", "href", "http", "https");
         }
         return Jsoup.clean(html, "", mWhitelist, new Document.OutputSettings().prettyPrint(false));
@@ -290,11 +284,9 @@ public class Utils {
         // defined in provider_paths.xml
         try {
             File destFile = HiApplication.getAppContext().getExternalFilesDir("Pictures");
-            if (destFile != null && destFile.exists() && destFile.isDirectory()) {
-                for (File f : destFile.listFiles()) {
+            if (destFile != null && destFile.exists() && destFile.isDirectory())
+                for (File f : destFile.listFiles())
                     f.delete();
-                }
-            }
         } catch (Exception e) {
             Logger.e(e);
         }
@@ -306,14 +298,14 @@ public class Utils {
     }
 
     public static void printMemoryUsage() {
-        Runtime runtime = Runtime.getRuntime();
+        Runtime rt = Runtime.getRuntime();
 
         DecimalFormat df = new DecimalFormat("#.##");
-        Logger.e("\nmax=" + df.format(runtime.maxMemory() * 1.0f / 1024 / 1024) + "M"
-                + "\ntotal=" + df.format(runtime.totalMemory() * 1.0f / 1024 / 1024) + "M"
-                + "\nfree=" + df.format(runtime.freeMemory() * 1.0f / 1024 / 1024) + "M"
-                + "\nused=" + df.format((runtime.totalMemory() - runtime.freeMemory()) * 1.0f / 1024 / 1024) + "M"
-                + "\nusage=" + df.format((runtime.totalMemory() - runtime.freeMemory()) * 100.0f / runtime.maxMemory()) + "%");
+        Logger.e("\nmax=" + df.format(rt.maxMemory() * 1.0f / 1024 / 1024) + "M"
+                + "\ntotal=" + df.format(rt.totalMemory() * 1.0f / 1024 / 1024) + "M"
+                + "\nfree=" + df.format(rt.freeMemory() * 1.0f / 1024 / 1024) + "M"
+                + "\nused=" + df.format((rt.totalMemory() - rt.freeMemory()) * 1.0f / 1024 / 1024) + "M"
+                + "\nusage=" + df.format((rt.totalMemory() - rt.freeMemory()) * 100.0f / rt.maxMemory()) + "%");
     }
 
     private static boolean deleteDir(File file) {
@@ -324,11 +316,9 @@ public class Utils {
             return file.delete();
 
         String[] children = file.list();
-        for (String aChildren : children) {
-            boolean success = deleteDir(new File(file, aChildren));
-            if (!success)
+        for (String aChildren : children)
+            if (!deleteDir(new File(file, aChildren)))
                 return false;
-        }
 
         return true;
     }
@@ -336,9 +326,8 @@ public class Utils {
     public static void clearInternalCache() {
         try {
             File cache = HiApplication.getAppContext().getCacheDir();
-            if (cache != null && cache.isDirectory()) {
+            if (cache != null && cache.isDirectory())
                 deleteDir(cache);
-            }
         } catch (Exception ignored) {
         }
     }
@@ -346,9 +335,8 @@ public class Utils {
     public static void clearOkhttpCache() {
         try {
             File cache = Glide.getPhotoCacheDir(HiApplication.getAppContext(), OkHttpHelper.CACHE_DIR_NAME);
-            if (cache != null && cache.isDirectory()) {
+            if (cache != null && cache.isDirectory())
                 deleteDir(cache);
-            }
         } catch (Exception ignored) {
         }
     }
@@ -356,9 +344,8 @@ public class Utils {
     public static void clearExternalCache() {
         try {
             File cache = HiApplication.getAppContext().getExternalCacheDir();
-            if (cache != null && cache.isDirectory()) {
+            if (cache != null && cache.isDirectory())
                 deleteDir(cache);
-            }
         } catch (Exception ignored) {
         }
     }
@@ -370,8 +357,7 @@ public class Utils {
 
     public static boolean isFromGooglePlay(Context context) {
         try {
-            String installer = context.getPackageManager()
-                    .getInstallerPackageName(context.getPackageName());
+            String installer = context.getPackageManager().getInstallerPackageName(context.getPackageName());
             return "com.android.vending".equals(installer);
         } catch (Throwable ignored) {
         }

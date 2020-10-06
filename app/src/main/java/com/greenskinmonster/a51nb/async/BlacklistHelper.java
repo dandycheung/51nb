@@ -23,7 +23,6 @@ import okhttp3.Request;
  */
 
 public class BlacklistHelper {
-
     public static void addBlacklist(String formhash, final String username, OkHttpHelper.ResultCallback callback) {
         ParamsMap params = new ParamsMap();
         params.put("formhash", formhash);
@@ -52,6 +51,7 @@ public class BlacklistHelper {
     public static void syncBlacklists() {
         if (!LoginHelper.isLoggedIn())
             return;
+
         BlacklistHelper.getBlacklists(new OkHttpHelper.ResultCallback() {
             @Override
             public void onError(Request request, Exception e) {
@@ -73,5 +73,4 @@ public class BlacklistHelper {
             }
         });
     }
-
 }

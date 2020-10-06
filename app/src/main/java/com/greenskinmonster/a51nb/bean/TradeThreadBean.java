@@ -5,14 +5,12 @@ package com.greenskinmonster.a51nb.bean;
  */
 
 public class TradeThreadBean extends ThreadBean {
-
     public final static String TRADER = "商家";
     public final static String MEMBER = "会员";
 
     private String mTraderType;
     private String mPrice;
     private String mLocation;
-
 
     public String getTraderType() {
         return mTraderType;

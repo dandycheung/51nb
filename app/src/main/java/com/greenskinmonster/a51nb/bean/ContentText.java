@@ -3,7 +3,6 @@ package com.greenskinmonster.a51nb.bean;
 import com.greenskinmonster.a51nb.utils.Utils;
 
 public class ContentText extends ContentAbs {
-
     private StringBuilder mSb;
 
     public ContentText(String text) {
@@ -24,5 +23,4 @@ public class ContentText extends ContentAbs {
     public String getCopyText() {
         return Utils.fromHtmlAndStrip(mSb.toString()).toString();
     }
-
 }

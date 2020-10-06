@@ -9,7 +9,6 @@ import com.greenskinmonster.a51nb.ui.widget.swipeback.SwipeBackActivityHelper;
 import com.greenskinmonster.a51nb.ui.widget.swipeback.SwipeBackLayout;
 import com.greenskinmonster.a51nb.ui.widget.swipeback.SwipeUtils;
 
-
 /**
  * Created by GreenSkinMonster on 2017-06-15.
  */
@@ -53,5 +52,4 @@ public class SwipeBackActivity extends AppCompatActivity implements SwipeBackAct
         SwipeUtils.convertActivityToTranslucent(this);
         getSwipeBackLayout().scrollToFinishActivity();
     }
-
 }

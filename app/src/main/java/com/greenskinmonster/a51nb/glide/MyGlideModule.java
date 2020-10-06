@@ -32,23 +32,21 @@ import okhttp3.Response;
  */
 
 public class MyGlideModule implements GlideModule {
-
     private final static int DEFAULT_CACHE_SIZE = 500;
     private final static int MIN_CACHE_SIZE = 300;
 
-
     @Override
     public void applyOptions(Context context, GlideBuilder gb) {
-        String cacheSizeStr = HiSettingsHelper.getInstance().getStringValue(HiSettingsHelper.PERF_CACHE_SIZE_IN_MB, DEFAULT_CACHE_SIZE + "");
         int cacheSize = DEFAULT_CACHE_SIZE;
+
+        String cacheSizeStr = HiSettingsHelper.getInstance().getStringValue(HiSettingsHelper.PERF_CACHE_SIZE_IN_MB, DEFAULT_CACHE_SIZE + "");
         if (TextUtils.isDigitsOnly(cacheSizeStr)) {
             cacheSize = Integer.parseInt(cacheSizeStr);
-            if (cacheSize < MIN_CACHE_SIZE) {
+            if (cacheSize < MIN_CACHE_SIZE)
                 cacheSize = DEFAULT_CACHE_SIZE;
-            }
         }
-        gb.setDiskCache(new ExternalCacheDiskCacheFactory(context, cacheSize * 1024 * 1024));
 
+        gb.setDiskCache(new ExternalCacheDiskCacheFactory(context, cacheSize * 1024 * 1024));
         GlideHelper.initDefaultFiles();
     }
 
@@ -59,9 +57,8 @@ public class MyGlideModule implements GlideModule {
                 .readTimeout(OkHttpHelper.NETWORK_TIMEOUT_SECS, TimeUnit.SECONDS)
                 .writeTimeout(OkHttpHelper.NETWORK_TIMEOUT_SECS, TimeUnit.SECONDS);
 
-        if (HiSettingsHelper.getInstance().isTrustAllCerts()) {
+        if (HiSettingsHelper.getInstance().isTrustAllCerts())
             OkHttpHelper.setupTrustAllCerts(builder);
-        }
 
         if (Logger.isDebug())
             builder.addInterceptor(new LoggingInterceptor());
@@ -69,9 +66,9 @@ public class MyGlideModule implements GlideModule {
         final ProgressListener progressListener = new ProgressListener() {
             @Override
             public void update(String url, long bytesRead, long contentLength, boolean done) {
-                if (done) {
+                if (done)
                     EventBus.getDefault().post(new GlideImageEvent(url, 100, ImageInfo.IN_PROGRESS));
-                } else {
+                else {
                     int progress = (int) Math.round((100.0 * bytesRead) / contentLength);
                     EventBus.getDefault().post(new GlideImageEvent(url, progress, ImageInfo.IN_PROGRESS));
                 }
@@ -83,10 +80,10 @@ public class MyGlideModule implements GlideModule {
             public Response intercept(Chain chain) throws IOException {
                 Response originalResponse = chain.proceed(chain.request());
                 String url = chain.request().url().toString();
-                //avatar don't need a progress listener
-                if (url.startsWith(HiUtils.AvatarBaseUrl)) {
+                // avatar don't need a progress listener
+                if (url.startsWith(HiUtils.AvatarBaseUrl))
                     return originalResponse;
-                }
+
                 return originalResponse.newBuilder()
                         .body(new ProgressResponseBody(url, originalResponse.body(), progressListener))
                         .build();
@@ -97,5 +94,4 @@ public class MyGlideModule implements GlideModule {
 
         glide.register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(client));
     }
-
 }

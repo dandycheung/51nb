@@ -22,7 +22,6 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
  * Created by GreenSkinMonster on 2015-03-28.
  */
 public class HiApplication extends Application implements Application.ActivityLifecycleCallbacks {
-
     public final static int IDLE = 0;
     public final static int RELOAD = 1;
     public final static int RECREATE = 2;
@@ -139,7 +138,6 @@ public class HiApplication extends Application implements Application.ActivityLi
         foregroundActivityCount--;
     }
 
-
     public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
     }
 
@@ -150,5 +148,4 @@ public class HiApplication extends Application implements Application.ActivityLi
     public void onActivityStopped(Activity activity) {
         visibleActivityCount--;
     }
-
 }

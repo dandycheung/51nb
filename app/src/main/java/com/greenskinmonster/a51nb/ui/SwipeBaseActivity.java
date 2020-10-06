@@ -10,7 +10,6 @@ import com.greenskinmonster.a51nb.ui.widget.swipeback.SwipeBackLayout;
 import com.greenskinmonster.a51nb.ui.widget.swipeback.SwipeUtils;
 import com.greenskinmonster.a51nb.utils.UIUtils;
 
-
 /**
  * Created by GreenSkinMonster on 2017-06-15.
  */
@@ -52,9 +51,8 @@ public class SwipeBaseActivity extends BaseActivity implements SwipeBackActivity
 
     @Override
     public void setSwipeBackEnable(boolean enable) {
-        if (mHelper != null) {
+        if (mHelper != null)
             getSwipeBackLayout().setEnableGesture(enable);
-        }
     }
 
     @Override
@@ -64,5 +62,4 @@ public class SwipeBaseActivity extends BaseActivity implements SwipeBackActivity
             getSwipeBackLayout().scrollToFinishActivity();
         }
     }
-
 }

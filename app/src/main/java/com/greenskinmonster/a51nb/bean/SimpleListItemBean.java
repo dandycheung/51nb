@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SimpleListItemBean extends ThreadBean {
-
     private String mPid;
     private String mInfo;
     private String mPmid;
@@ -54,7 +53,6 @@ public class SimpleListItemBean extends ThreadBean {
         mPmid = pmid;
     }
 
-
     public void addPostItem(SimplePostItemBean bean) {
         if (mPostBeans == null)
             mPostBeans = new ArrayList<>(1);
@@ -70,5 +68,4 @@ public class SimpleListItemBean extends ThreadBean {
     public List<SimplePostItemBean> getPostItems() {
         return mPostBeans;
     }
-
 }

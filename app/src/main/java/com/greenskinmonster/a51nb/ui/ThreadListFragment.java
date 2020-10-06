@@ -55,7 +55,7 @@ import com.greenskinmonster.a51nb.ui.widget.ContentLoadingView;
 import com.greenskinmonster.a51nb.ui.widget.FABHideOnScrollBehavior;
 import com.greenskinmonster.a51nb.ui.widget.OnViewItemSingleClickListener;
 import com.greenskinmonster.a51nb.ui.widget.SimpleDivider;
-import com.greenskinmonster.a51nb.ui.widget.ValueChagerView;
+import com.greenskinmonster.a51nb.ui.widget.ValueChangerView;
 import com.greenskinmonster.a51nb.ui.widget.XFooterView;
 import com.greenskinmonster.a51nb.ui.widget.XRecyclerView;
 import com.greenskinmonster.a51nb.utils.ColorHelper;
@@ -76,7 +76,6 @@ import java.util.Map;
 
 public class ThreadListFragment extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener {
-
     public static final String ARG_FID_KEY = "fid";
 
     private Context mCtx;
@@ -109,15 +108,14 @@ public class ThreadListFragment extends BaseFragment
 
         mCtx = getActivity();
 
-        if (getArguments() != null && getArguments().containsKey(ARG_FID_KEY)) {
+        if (getArguments() != null && getArguments().containsKey(ARG_FID_KEY))
             mForumId = getArguments().getInt(ARG_FID_KEY);
-        }
+
         if (!HiUtils.isForumValid(mForumId)) {
-            if (HiSettingsHelper.getInstance().getFreqForums().size() > 0) {
+            if (HiSettingsHelper.getInstance().getFreqForums().size() > 0)
                 mForumId = HiSettingsHelper.getInstance().getFreqForums().get(0).getId();
-            } else {
+            else
                 mForumId = HiUtils.FID_THINPAD;
-            }
         }
 
         HiSettingsHelper.getInstance().setLastForumId(mForumId);
@@ -150,11 +148,12 @@ public class ThreadListFragment extends BaseFragment
         mLoadingView.setErrorStateListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!mInloading) {
-                    mInloading = true;
-                    mLoadingView.setState(ContentLoadingView.LOAD_NOW);
-                    refresh();
-                }
+                if (mInloading)
+                    return;
+
+                mInloading = true;
+                mLoadingView.setState(ContentLoadingView.LOAD_NOW);
+                refresh();
             }
         });
 
@@ -179,9 +178,10 @@ public class ThreadListFragment extends BaseFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
+
+        if (savedInstanceState != null)
             mCtx = getActivity();
-        }
+
         startLoading();
     }
 
@@ -194,6 +194,7 @@ public class ThreadListFragment extends BaseFragment
     private void startLoading() {
         if (!EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().register(this);
+
         if (!mInloading) {
             if (mThreadBeans.size() == 0) {
                 mLoadingView.setState(ContentLoadingView.LOAD_NOW);
@@ -205,14 +206,13 @@ public class ThreadListFragment extends BaseFragment
                 hideFooter();
             }
         }
-        if (getActivity() != null && getActivity() instanceof MainFrameActivity) {
-            ((MainFrameActivity) getActivity()).setDrawerSelection(mForumId);
-        }
-        if (LoginHelper.isLoggedIn()) {
-            showNotification();
-        }
-    }
 
+        if (getActivity() != null && getActivity() instanceof MainFrameActivity)
+            ((MainFrameActivity) getActivity()).setDrawerSelection(mForumId);
+
+        if (LoginHelper.isLoggedIn())
+            showNotification();
+    }
 
     @Override
     public void onStop() {
@@ -223,23 +223,30 @@ public class ThreadListFragment extends BaseFragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
+
         inflater.inflate(R.menu.menu_thread_list, menu);
+
         mForumTypeMenuItem = menu.findItem(R.id.action_filter_by_type);
         mOrderByMenuItem = menu.findItem(R.id.action_order_by);
+
         MenuItem showStickItem = menu.findItem(R.id.action_show_stick_threads);
         showStickItem.setChecked(HiSettingsHelper.getInstance().isShowStickThreads());
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+
         mOrderByMenuItem.setChecked(ThreadListJob.ORDER_BY_THREAD.equals(mOrderBy));
+
         menu.findItem(R.id.action_new_thread).setEnabled(LoginHelper.isLoggedIn());
         menu.findItem(R.id.action_new_poll_thread).setEnabled(LoginHelper.isLoggedIn());
-        if (LoginHelper.isLoggedIn() && (mForumId == HiUtils.FID_TRADE || mForumId == HiUtils.FID_TEST)) {
+
+        if (LoginHelper.isLoggedIn() && (mForumId == HiUtils.FID_TRADE || mForumId == HiUtils.FID_TEST))
             menu.findItem(R.id.action_new_trade_thread).setVisible(true);
-        }
+
         menu.findItem(R.id.action_new_poll_thread).setVisible(mForumId != HiUtils.FID_TRADE);
         menu.findItem(R.id.action_new_thread).setVisible(mForumId != HiUtils.FID_TRADE);
     }
@@ -293,11 +300,14 @@ public class ThreadListFragment extends BaseFragment
                 @Override
                 public void onClick(View view) {
                     mLoadingView.setState(ContentLoadingView.LOAD_NOW);
+
                     if (swipeLayout.isShown())
                         swipeLayout.setRefreshing(false);
+
                     refresh();
                 }
             });
+
             if (mThreadBeans.size() > 0)
                 mMainFab.show();
         }
@@ -334,11 +344,14 @@ public class ThreadListFragment extends BaseFragment
     private void refresh() {
         mPage = 1;
         mRecyclerView.scrollToTop();
+
         hideFooter();
+
         mInloading = true;
-        if (HiSettingsHelper.getInstance().isFabAutoHide() && mMainFab != null) {
+
+        if (HiSettingsHelper.getInstance().isFabAutoHide() && mMainFab != null)
             FABHideOnScrollBehavior.hideFab(mMainFab);
-        }
+
         startJob();
     }
 
@@ -350,6 +363,7 @@ public class ThreadListFragment extends BaseFragment
     @Override
     public void onRefresh() {
         refresh();
+
         if (mThreadBeans.size() > 0)
             mLoadingView.setState(ContentLoadingView.CONTENT);
     }
@@ -364,47 +378,54 @@ public class ThreadListFragment extends BaseFragment
 
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            if (dy > 0) {
-                LinearLayoutManager mLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                visibleItemCount = mLayoutManager.getChildCount();
-                totalItemCount = mLayoutManager.getItemCount();
-                mFirstVisibleItem = mLayoutManager.findFirstVisibleItemPosition();
+            if (dy <= 0)
+                return;
 
-                if ((visibleItemCount + mFirstVisibleItem) >= totalItemCount - 5) {
-                    if (!mInloading) {
-                        mPage++;
-                        mInloading = true;
-                        mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
-                        startJob();
-                    }
-                }
-            }
+            LinearLayoutManager mLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+            visibleItemCount = mLayoutManager.getChildCount();
+            totalItemCount = mLayoutManager.getItemCount();
+            mFirstVisibleItem = mLayoutManager.findFirstVisibleItemPosition();
+
+            if ((visibleItemCount + mFirstVisibleItem) < totalItemCount - 5)
+                return;
+
+            if (mInloading)
+                return;
+
+            mInloading = true;
+
+            mPage++;
+            mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
+
+            startJob();
         }
     }
 
     private class OnItemClickListener implements RecyclerItemClickListener.OnItemClickListener {
-
         @Override
         public void onItemClick(View view, int position) {
             ThreadBean thread = mThreadListAdapter.getItem(position);
-            if (thread != null) {
-                String tid = thread.getTid();
-                String title = thread.getTitle();
-                FragmentUtils.showThreadActivity(getActivity(), false, tid, title, -1, -1, null, thread.getMaxPage());
-                HistoryDao.saveHistoryInBackground(tid, mForumId + "",
-                        title, thread.getAuthorId(), thread.getAuthor(), thread.getCreateTime());
-            }
+            if (thread == null)
+                return;
+
+            String tid = thread.getTid();
+            String title = thread.getTitle();
+            FragmentUtils.showThreadActivity(getActivity(), false, tid, title, -1, -1, null, thread.getMaxPage());
+            HistoryDao.saveHistoryInBackground(tid, mForumId + "",
+                    title, thread.getAuthorId(), thread.getAuthor(), thread.getCreateTime());
         }
 
         @Override
         public void onLongItemClick(View view, int position) {
             ThreadBean thread = mThreadListAdapter.getItem(position);
-            if (thread != null) {
-                String tid = thread.getTid();
-                String title = thread.getTitle();
-                FragmentUtils.showThreadActivity(getActivity(), false, tid, title, thread.getMaxPage(), ThreadDetailFragment.LAST_FLOOR, null, thread.getMaxPage());
-                HistoryDao.saveHistoryInBackground(tid, "", title, thread.getAuthorId(), thread.getAuthor(), thread.getCreateTime());
-            }
+            if (thread == null)
+                return;
+
+            String tid = thread.getTid();
+            String title = thread.getTitle();
+            FragmentUtils.showThreadActivity(getActivity(), false, tid, title, thread.getMaxPage(), ThreadDetailFragment.LAST_FLOOR, null, thread.getMaxPage());
+            HistoryDao.saveHistoryInBackground(tid, "", title, thread.getAuthorId(), thread.getAuthor(), thread.getCreateTime());
         }
 
         @Override
@@ -420,13 +441,13 @@ public class ThreadListFragment extends BaseFragment
         final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View view = inflater.inflate(R.layout.dialog_thread_list_settings, null);
 
-        final ValueChagerView valueChagerView = (ValueChagerView) view.findViewById(R.id.value_changer);
+        final ValueChangerView valueChangerView = (ValueChangerView) view.findViewById(R.id.value_changer);
 
-        valueChagerView.setCurrentValue(HiSettingsHelper.getInstance().getTitleTextSizeAdj());
+        valueChangerView.setCurrentValue(HiSettingsHelper.getInstance().getTitleTextSizeAdj());
 
         final BottomSheetDialog dialog = new BottomDialog(getActivity());
 
-        valueChagerView.setOnChangeListener(new ValueChagerView.OnChangeListener() {
+        valueChangerView.setOnChangeListener(new ValueChangerView.OnChangeListener() {
             @Override
             public void onChange(int currentValue) {
                 HiSettingsHelper.getInstance().setTitleTextSizeAdj(currentValue);
@@ -470,15 +491,14 @@ public class ThreadListFragment extends BaseFragment
     }
 
     private void setActionBarSubtitle() {
-        if (!TextUtils.isEmpty(mOrderBy) && !TextUtils.isEmpty(mTypeId)) {
+        if (!TextUtils.isEmpty(mOrderBy) && !TextUtils.isEmpty(mTypeId))
             setActionBarSubtitle(mTypes.get(mTypeId) + " · " + getString(R.string.action_order_by_thread));
-        } else if (!TextUtils.isEmpty(mOrderBy)) {
+        else if (!TextUtils.isEmpty(mOrderBy))
             setActionBarSubtitle(getString(R.string.action_order_by_thread));
-        } else if (!TextUtils.isEmpty(mTypeId)) {
+        else if (!TextUtils.isEmpty(mTypeId))
             setActionBarSubtitle(mTypes.get(mTypeId));
-        } else {
+        else
             setActionBarSubtitle("");
-        }
     }
 
     private void showOpenUrlDialog() {
@@ -513,7 +533,6 @@ public class ThreadListFragment extends BaseFragment
         etUrl.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
@@ -524,7 +543,6 @@ public class ThreadListFragment extends BaseFragment
 
             @Override
             public void afterTextChanged(Editable s) {
-
             }
         });
 
@@ -535,22 +553,24 @@ public class ThreadListFragment extends BaseFragment
     }
 
     public void showNotification() {
-        if (mNotificationFab != null) {
-            NotificationBean bean = NotiHelper.getCurrentNotification();
-            if (bean.isHasSms() || bean.getSmsCount() > 0) {
-                mNotificationFab.setImageResource(R.drawable.ic_mail_white_24dp);
-                mNotificationFab.show();
-            } else if (bean.getTotalNotiCount() > 0) {
-                mNotificationFab.setImageResource(R.drawable.ic_notifications_white_24dp);
-                mNotificationFab.show();
-            } else if (bean.isQiandao()) {
-                mNotificationFab.setImageResource(R.drawable.ic_add_location_white_24dp);
-                mNotificationFab.show();
-            } else {
-                mNotificationFab.hide();
-            }
-            ((MainFrameActivity) getActivity()).updateDrawerBadge();
+        if (mNotificationFab == null)
+            return;
+
+        NotificationBean bean = NotiHelper.getCurrentNotification();
+        if (bean.isHasSms() || bean.getSmsCount() > 0) {
+            mNotificationFab.setImageResource(R.drawable.ic_mail_white_24dp);
+            mNotificationFab.show();
+        } else if (bean.getTotalNotiCount() > 0) {
+            mNotificationFab.setImageResource(R.drawable.ic_notifications_white_24dp);
+            mNotificationFab.show();
+        } else if (bean.isQiandao()) {
+            mNotificationFab.setImageResource(R.drawable.ic_add_location_white_24dp);
+            mNotificationFab.show();
+        } else {
+            mNotificationFab.hide();
         }
+
+        ((MainFrameActivity) getActivity()).updateDrawerBadge();
     }
 
     public void scrollToTop() {
@@ -562,7 +582,6 @@ public class ThreadListFragment extends BaseFragment
     }
 
     private class ForumTypesAdapter extends ArrayAdapter {
-
         public ForumTypesAdapter(Context context) {
             super(context, 0, mTypes.keySet().toArray(new String[mTypes.size()]));
         }
@@ -576,11 +595,13 @@ public class ThreadListFragment extends BaseFragment
             } else {
                 row = convertView;
             }
-            TextView text = (TextView) row.findViewById(R.id.forum_type_text);
 
             String key = getItem(position).toString();
             row.setTag(key);
+
+            TextView text = (TextView) row.findViewById(R.id.forum_type_text);
             text.setText(mTypes.get(key));
+
             return row;
         }
     }
@@ -610,17 +631,20 @@ public class ThreadListFragment extends BaseFragment
                             break;
                         }
                     }
-                    if (!duplicate) {
+
+                    if (!duplicate)
                         mThreadBeans.add(newthread);
-                    }
                 }
+
                 mThreadListAdapter.setDatas(mThreadBeans);
             }
 
             if (!mDataReceived) {
                 mDataReceived = true;
                 mMainFab.show();
+
                 setActionBarSubtitle();
+
                 if (TextUtils.isEmpty(mTypeId) && mTypes == null) {
                     if (threads.getTypes() != null && threads.getTypes().size() > 0) {
                         mTypes = threads.getTypes();
@@ -629,15 +653,17 @@ public class ThreadListFragment extends BaseFragment
                                 .color(HiSettingsHelper.getInstance().getToolbarTextColor()).actionBar());
                     }
                 }
+
                 if (HiSettingsHelper.getInstance().isAppBarCollapsible())
                     ((MainFrameActivity) getActivity()).mAppBarLayout.setExpanded(true, true);
             }
+
             showNotification();
-            if (mThreadListAdapter.getDatas().size() > 0) {
+
+            if (mThreadListAdapter.getDatas().size() > 0)
                 mLoadingView.setState(ContentLoadingView.CONTENT);
-            } else {
+            else
                 mLoadingView.setState(ContentLoadingView.NO_DATA);
-            }
         }
 
         @Override
@@ -649,15 +675,15 @@ public class ThreadListFragment extends BaseFragment
             if (mPage > 1)
                 mPage--;
 
-            if (mThreadBeans.size() > 0) {
+            if (mThreadBeans.size() > 0)
                 mLoadingView.setState(ContentLoadingView.CONTENT);
-            } else {
+            else
                 mLoadingView.setState(ContentLoadingView.ERROR);
-            }
+
             UIUtils.errorSnack(getView(), event.mMessage, event.mDetail);
-            if (event.mStatus == Constants.STATUS_FAIL_SEC_QUESTION) {
+
+            if (event.mStatus == Constants.STATUS_FAIL_SEC_QUESTION)
                 FragmentUtils.showPasswordActivity(getActivity(), false, true);
-            }
         }
 
         @Override
@@ -670,7 +696,9 @@ public class ThreadListFragment extends BaseFragment
     protected void enterNotLoginState() {
         mInloading = false;
         swipeLayout.setRefreshing(false);
+
         hideFooter();
+
         mThreadBeans.clear();
         mThreadListAdapter.notifyDataSetChanged();
         mLoadingView.setState(ContentLoadingView.NOT_LOGIN);
@@ -682,11 +710,10 @@ public class ThreadListFragment extends BaseFragment
         PostBean postResult = event.mPostResult;
 
         String activitySessionId = "";
-        if (getActivity() != null && getActivity() instanceof BaseActivity) {
+        if (getActivity() != null && getActivity() instanceof BaseActivity)
             activitySessionId = ((BaseActivity) getActivity()).mSessionId;
-        }
-        if (!mSessionId.equals(event.mSessionId)
-                && !activitySessionId.equals(event.mSessionId))
+
+        if (!mSessionId.equals(event.mSessionId) && !activitySessionId.equals(event.mSessionId))
             return;
 
         EventBus.getDefault().removeStickyEvent(event);
@@ -696,6 +723,7 @@ public class ThreadListFragment extends BaseFragment
         if (event.mStatus == Constants.STATUS_SUCCESS) {
             if (HiUtils.isValidId(postResult.getTid()))
                 FragmentUtils.showThreadActivity(getActivity(), true, postResult.getTid(), postResult.getSubject(), -1, -1, null, -1);
+
             refresh();
         }
     }
@@ -712,8 +740,8 @@ public class ThreadListFragment extends BaseFragment
     public void onEvent(ThreadListEvent event) {
         if (!mSessionId.equals(event.mSessionId))
             return;
+
         EventBus.getDefault().removeStickyEvent(event);
         mEventCallback.process(event);
     }
-
 }

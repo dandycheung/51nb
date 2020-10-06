@@ -167,43 +167,41 @@ public class PostFragment extends BaseFragment {
 
         setHasOptionsMenu(false);
 
-        if (getArguments().containsKey(ARG_FID_KEY)) {
+        if (getArguments().containsKey(ARG_FID_KEY))
             mFid = getArguments().getInt(ARG_FID_KEY);
-        }
-        if (getArguments().containsKey(ARG_SPECIAL_ID)) {
+
+        if (getArguments().containsKey(ARG_SPECIAL_ID))
             mSpecial = getArguments().getString(ARG_SPECIAL_ID);
-        }
-        if (getArguments().containsKey(ARG_TID_KEY)) {
+
+        if (getArguments().containsKey(ARG_TID_KEY))
             mTid = getArguments().getString(ARG_TID_KEY);
-        }
-        if (getArguments().containsKey(ARG_PID_KEY)) {
+
+        if (getArguments().containsKey(ARG_PID_KEY))
             mPid = getArguments().getString(ARG_PID_KEY);
-        }
-        if (getArguments().containsKey(ARG_FLOOR_KEY)) {
+
+        if (getArguments().containsKey(ARG_FLOOR_KEY))
             mFloor = getArguments().getInt(ARG_FLOOR_KEY);
-        }
-        if (getArguments().containsKey(ARG_FLOOR_AUTHOR_KEY)) {
+
+        if (getArguments().containsKey(ARG_FLOOR_AUTHOR_KEY))
             mFloorAuthor = getArguments().getString(ARG_FLOOR_AUTHOR_KEY);
-        }
-        if (getArguments().containsKey(ARG_MODE_KEY)) {
+
+        if (getArguments().containsKey(ARG_MODE_KEY))
             mMode = getArguments().getInt(ARG_MODE_KEY);
-        }
-        if (getArguments().containsKey(ARG_TEXT_KEY)) {
+
+        if (getArguments().containsKey(ARG_TEXT_KEY))
             mText = getArguments().getString(ARG_TEXT_KEY);
-        }
-        if (getArguments().containsKey(ARG_QUOTE_TEXT_KEY)) {
+
+        if (getArguments().containsKey(ARG_QUOTE_TEXT_KEY))
             mQuoteText = getArguments().getString(ARG_QUOTE_TEXT_KEY);
-        }
-        if (getArguments().containsKey(ARG_PARENT_ID)) {
+
+        if (getArguments().containsKey(ARG_PARENT_ID))
             mParentSessionId = getArguments().getString(ARG_PARENT_ID);
-        }
 
         mIbDrawable = new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_close).sizeDp(16).color(Color.GRAY);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         mInflater = LayoutInflater.from(getActivity());
         View view = inflater.inflate(R.layout.fragment_post, container, false);
 
@@ -257,12 +255,10 @@ public class PostFragment extends BaseFragment {
         mEtContent.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
             }
 
             @Override
@@ -341,13 +337,14 @@ public class PostFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+
         if (!EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().register(this);
-        if (mPrePostInfo == null) {
+
+        if (mPrePostInfo == null)
             fetchPrePostInfo(false);
-        } else {
+        else
             setupPrePostInfo();
-        }
 
         if (mMode == PostHelper.MODE_NEW_THREAD) {
             (new Handler()).postDelayed(new Runnable() {
@@ -375,10 +372,13 @@ public class PostFragment extends BaseFragment {
     @Override
     public void onPause() {
         EventBus.getDefault().unregister(this);
+
         savePostConent(true);
+
         if (mPrePostInfo != null) {
             if (mEtSubject.getVisibility() == View.VISIBLE)
                 mPrePostInfo.setSubject(mEtSubject.getText().toString());
+
             mPrePostInfo.setText(mEtContent.getText().toString());
             mPrePostInfo.setTypeId(mTypeId);
 
@@ -390,6 +390,7 @@ public class PostFragment extends BaseFragment {
 
             updatePostingDatas();
         }
+
         super.onPause();
     }
 
@@ -397,8 +398,10 @@ public class PostFragment extends BaseFragment {
     public void onDestroy() {
         if (mSnackbar != null)
             mSnackbar.dismiss();
+
         if (mPrePostAsyncTask != null)
             mPrePostAsyncTask.cancel(true);
+
         super.onDestroy();
     }
 
@@ -411,9 +414,8 @@ public class PostFragment extends BaseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null)
             mContentPosition = savedInstanceState.getInt(BUNDLE_POSITION_KEY, -1);
-        }
     }
 
     @Override
@@ -493,8 +495,7 @@ public class PostFragment extends BaseFragment {
             return;
         }
 
-        if (mMode == PostHelper.MODE_NEW_THREAD &&
-                mPrePostInfo.isTypeRequired() && "0".equals(mTypeId)) {
+        if (mMode == PostHelper.MODE_NEW_THREAD && mPrePostInfo.isTypeRequired() && "0".equals(mTypeId)) {
             UIUtils.toast("请选择主题分类");
             return;
         }
@@ -505,6 +506,7 @@ public class PostFragment extends BaseFragment {
                 UIUtils.toast("主题字数必须大于 4");
                 return;
             }
+
             if (Utils.getWordCount(subjectText) > 80) {
                 UIUtils.toast("主题字数必须少于 80");
                 return;
@@ -523,30 +525,36 @@ public class PostFragment extends BaseFragment {
                 mEtItemName.requestFocus();
                 return;
             }
+
             if (mEtItemLocus.getText().length() == 0) {
                 UIUtils.toast("请输入所在地点");
                 mEtItemLocus.requestFocus();
                 return;
             }
+
             if (mEtItemPrice.getText().length() == 0) {
                 UIUtils.toast("请输入商品价格");
                 mEtItemPrice.requestFocus();
                 return;
             }
+
             mPrePostInfo.setItemLocus(mEtItemLocus.getText().toString());
             mPrePostInfo.setItemName(mEtItemName.getText().toString());
             mPrePostInfo.setItemPrice(mEtItemPrice.getText().toString());
         }
+
         if (PostHelper.SPECIAL_POLL.equals(mSpecial)) {
             if (Utils.parseInt(mEtPollMaxChoices.getText().toString()) < 1) {
                 UIUtils.toast("请输入最多可选项数目, 至少 1 个");
                 mEtPollMaxChoices.requestFocus();
                 return;
             }
+
             if (mPollChoicesLayout.getChildCount() < 2) {
                 UIUtils.toast("请至少填写 2 个选项");
                 return;
             }
+
             List<String> choices = new ArrayList<>();
             for (int i = 0; i < mPollChoicesLayout.getChildCount(); i++) {
                 View view = mPollChoicesLayout.getChildAt(i);
@@ -557,6 +565,7 @@ public class PostFragment extends BaseFragment {
                     return;
                 }
             }
+
             mPrePostInfo.setPollChoices(choices);
         }
 
@@ -566,10 +575,10 @@ public class PostFragment extends BaseFragment {
         if (mPrePostInfo.getAllImages().size() > 0) {
             for (String imgId : mPrePostInfo.getAllImages()) {
                 String attachStr = "[attachimg]" + imgId + "[/attachimg]";
-                if (!replyText.contains(attachStr)) {
+                if (!replyText.contains(attachStr))
                     extraImgs.add(imgId);
-                }
             }
+
             if (extraImgs.size() > 0) {
                 Dialog dialog = new AlertDialog.Builder(getActivity())
                         .setTitle("未使用的图片")
@@ -603,6 +612,7 @@ public class PostFragment extends BaseFragment {
                 return;
             }
         }
+
         startPostJob(subjectText, replyText);
     }
 
@@ -622,27 +632,30 @@ public class PostFragment extends BaseFragment {
     }
 
     private void updatePostingDatas() {
-        if (PostHelper.SPECIAL_POLL.equals(mSpecial)) {
-            mPrePostInfo.setPollVisibility(mCbPollVisibility.isChecked());
-            mPrePostInfo.setPollOvert(mCbPollOvert.isChecked());
-            mPrePostInfo.setPollDays(mEtPollDays.getText().toString());
-            mPrePostInfo.setPollMaxChoices(mEtPollMaxChoices.getText().toString());
-            List<String> choices = new ArrayList<>();
-            for (int i = 0; i < mPollChoicesLayout.getChildCount(); i++) {
-                View view = mPollChoicesLayout.getChildAt(i);
-                EditText etChoice = (EditText) view.findViewById(R.id.et_poll_text);
-                choices.add(etChoice.getText().toString());
-            }
-            mPrePostInfo.setPollChoices(choices);
+        if (!PostHelper.SPECIAL_POLL.equals(mSpecial))
+            return;
+
+        mPrePostInfo.setPollVisibility(mCbPollVisibility.isChecked());
+        mPrePostInfo.setPollOvert(mCbPollOvert.isChecked());
+        mPrePostInfo.setPollDays(mEtPollDays.getText().toString());
+        mPrePostInfo.setPollMaxChoices(mEtPollMaxChoices.getText().toString());
+
+        List<String> choices = new ArrayList<>();
+        for (int i = 0; i < mPollChoicesLayout.getChildCount(); i++) {
+            View view = mPollChoicesLayout.getChildAt(i);
+            EditText etChoice = (EditText) view.findViewById(R.id.et_poll_text);
+            choices.add(etChoice.getText().toString());
         }
+
+        mPrePostInfo.setPollChoices(choices);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        //avoid double click select button
-        if (mImageUploading) {
+        // avoid double click select button
+        if (mImageUploading)
             return;
-        }
+
         mImageUploading = true;
         (new Handler()).postDelayed(new Runnable() {
             public void run() {
@@ -656,29 +669,22 @@ public class PostFragment extends BaseFragment {
 
             List<Uri> selects = Matisse.obtainResult(intent);
             for (Uri uri : selects) {
-                if (!mUploadImages.containsKey(uri)) {
+                if (!mUploadImages.containsKey(uri))
                     uris.add(uri);
-                } else {
+                else
                     duplicate = true;
-                }
             }
 
             if (uris.size() == 0) {
-                if (duplicate) {
-                    UIUtils.toast("选择的图片重复");
-                } else {
-                    UIUtils.toast("无法获取图片信息");
-                }
+                UIUtils.toast(duplicate ? "选择的图片重复" : "无法获取图片信息");
                 return;
             }
 
             mProgressDialog = HiProgressDialog.show(getActivity(), "正在上传...");
-            if (mPrePostInfo != null) {
+            if (mPrePostInfo != null)
                 JobMgr.addJob(new ImageUploadJob(mSessionId, mPrePostInfo.getHash(), uris.toArray(new Uri[uris.size()])));
-            } else {
-                //hold selected images, upload them after fetch pre post info success
+            else // hold selected images, upload them after fetch pre post info success
                 mHoldedImages.addAll(uris);
-            }
         }
     }
 
@@ -712,13 +718,13 @@ public class PostFragment extends BaseFragment {
                 dialog.dismiss();
             }
         });
-
     }
 
     private void updateImageInfo() {
         if (mUploadImages.size() > 0) {
             mTvImagesInfo.setVisibility(View.VISIBLE);
             mTvImagesInfo.setText("图片(" + mUploadImages.size() + ")");
+
             if (mImageAdapter != null)
                 mImageAdapter.setImages(mUploadImages.values());
         } else {
@@ -728,20 +734,24 @@ public class PostFragment extends BaseFragment {
     }
 
     private void appendImage(String imgId) {
-        if (HiUtils.isValidId(imgId)) {
-            String imgTxt = "[attachimg]" + imgId + "[/attachimg]\n";
-            int selectionStart = mContentPosition;
-            if (mContentPosition < 0 || mContentPosition > mEtContent.length())
-                selectionStart = mEtContent.getSelectionStart();
-            if (selectionStart > 0 && mEtContent.getText().charAt(selectionStart - 1) != '\n')
-                imgTxt = "\n" + imgTxt;
-            mEtContent.getText().insert(selectionStart, imgTxt);
-            mEtContent.setSelection(selectionStart + imgTxt.length());
-            mContentPosition = selectionStart + imgTxt.length();
-            mEtContent.requestFocus();
-            mPrePostInfo.addNewAttach(imgId);
-            mPrePostInfo.addImage(imgId);
-        }
+        if (!HiUtils.isValidId(imgId))
+            return;
+
+        String imgTxt = "[attachimg]" + imgId + "[/attachimg]\n";
+
+        int selectionStart = mContentPosition;
+        if (mContentPosition < 0 || mContentPosition > mEtContent.length())
+            selectionStart = mEtContent.getSelectionStart();
+
+        if (selectionStart > 0 && mEtContent.getText().charAt(selectionStart - 1) != '\n')
+            imgTxt = "\n" + imgTxt;
+
+        mEtContent.getText().insert(selectionStart, imgTxt);
+        mEtContent.setSelection(selectionStart + imgTxt.length());
+        mContentPosition = selectionStart + imgTxt.length();
+        mEtContent.requestFocus();
+        mPrePostInfo.addNewAttach(imgId);
+        mPrePostInfo.addImage(imgId);
     }
 
     private class PrePostListener implements PrePostAsyncTask.PrePostListener {
@@ -756,7 +766,7 @@ public class PostFragment extends BaseFragment {
                     UIUtils.toast("收集信息成功");
             } else {
                 if (getView() != null) {
-                    mSnackbar = Snackbar.make(getView(), "收集信息失败 : " + message, Snackbar.LENGTH_LONG);
+                    mSnackbar = Snackbar.make(getView(), "收集信息失败: " + message, Snackbar.LENGTH_LONG);
                     UIUtils.setSnackbarMessageTextColor(mSnackbar, ContextCompat.getColor(getActivity(), R.color.md_yellow_500));
                     mSnackbar.setAction("重试", new View.OnClickListener() {
                         @Override
@@ -772,28 +782,32 @@ public class PostFragment extends BaseFragment {
     }
 
     private void fetchPrePostInfo(boolean showProgressNow) {
-        if (!mFetchingInfo) {
-            mFetchingInfo = true;
-            mFetchInfoCount++;
-            if (showProgressNow) {
-                mProgressBar.showNow();
-            } else {
-                mProgressBar.show();
-            }
-            mPrePostAsyncTask = new PrePostAsyncTask(mPrePostListener, mMode, mSpecial);
-            PostBean postBean = new PostBean();
-            postBean.setTid(mTid);
-            postBean.setPid(mPid);
-            postBean.setFid(mFid);
-            mPrePostAsyncTask.execute(postBean);
-        }
+        if (mFetchingInfo)
+            return;
+
+        mFetchingInfo = true;
+        mFetchInfoCount++;
+
+        if (showProgressNow)
+            mProgressBar.showNow();
+        else
+            mProgressBar.show();
+
+        mPrePostAsyncTask = new PrePostAsyncTask(mPrePostListener, mMode, mSpecial);
+
+        PostBean postBean = new PostBean();
+        postBean.setTid(mTid);
+        postBean.setPid(mPid);
+        postBean.setFid(mFid);
+
+        mPrePostAsyncTask.execute(postBean);
     }
 
     private void setupPrePostInfo() {
         if (mPrePostInfo == null)
             return;
 
-        //mSpecial = Utils.nullToText(mPrePostInfo.getSpecial());
+        // mSpecial = Utils.nullToText(mPrePostInfo.getSpecial());
 
         setHasOptionsMenu(true);
         getActivity().invalidateOptionsMenu();
@@ -832,9 +846,10 @@ public class PostFragment extends BaseFragment {
             mEtSubject.setText(EmojiParser.parseToUnicode(mPrePostInfo.getSubject()));
             mEtSubject.setVisibility(View.VISIBLE);
         }
-        if (mMode == PostHelper.MODE_EDIT_POST) {
+
+        if (mMode == PostHelper.MODE_EDIT_POST)
             mEtContent.setText(EmojiParser.parseToUnicode(mPrePostInfo.getText()));
-        } else if (!TextUtils.isEmpty(mPrePostInfo.getQuoteText())) {
+        else if (!TextUtils.isEmpty(mPrePostInfo.getQuoteText())) {
             mTvQuoteText.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
             UIUtils.setLineSpacing(mTvQuoteText);
             mTvQuoteText.setText(mPrePostInfo.getQuoteText());
@@ -850,11 +865,11 @@ public class PostFragment extends BaseFragment {
         String mReadPerm = mPrePostInfo.getReadPerm();
         Map<String, String> mReadPerms = mPrePostInfo.getReadPerms();
         if (mReadPerms != null && mReadPerms.size() > 0) {
-            if (TextUtils.isEmpty(mReadPerm)) {
+            if (TextUtils.isEmpty(mReadPerm))
                 mTvReadPerm.setText("权限");
-            } else {
+            else
                 mTvReadPerm.setText("权限(" + mReadPerm + ")");
-            }
+
             mTvReadPerm.setTag(mReadPerm);
             mTvReadPerm.setVisibility(View.VISIBLE);
             mTvReadPerm.setOnClickListener(new View.OnClickListener() {
@@ -894,11 +909,11 @@ public class PostFragment extends BaseFragment {
                     addPollChoice("");
                 }
             });
+
             if (mPollChoicesLayout.getChildCount() == 0) {
                 if (mPrePostInfo.getPollChoices().size() > 0) {
-                    for (String choice : mPrePostInfo.getPollChoices()) {
+                    for (String choice : mPrePostInfo.getPollChoices())
                         addPollChoice(choice);
-                    }
                 } else {
                     addPollChoice("");
                     addPollChoice("");
@@ -907,7 +922,7 @@ public class PostFragment extends BaseFragment {
             }
         }
 
-        //try to upload holded images when pre post info is ready
+        // try to upload holded images when pre post info is ready
         if (mHoldedImages != null && mHoldedImages.size() > 0) {
             JobMgr.addJob(new ImageUploadJob(mSessionId, mPrePostInfo.getHash(), mHoldedImages.toArray(new Uri[mHoldedImages.size()])));
             mHoldedImages.clear();
@@ -915,21 +930,25 @@ public class PostFragment extends BaseFragment {
     }
 
     private void addPollChoice(String choice) {
-        if (mPollChoicesLayout != null) {
-            final ViewGroup choiceLayout = (ViewGroup) mInflater.inflate(R.layout.vw_post_poll_choice, null, false);
-            choiceLayout.setPadding(16, 4, 16, 4);
-            EditText etChoice = (EditText) choiceLayout.findViewById(R.id.et_poll_text);
-            etChoice.setText(choice);
-            ImageButton ibRemove = (ImageButton) choiceLayout.findViewById(R.id.ib_remove);
-            ibRemove.setImageDrawable(mIbDrawable);
-            ibRemove.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mPollChoicesLayout.removeView(choiceLayout);
-                }
-            });
-            mPollChoicesLayout.addView(choiceLayout);
-        }
+        if (mPollChoicesLayout == null)
+            return;
+
+        final ViewGroup choiceLayout = (ViewGroup) mInflater.inflate(R.layout.vw_post_poll_choice, null, false);
+        choiceLayout.setPadding(16, 4, 16, 4);
+
+        EditText etChoice = (EditText) choiceLayout.findViewById(R.id.et_poll_text);
+        etChoice.setText(choice);
+
+        ImageButton ibRemove = (ImageButton) choiceLayout.findViewById(R.id.ib_remove);
+        ibRemove.setImageDrawable(mIbDrawable);
+        ibRemove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPollChoicesLayout.removeView(choiceLayout);
+            }
+        });
+
+        mPollChoicesLayout.addView(choiceLayout);
     }
 
     public boolean isUserInputted() {
@@ -940,46 +959,50 @@ public class PostFragment extends BaseFragment {
 
     @Override
     public boolean onBackPressed() {
-        if (isUserInputted()) {
-            Dialog dialog = new AlertDialog.Builder(getActivity())
-                    .setTitle("放弃发表？")
-                    .setMessage("\n确认放弃已输入的内容吗？\n")
-                    .setPositiveButton(getResources().getString(android.R.string.ok),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    PostFragment.this.getActivity().finish();
-                                }
-                            })
-                    .setNegativeButton(getResources().getString(android.R.string.cancel),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                }
-                            }).create();
-            dialog.show();
-            return true;
-        }
-        return false;
+        if (!isUserInputted())
+            return false;
+
+        Dialog dialog = new AlertDialog.Builder(getActivity())
+                .setTitle("放弃发表？")
+                .setMessage("\n确认放弃已输入的内容吗？\n")
+                .setPositiveButton(getResources().getString(android.R.string.ok),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                PostFragment.this.getActivity().finish();
+                            }
+                        })
+                .setNegativeButton(getResources().getString(android.R.string.cancel),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        }).create();
+        dialog.show();
+        return true;
     }
 
     private void showAppendDeviceInfoDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
         builder.setTitle("追加系统信息？");
         builder.setMessage("反馈问题时，提供系统信息可以帮助开发者更好的定位问题。\n\n" + Utils.getDeviceInfo());
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 int selectionStart = 0;
-                String deviceInfo = Utils.getDeviceInfo();
                 if (mContentPosition < 0 || mContentPosition > mEtContent.length())
                     selectionStart = mEtContent.getSelectionStart();
+
+                String deviceInfo = Utils.getDeviceInfo();
                 if (selectionStart > 0 && mEtContent.getText().charAt(selectionStart - 1) != '\n')
                     deviceInfo = "\n" + deviceInfo;
+
                 mEtContent.getText().insert(selectionStart, deviceInfo);
             }
         });
         builder.setNegativeButton(android.R.string.cancel, null);
+
         final AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -994,6 +1017,7 @@ public class PostFragment extends BaseFragment {
 
         final AlertDialog.Builder popDialog = new AlertDialog.Builder(getActivity());
         popDialog.setView(viewlayout);
+
         final AlertDialog dialog = popDialog.create();
         dialog.show();
 
@@ -1005,7 +1029,6 @@ public class PostFragment extends BaseFragment {
                 dialog.dismiss();
             }
         });
-
     }
 
     private void showTopicDialog() {
@@ -1013,11 +1036,11 @@ public class PostFragment extends BaseFragment {
         final View viewlayout = inflater.inflate(R.layout.dialog_forum_types, null);
 
         final ListView listView = (ListView) viewlayout.findViewById(R.id.lv_forum_types);
-
         listView.setAdapter(new SimpleTypeAdapter(getActivity(), mTopicValues));
 
         final AlertDialog.Builder popDialog = new AlertDialog.Builder(getActivity());
         popDialog.setView(viewlayout);
+
         final AlertDialog dialog = popDialog.create();
         dialog.show();
 
@@ -1031,7 +1054,6 @@ public class PostFragment extends BaseFragment {
                 dialog.dismiss();
             }
         });
-
     }
 
     private void showReadPermDialog() {
@@ -1039,11 +1061,11 @@ public class PostFragment extends BaseFragment {
         final View viewlayout = inflater.inflate(R.layout.dialog_forum_types, null);
 
         final ListView listView = (ListView) viewlayout.findViewById(R.id.lv_forum_types);
-
         listView.setAdapter(new SimpleTypeAdapter(getActivity(), mPrePostInfo.getReadPerms(), true));
 
         final AlertDialog.Builder popDialog = new AlertDialog.Builder(getActivity());
         popDialog.setView(viewlayout);
+
         final AlertDialog dialog = popDialog.create();
         dialog.show();
 
@@ -1067,7 +1089,6 @@ public class PostFragment extends BaseFragment {
                 .positiveText(android.R.string.ok)
                 .negativeText(android.R.string.cancel)
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
-
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                         setCreditValues();
@@ -1079,115 +1100,113 @@ public class PostFragment extends BaseFragment {
     }
 
     private void initCreditValues() {
-        if (mCreditDialog != null && mCreditDialog.isShowing()) {
-            View view = mCreditDialog.getCustomView();
-            TextView tvInfo = (TextView) view.findViewById(R.id.tv_info);
-            EditText etExtCredit = (EditText) view.findViewById(R.id.et_ext_credit);
-            EditText etCreditTimes = (EditText) view.findViewById(R.id.et_credit_times);
-            EditText etCreditMemberTimes = (EditText) view.findViewById(R.id.et_credit_member_times);
-            final Spinner spinner = (Spinner) view.findViewById(R.id.sp_credit_rate);
+        if (mCreditDialog == null || !mCreditDialog.isShowing())
+            return;
 
-            etExtCredit.setText(String.valueOf(mPrePostInfo.getExtCredit()));
-            etCreditTimes.setText(String.valueOf(mPrePostInfo.getCreditTimes()));
-            etCreditMemberTimes.setText(String.valueOf(mPrePostInfo.getCreditMemberTimes()));
+        View view = mCreditDialog.getCustomView();
+        TextView tvInfo = (TextView) view.findViewById(R.id.tv_info);
+        EditText etExtCredit = (EditText) view.findViewById(R.id.et_ext_credit);
+        EditText etCreditTimes = (EditText) view.findViewById(R.id.et_credit_times);
+        EditText etCreditMemberTimes = (EditText) view.findViewById(R.id.et_credit_member_times);
+        final Spinner spinner = (Spinner) view.findViewById(R.id.sp_credit_rate);
 
-            int total = mPrePostInfo.getExtCredit() * mPrePostInfo.getCreditTimes();
-            int totalTax = total == 0 ? 0 : total + (total / 100) + 1;
+        etExtCredit.setText(String.valueOf(mPrePostInfo.getExtCredit()));
+        etCreditTimes.setText(String.valueOf(mPrePostInfo.getCreditTimes()));
+        etCreditMemberTimes.setText(String.valueOf(mPrePostInfo.getCreditMemberTimes()));
 
-            tvInfo.setText("自动悬赏总额: " + total + " nb资产值, 税后支付 资产值 " + totalTax + " nb, 您有 资产值 " + mPrePostInfo.getCreditLeft() + " nb");
+        int total = mPrePostInfo.getExtCredit() * mPrePostInfo.getCreditTimes();
+        int totalTax = total == 0 ? 0 : total + (total / 100) + 1;
 
-            etExtCredit.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        tvInfo.setText("自动悬赏总额: " + total + " nb资产值, 税后支付 资产值 " + totalTax + " nb, 您有 资产值 " + mPrePostInfo.getCreditLeft() + " nb");
 
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    updateCreditValues();
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-
-                }
-            });
-
-            etCreditTimes.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    updateCreditValues();
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-
-                }
-            });
-
-
-            String[] values = {"100", "90", "80", "70", "60", "50", "40", "30", "20", "10"};
-            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter(getActivity(), R.layout.spinner_row, values);
-            spinner.setAdapter(spinnerAdapter);
-            for (int i = 0; i < values.length; i++) {
-                if (values[i].equals(String.valueOf(mPrePostInfo.getCreditRandom()))) {
-                    spinner.setSelection(i);
-                }
+        etExtCredit.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateCreditValues();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        etCreditTimes.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateCreditValues();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+
+        String[] values = {"100", "90", "80", "70", "60", "50", "40", "30", "20", "10"};
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter(getActivity(), R.layout.spinner_row, values);
+        spinner.setAdapter(spinnerAdapter);
+
+        for (int i = 0; i < values.length; i++) {
+            if (values[i].equals(String.valueOf(mPrePostInfo.getCreditRandom())))
+                spinner.setSelection(i);
         }
     }
 
     private void updateCreditValues() {
-        if (mCreditDialog != null && mCreditDialog.isShowing()) {
-            View view = mCreditDialog.getCustomView();
-            TextView tvInfo = (TextView) view.findViewById(R.id.tv_info);
-            EditText etExtCredit = (EditText) view.findViewById(R.id.et_ext_credit);
-            EditText etCreditTimes = (EditText) view.findViewById(R.id.et_credit_times);
+        if (mCreditDialog == null || !mCreditDialog.isShowing())
+            return;
 
-            int total = Utils.parseInt(etExtCredit.getText().toString()) * Utils.parseInt(etCreditTimes.getText().toString());
-            int totalTax = total == 0 ? 0 : total + (total / 100) + 1;
+        View view = mCreditDialog.getCustomView();
+        TextView tvInfo = (TextView) view.findViewById(R.id.tv_info);
+        EditText etExtCredit = (EditText) view.findViewById(R.id.et_ext_credit);
+        EditText etCreditTimes = (EditText) view.findViewById(R.id.et_credit_times);
 
-            String s = "自动悬赏总额: " + total + " nb资产值, 税后支付 资产值 " + totalTax + " nb, 您有 资产值 " + mPrePostInfo.getCreditLeft() + " nb";
-            if (totalTax <= mPrePostInfo.getCreditLeft()) {
-                tvInfo.setText(s);
-            } else {
-                tvInfo.setText(HtmlCompat.fromHtml("<font color=red>" + s + "</font>"));
-            }
+        int total = Utils.parseInt(etExtCredit.getText().toString()) * Utils.parseInt(etCreditTimes.getText().toString());
+        int totalTax = total == 0 ? 0 : total + (total / 100) + 1;
 
-        }
+        String s = "自动悬赏总额: " + total + " nb 资产值, 税后支付资产值 " + totalTax + " nb, 您有资产值 " + mPrePostInfo.getCreditLeft() + " nb";
+        if (totalTax <= mPrePostInfo.getCreditLeft())
+            tvInfo.setText(s);
+        else
+            tvInfo.setText(HtmlCompat.fromHtml("<font color=red>" + s + "</font>"));
     }
 
     private void setCreditValues() {
-        if (mCreditDialog != null && mCreditDialog.isShowing()) {
-            View view = mCreditDialog.getCustomView();
-            EditText etExtCredit = (EditText) view.findViewById(R.id.et_ext_credit);
-            EditText etCreditTimes = (EditText) view.findViewById(R.id.et_credit_times);
-            EditText etCreditMemberTimes = (EditText) view.findViewById(R.id.et_credit_member_times);
-            Spinner spinner = (Spinner) view.findViewById(R.id.sp_credit_rate);
+        if (mCreditDialog == null || !mCreditDialog.isShowing())
+            return;
 
-            int extCredit = Utils.parseInt(etExtCredit.getText().toString());
-            int creditTimes = Utils.parseInt(etCreditTimes.getText().toString());
-            int creditMemberTimes = Utils.parseInt(etCreditMemberTimes.getText().toString());
-            int creditRandom = Utils.parseInt(spinner.getSelectedItem().toString());
+        View view = mCreditDialog.getCustomView();
+        EditText etExtCredit = (EditText) view.findViewById(R.id.et_ext_credit);
+        EditText etCreditTimes = (EditText) view.findViewById(R.id.et_credit_times);
+        EditText etCreditMemberTimes = (EditText) view.findViewById(R.id.et_credit_member_times);
+        Spinner spinner = (Spinner) view.findViewById(R.id.sp_credit_rate);
 
-            int total = extCredit * creditTimes;
-            int totalTax = total == 0 ? 0 : total + (total / 100) + 1;
+        int extCredit = Utils.parseInt(etExtCredit.getText().toString());
+        int creditTimes = Utils.parseInt(etCreditTimes.getText().toString());
+        int creditMemberTimes = Utils.parseInt(etCreditMemberTimes.getText().toString());
+        int creditRandom = Utils.parseInt(spinner.getSelectedItem().toString());
 
-            if (totalTax > mPrePostInfo.getCreditLeft()) {
-                UIUtils.toast("回帖奖励积分总额过大 (" + totalTax + ") nb");
-            } else {
-                mPrePostInfo.setExtCredit(extCredit);
-                mPrePostInfo.setCreditTimes(creditTimes);
-                mPrePostInfo.setCreditMemberTimes(creditMemberTimes);
-                mPrePostInfo.setCreditRandom(creditRandom);
-                mTvCredit.setText("悬赏(" + mPrePostInfo.getExtCredit() + ")");
-            }
+        int total = extCredit * creditTimes;
+        int totalTax = total == 0 ? 0 : total + (total / 100) + 1;
+
+        if (totalTax > mPrePostInfo.getCreditLeft()) {
+            UIUtils.toast("回帖奖励积分总额过大 (" + totalTax + ") nb");
+            return;
         }
+
+        mPrePostInfo.setExtCredit(extCredit);
+        mPrePostInfo.setCreditTimes(creditTimes);
+        mPrePostInfo.setCreditMemberTimes(creditMemberTimes);
+        mPrePostInfo.setCreditRandom(creditRandom);
+        mTvCredit.setText("悬赏(" + mPrePostInfo.getExtCredit() + ")");
     }
 
     private void showImagesDialog() {
@@ -1195,11 +1214,11 @@ public class PostFragment extends BaseFragment {
         final View viewlayout = inflater.inflate(R.layout.dialog_images, null);
 
         final GridView gridView = (GridView) viewlayout.findViewById(R.id.gv_images);
-
         gridView.setAdapter(mImageAdapter);
 
         final AlertDialog.Builder popDialog = new AlertDialog.Builder(getActivity());
         popDialog.setView(viewlayout);
+
         final AlertDialog dialog = popDialog.create();
         dialog.show();
 
@@ -1211,7 +1230,6 @@ public class PostFragment extends BaseFragment {
                 dialog.dismiss();
             }
         });
-
     }
 
     private void imageProcess(int total, int current, int percentage) {
@@ -1244,20 +1262,20 @@ public class PostFragment extends BaseFragment {
             return;
 
         Collection<ImageUploadEvent> events = new ArrayList<>();
-        if (event.holdEvents != null && event.holdEvents.size() > 0) {
+        if (event.holdEvents != null && event.holdEvents.size() > 0)
             events.addAll(event.holdEvents);
-        }
+
         events.add(event);
 
         for (ImageUploadEvent evt : events) {
-            if (evt.type == ImageUploadEvent.UPLOADING) {
+            if (evt.type == ImageUploadEvent.UPLOADING)
                 imageProcess(evt.total, evt.current, evt.percentage);
-            } else if (evt.type == ImageUploadEvent.ITEM_DONE) {
+            else if (evt.type == ImageUploadEvent.ITEM_DONE)
                 imageDone(evt);
-            } else if (evt.type == ImageUploadEvent.ALL_DONE) {
+            else if (evt.type == ImageUploadEvent.ALL_DONE)
                 imageAllDone();
-            }
         }
+
         EventBus.getDefault().removeStickyEvent(event);
     }
 
@@ -1272,26 +1290,25 @@ public class PostFragment extends BaseFragment {
         EventBus.getDefault().removeStickyEvent(event);
         String message = event.mMessage;
 
-        if (event.mStatus == Constants.STATUS_IN_PROGRESS) {
+        if (event.mStatus == Constants.STATUS_IN_PROGRESS)
             mProgressDialog = HiProgressDialog.show(getActivity(), "正在发表...");
-        } else if (event.mStatus == Constants.STATUS_SUCCESS) {
-            if (mProgressDialog != null) {
+        else if (event.mStatus == Constants.STATUS_SUCCESS) {
+            if (mProgressDialog != null)
                 mProgressDialog.dismiss();
-            }
+
             if (message.contains("审核"))
                 UIUtils.toast(message);
 
-            //re-post to parent
+            // re-post to parent
             event.mSessionId = mParentSessionId;
             EventBus.getDefault().postSticky(event);
 
             ((BaseActivity) getActivity()).finishWithNoSlide();
         } else {
-            if (mProgressDialog != null) {
+            if (mProgressDialog != null)
                 mProgressDialog.dismissError(message);
-            } else {
+            else
                 UIUtils.toast(message);
-            }
         }
     }
 
@@ -1312,6 +1329,7 @@ public class PostFragment extends BaseFragment {
             } else {
                 row = convertView;
             }
+
             Content content = contents[position];
 
             TextView tvContent = (TextView) row.findViewById(R.id.tv_content);
@@ -1323,5 +1341,4 @@ public class PostFragment extends BaseFragment {
             return row;
         }
     }
-
 }

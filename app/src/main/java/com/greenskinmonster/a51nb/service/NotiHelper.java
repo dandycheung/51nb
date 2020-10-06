@@ -40,7 +40,6 @@ import java.util.concurrent.TimeUnit;
  * Created by GreenSkinMonster on 2015-09-08.
  */
 public class NotiHelper {
-
     private static long HOLD_FETCH_NOTIFY = 0;
     public final static int NOTI_REPEAT_MINUTTE = 15;
     public final static String DEFAUL_SLIENT_BEGIN = "22:00";
@@ -53,9 +52,8 @@ public class NotiHelper {
     }
 
     public static void fetchNotification(Document doc) {
-        if (System.currentTimeMillis() <= HOLD_FETCH_NOTIFY + 10 * 1000) {
+        if (System.currentTimeMillis() <= HOLD_FETCH_NOTIFY + 10 * 1000)
             return;
-        }
 
         int smsCount = -1;
         SimpleListItemBean smsBean = null;
@@ -69,58 +67,62 @@ public class NotiHelper {
                     SimpleListBean listBean = HiParser.parseSMS(doc);
                     if (listBean != null) {
                         smsCount = listBean.getCount();
-                        if (smsCount == 1) {
+                        if (smsCount == 1)
                             smsBean = listBean.getAll().get(0);
-                        }
                     }
                 }
             } catch (Exception e) {
                 Logger.e(e);
             }
         }
-        if (doc == null) {
+
+        if (doc == null)
             return;
-        }
+
         NotificationBean bean = HiParser.parseNotification(doc);
-        if (bean != null) {
-            mCurrentBean = bean;
-            if (smsCount >= 0) {
-                mCurrentBean.setSmsCount(smsCount);
-                if (smsCount == 1 && smsBean != null) {
-                    mCurrentBean.setUsername(smsBean.getAuthor());
-                    mCurrentBean.setUid(smsBean.getAuthorId());
-                    mCurrentBean.setContent(smsBean.getTitle());
-                } else {
-                    mCurrentBean.setUsername("");
-                    mCurrentBean.setUid("");
-                    mCurrentBean.setContent("");
-                }
-            }
+        if (bean == null)
+            return;
+
+        mCurrentBean = bean;
+        if (smsCount < 0)
+            return;
+
+        mCurrentBean.setSmsCount(smsCount);
+        if (smsBean != null) {
+            mCurrentBean.setUsername(smsBean.getAuthor());
+            mCurrentBean.setUid(smsBean.getAuthorId());
+            mCurrentBean.setContent(smsBean.getTitle());
+        } else {
+            mCurrentBean.setUsername("");
+            mCurrentBean.setUid("");
+            mCurrentBean.setContent("");
         }
     }
 
     public static void showNotification() {
-        if (!HiApplication.isAppVisible()) {
-            if (mCurrentBean.getTotalNotiCount() > 0) {
-                sendNotification();
-                HiApplication.setNotified(true);
+        if (HiApplication.isAppVisible())
+            return;
 
-                //clean count to avoid notification button on start up
-                mCurrentBean.setSmsCount(0);
-                mCurrentBean.setThreadCount(0);
-
-            } else {
-                cancelNotification(HiApplication.getAppContext());
-            }
+        if (mCurrentBean.getTotalNotiCount() <= 0) {
+            cancelNotification(HiApplication.getAppContext());
+            return;
         }
+
+        sendNotification();
+        HiApplication.setNotified(true);
+
+        // clean count to avoid notification button on start up
+        mCurrentBean.setSmsCount(0);
+        mCurrentBean.setThreadCount(0);
     }
 
     private static void cancelNotification(Context context) {
-        if (HiApplication.isNotified()) {
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(0);
-            HiApplication.setNotified(false);
-        }
+        if (!HiApplication.isNotified())
+            return;
+
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(0);
+        HiApplication.setNotified(false);
     }
 
     private static String getContentText(int notiCount, int smsCount) {
@@ -135,7 +137,6 @@ public class NotiHelper {
         return sb.toString();
     }
 
-
     public static void sendNotification() {
         NotificationBean bean = NotiHelper.getCurrentNotification();
         Intent intent = new Intent(HiApplication.getAppContext(), IntentActivity.class);
@@ -148,7 +149,7 @@ public class NotiHelper {
             intent.putExtra(Constants.EXTRA_UID, bean.getUid());
         PendingIntent pendingIntent = PendingIntent.getActivity(HiApplication.getAppContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        String title = "51NB论坛提醒";
+        String title = "51NB 论坛提醒";
         String content = getContentText(bean.getTotalNotiCount(), bean.getSmsCount());
         Bitmap icon = null;
 
@@ -184,8 +185,7 @@ public class NotiHelper {
         if (HiSettingsHelper.getInstance().isNotiLedLight())
             builder.setLights(color, 1000, 3000);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-            builder.setPriority(Notification.PRIORITY_HIGH)
-                    .setVibrate(new long[0]);
+            builder.setPriority(Notification.PRIORITY_HIGH).setVibrate(new long[0]);
         NotificationManager notificationManager = (NotificationManager) HiApplication.getAppContext().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(0, builder.build());
     }
@@ -207,5 +207,4 @@ public class NotiHelper {
     public static void holdFetchNotify() {
         HOLD_FETCH_NOTIFY = System.currentTimeMillis();
     }
-
 }

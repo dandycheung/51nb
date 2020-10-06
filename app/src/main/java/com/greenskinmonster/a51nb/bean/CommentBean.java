@@ -8,7 +8,6 @@ import com.greenskinmonster.a51nb.utils.ColorHelper;
  */
 
 public class CommentBean {
-
     private String mTocId;
     private String mUid;
     private String mAuthor;

@@ -8,21 +8,12 @@ import android.widget.Button;
  */
 
 public interface ThreadDetailListener {
-
     RecyclerItemClickListener getRecyclerItemClickListener();
-
     Button.OnClickListener getGotoFloorListener();
-
     View.OnClickListener getAvatarListener();
-
     View.OnClickListener getMenuListener();
-
     View.OnClickListener getCommentListener();
-
-    View.OnClickListener getViewAllCommemtsLisener();
-
+    View.OnClickListener getViewAllCommentsListener();
     View.OnClickListener getVotePollListener();
-
     View.OnClickListener getReplyListener();
-
 }

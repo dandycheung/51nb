@@ -38,10 +38,9 @@ public class HiHtmlTagHandler implements Html.TagHandler {
         if (objs.length == 0)
             return null;
 
-        for (int i = objs.length; i > 0; i--) {
+        for (int i = objs.length; i > 0; i--)
             if (text.getSpanFlags(objs[i - 1]) == Spannable.SPAN_MARK_MARK)
                 return objs[i - 1];
-        }
 
         return null;
     }

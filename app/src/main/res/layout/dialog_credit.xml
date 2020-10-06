@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="每次自动悬赏 : "
+            android:text="每次自动悬赏: "
             android:textSize="18sp"/>
 
         <EditText
@@ -47,7 +47,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="总共奖励悬赏 : "
+            android:text="总共奖励悬赏: "
             android:textSize="18sp"/>
 
         <EditText
@@ -75,7 +75,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="每人最多可获得 : "
+            android:text="每人最多可获得: "
             android:textSize="18sp"/>
 
         <EditText
@@ -103,7 +103,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="中奖率 : "
+            android:text="中奖率: "
             android:textSize="18sp"/>
 
         <Spinner

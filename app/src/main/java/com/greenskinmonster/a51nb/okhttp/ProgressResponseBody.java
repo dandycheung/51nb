@@ -15,7 +15,6 @@ import okio.Source;
  */
 
 public class ProgressResponseBody extends ResponseBody {
-
     private final ResponseBody responseBody;
     private final ProgressListener progressListener;
     private BufferedSource bufferedSource;
@@ -39,9 +38,9 @@ public class ProgressResponseBody extends ResponseBody {
 
     @Override
     public BufferedSource source() {
-        if (bufferedSource == null) {
+        if (bufferedSource == null)
             bufferedSource = Okio.buffer(source(responseBody.source()));
-        }
+
         return bufferedSource;
     }
 

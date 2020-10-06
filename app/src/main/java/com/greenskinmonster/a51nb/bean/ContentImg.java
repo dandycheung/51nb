@@ -62,7 +62,6 @@ public class ContentImg extends ContentAbs implements Parcelable {
         this.mAuthor = mAuthor;
     }
 
-
     public long getFileSize() {
         return mFileSize;
     }

@@ -5,7 +5,6 @@ package com.greenskinmonster.a51nb.bean;
  */
 
 public class PreRateBean {
-
     private String mTid;
     private String mPid;
     private String mFormhash;

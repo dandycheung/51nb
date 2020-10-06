@@ -34,7 +34,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class UploadImgHelper {
-
     private final static int MAX_QUALITY = 90;
     private final static int MAX_IMAGE_FILE_SIZE = 400 * 1024;
     private static final int THUMB_SIZE = 256;
@@ -62,7 +61,6 @@ public class UploadImgHelper {
 
     public interface UploadImgListener {
         void updateProgress(int total, int current, int percentage);
-
         void itemComplete(Uri uri, int total, int current, String currentFileName, String message, String imgId, Bitmap thumbtail);
     }
 
@@ -125,11 +123,10 @@ public class UploadImgHelper {
                 throw new IOException(OkHttpHelper.ERROR_CODE_PREFIX + response.networkResponse().code());
 
             String responseText = response.body().string();
-            if (HiUtils.isValidId(responseText) && TextUtils.isDigitsOnly(responseText)) {
+            if (HiUtils.isValidId(responseText) && TextUtils.isDigitsOnly(responseText))
                 imgId = responseText;
-            } else {
-                mMessage = "无法获取图片ID";
-            }
+            else
+                mMessage = "无法获取图片 ID";
         } catch (Exception e) {
             Logger.e(e);
             mMessage = OkHttpHelper.getErrorMessage(e, false).getMessage();
@@ -145,7 +142,7 @@ public class UploadImgHelper {
     private ByteArrayOutputStream compressImage(Uri uri, ImageFileInfo imageFileInfo) {
         if (imageFileInfo.isGif()
                 && imageFileInfo.getFileSize() > HiSettingsHelper.getInstance().getMaxUploadFileSize()) {
-            mMessage = "GIF图片大小不能超过" + Utils.toSizeText(HiSettingsHelper.getInstance().getMaxUploadFileSize());
+            mMessage = "GIF 图片大小不能超过" + Utils.toSizeText(HiSettingsHelper.getInstance().getMaxUploadFileSize());
             return null;
         }
 
@@ -153,11 +150,11 @@ public class UploadImgHelper {
         try {
             bitmap = MediaStore.Images.Media.getBitmap(mCtx.getContentResolver(), uri);
         } catch (Exception e) {
-            mMessage = "无法获取图片 : " + e.getMessage();
+            mMessage = "无法获取图片: " + e.getMessage();
             return null;
         }
 
-        //gif or very long/wide image or small image or filePath is null
+        // gif or very long/wide image or small image or filePath is null
         if (isDirectUploadable(imageFileInfo)) {
             mThumb = ThumbnailUtils.extractThumbnail(bitmap, THUMB_SIZE, THUMB_SIZE);
             bitmap.recycle();
@@ -177,10 +174,11 @@ public class UploadImgHelper {
         int width = opts.outWidth;
         int height = opts.outHeight;
 
-        //inSampleSize is needed to avoid OOM
+        // inSampleSize is needed to avoid OOM
         int be = (int) (Math.max(width, height) * 1.0 / 1500);
         if (be <= 0)
-            be = 1; //be=1表示不缩放
+            be = 1; // be=1 表示不缩放
+
         BitmapFactory.Options newOpts = new BitmapFactory.Options();
         newOpts.inJustDecodeBounds = false;
         newOpts.inSampleSize = be;
@@ -191,15 +189,12 @@ public class UploadImgHelper {
         width = newbitmap.getWidth();
         height = newbitmap.getHeight();
 
-        //scale bitmap so later compress could run less times, once is the best result
-        //rotate if needed
-        if (width * height > MAX_PIXELS
-                || imageFileInfo.getOrientation() > 0) {
-
+        // scale bitmap so later compress could run less times, once is the best result
+        // rotate if needed
+        if (width * height > MAX_PIXELS || imageFileInfo.getOrientation() > 0) {
             float scale = 1.0f;
-            if (width * height > MAX_PIXELS) {
+            if (width * height > MAX_PIXELS)
                 scale = (float) Math.sqrt(MAX_PIXELS * 1.0 / (width * height));
-            }
 
             Matrix matrix = new Matrix();
             if (imageFileInfo.getOrientation() > 0)
@@ -245,17 +240,17 @@ public class UploadImgHelper {
         if (imageFileInfo.getOrientation() > 0)
             return false;
 
-        //gif image
+        // gif image
         if (imageFileInfo.isGif() && fileSize <= HiSettingsHelper.getInstance().getMaxUploadFileSize())
             return true;
 
-        //very long or wide image
+        // very long or wide image
         if (w > 0 && h > 0 && fileSize <= HiSettingsHelper.getInstance().getMaxUploadFileSize()) {
             if (Math.max(w, h) * 1.0 / Math.min(w, h) >= 3)
                 return true;
         }
 
-        //normal image
+        // normal image
         return fileSize <= MAX_IMAGE_FILE_SIZE && w * h <= MAX_PIXELS;
     }
 
@@ -264,11 +259,12 @@ public class UploadImgHelper {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             fileInputStream = new FileInputStream(file);
+
             int readedBytes;
             byte[] buf = new byte[1024];
-            while ((readedBytes = fileInputStream.read(buf)) > 0) {
+            while ((readedBytes = fileInputStream.read(buf)) > 0)
                 bos.write(buf, 0, readedBytes);
-            }
+
             return bos;
         } catch (Exception e) {
             return null;
@@ -277,9 +273,7 @@ public class UploadImgHelper {
                 if (fileInputStream != null)
                     fileInputStream.close();
             } catch (Exception ignored) {
-
             }
         }
     }
-
 }

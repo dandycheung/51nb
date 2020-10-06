@@ -29,7 +29,6 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
  */
 
 public class BaseActivity extends AppCompatActivity {
-
     public String mSessionId;
     protected View mRootView;
     protected View mMainFrameContainer;
@@ -43,21 +42,19 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mSessionId = UUID.randomUUID().toString();
 
-        if (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT == HiSettingsHelper.getInstance().getScreenOrietation()) {
+        if (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT == HiSettingsHelper.getInstance().getScreenOrietation())
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        } else if (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE == HiSettingsHelper.getInstance().getScreenOrietation()) {
+        else if (ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE == HiSettingsHelper.getInstance().getScreenOrietation())
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        } else {
+        else
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
-        }
 
         setTheme(HiUtils.getThemeValue(this,
                 HiSettingsHelper.getInstance().getActiveTheme(),
                 HiSettingsHelper.getInstance().getPrimaryColor()));
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && HiSettingsHelper.getInstance().isNavBarColored()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && HiSettingsHelper.getInstance().isNavBarColored())
             getWindow().setNavigationBarColor(ColorHelper.getColorPrimary(this));
-        }
     }
 
     @Override
@@ -86,6 +83,7 @@ public class BaseActivity extends AppCompatActivity {
             finish();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -130,12 +128,13 @@ public class BaseActivity extends AppCompatActivity {
     public void onBackPressed() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_frame_container);
         if (fragment instanceof BaseFragment) {
-            if (!((BaseFragment) fragment).onBackPressed()) {
+            if (!((BaseFragment) fragment).onBackPressed())
                 finish();
-            }
-        } else {
-            super.onBackPressed();
+
+            return;
         }
+
+        super.onBackPressed();
     }
 
     @Override
@@ -152,5 +151,4 @@ public class BaseActivity extends AppCompatActivity {
     public void finishWithDefault() {
         super.finish();
     }
-
 }

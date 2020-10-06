@@ -8,7 +8,6 @@ import com.path.android.jobqueue.RetryConstraint;
  * Created by GreenSkinMonster on 2016-03-28.
  */
 public abstract class BaseJob extends Job {
-
     protected String mSessionId;
 
     public BaseJob(String sessionId) {
@@ -16,10 +15,7 @@ public abstract class BaseJob extends Job {
     }
 
     public BaseJob(String sessionId, int priority) {
-        super(new Params(priority)
-                .setPersistent(false)
-                .setRequiresNetwork(false)
-                .addTags(sessionId));
+        super(new Params(priority).setPersistent(false).setRequiresNetwork(false).addTags(sessionId));
         mSessionId = sessionId;
     }
 
@@ -32,9 +28,7 @@ public abstract class BaseJob extends Job {
     }
 
     @Override
-    protected RetryConstraint shouldReRunOnThrowable(Throwable throwable,
-                                                     int runCount,
-                                                     int maxRunCount) {
+    protected RetryConstraint shouldReRunOnThrowable(Throwable throwable, int runCount, int maxRunCount) {
         return RetryConstraint.CANCEL;
     }
 

@@ -22,7 +22,6 @@ import com.greenskinmonster.a51nb.utils.WebColors;
  * Created by GreenSkinMonster on 2016-04-21.
  */
 public class ThreadItemLayout extends LinearLayout implements ItemLayout {
-
     private ImageView mAvatar;
     private TextView mTvAuthor;
     private TextView mTvTitle;
@@ -34,10 +33,12 @@ public class ThreadItemLayout extends LinearLayout implements ItemLayout {
 
     public ThreadItemLayout(Context context, RequestManager glide) {
         super(context, null, 0);
+
         inflate(context, R.layout.item_thread_list, this);
 
         LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         setLayoutParams(layoutParams);
+
         setOrientation(VERTICAL);
         setPadding(Utils.dpToPx(context, 8), Utils.dpToPx(context, 4), Utils.dpToPx(context, 8), Utils.dpToPx(context, 4));
 
@@ -78,27 +79,29 @@ public class ThreadItemLayout extends LinearLayout implements ItemLayout {
         } else
             mTvTitle.setTextColor(ColorHelper.getTextColorPrimary(getContext()));
 
-        mTvReplycounter.setText(
-                Utils.toCountText(thread.getReplyCount())
-                        + "/"
-                        + Utils.toCountText(thread.getViewCount()));
+        mTvReplycounter.setText(Utils.toCountText(thread.getReplyCount()) + "/" + Utils.toCountText(thread.getViewCount()));
 
         StringBuilder sb = new StringBuilder();
-        if (thread.isStick()) {
+        if (thread.isStick())
             sb.append("置顶");
-        }
+
         if (thread.isPoll()) {
             if (sb.length() > 0)
                 sb.append(" · ");
+
             sb.append("投票");
         }
+
         if (sb.length() > 0)
             sb.append(" · ");
+
         sb.append(Utils.shortyTime(thread.getCreateTime()));
+
         if (!TextUtils.isEmpty(thread.getReadPerm())) {
             sb.append(" · ");
             sb.append("阅读权限 ").append(thread.getReadPerm());
         }
+
         if (!TextUtils.isEmpty(thread.getCredit())) {
             sb.append(" · ");
             sb.append("自动悬赏 ").append(thread.getCredit());
@@ -106,11 +109,10 @@ public class ThreadItemLayout extends LinearLayout implements ItemLayout {
 
         mTvCreateTime.setText(sb.toString());
 
-        if (thread.getHaveImage()) {
+        if (thread.getHaveImage())
             mTvImageIndicator.setVisibility(View.VISIBLE);
-        } else {
+        else
             mTvImageIndicator.setVisibility(View.GONE);
-        }
 
         if (HiSettingsHelper.getInstance().isLoadAvatar()) {
             mAvatar.setVisibility(View.VISIBLE);
@@ -118,8 +120,8 @@ public class ThreadItemLayout extends LinearLayout implements ItemLayout {
         } else {
             mAvatar.setVisibility(View.GONE);
         }
+
         mAvatar.setTag(R.id.avatar_tag_uid, thread.getAuthorId());
         mAvatar.setTag(R.id.avatar_tag_username, thread.getAuthor());
     }
-
 }

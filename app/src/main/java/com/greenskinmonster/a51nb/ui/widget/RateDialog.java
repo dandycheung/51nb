@@ -29,7 +29,6 @@ import okhttp3.Request;
  */
 
 public class RateDialog extends Dialog {
-
     private Context mCtx;
 
     private PreRateBean mPreRateBean;
@@ -51,28 +50,25 @@ public class RateDialog extends Dialog {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.dialog_rate, null);
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
+        View view = inflater.inflate(R.layout.dialog_rate, null);
         View score1Layout = view.findViewById(R.id.score1_layout);
         View score3Layout = view.findViewById(R.id.score3_layout);
 
         TextView tvScore1Info = (TextView) view.findViewById(R.id.tv_score1info);
         TextView tvScore2Info = (TextView) view.findViewById(R.id.tv_score2info);
         TextView tvScore3Info = (TextView) view.findViewById(R.id.tv_score3info);
+
         etScore1Value = (EditText) view.findViewById(R.id.et_score1_value);
         etScore2Value = (EditText) view.findViewById(R.id.et_score2_value);
         etScore3Value = (EditText) view.findViewById(R.id.et_score3_value);
         etRateReason = (EditText) view.findViewById(R.id.et_rate_reason);
         spRateReason = (Spinner) view.findViewById(R.id.sp_rate_reasons);
 
-        tvScore1Info.setText(mPreRateBean.getScore1Limit() + " / "
-                + mPreRateBean.getScore1Left());
-        tvScore2Info.setText(mPreRateBean.getScore2Limit() + " / "
-                + mPreRateBean.getScore2Left());
-        tvScore3Info.setText(mPreRateBean.getScore3Limit() + " / "
-                + mPreRateBean.getScore3Left());
+        tvScore1Info.setText(mPreRateBean.getScore1Limit() + " / " + mPreRateBean.getScore1Left());
+        tvScore2Info.setText(mPreRateBean.getScore2Limit() + " / " + mPreRateBean.getScore2Left());
+        tvScore3Info.setText(mPreRateBean.getScore3Limit() + " / " + mPreRateBean.getScore3Left());
 
         if (TextUtils.isEmpty(mPreRateBean.getScore1Left()) && TextUtils.isEmpty(mPreRateBean.getScore1Limit()))
             score1Layout.setVisibility(View.GONE);
@@ -80,8 +76,7 @@ public class RateDialog extends Dialog {
         if (TextUtils.isEmpty(mPreRateBean.getScore3Left()) && TextUtils.isEmpty(mPreRateBean.getScore3Limit()))
             score3Layout.setVisibility(View.GONE);
 
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter(mCtx,
-                R.layout.spinner_row,
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter(mCtx, R.layout.spinner_row,
                 mCtx.getResources().getStringArray(R.array.rate_reasons));
         spRateReason.setAdapter(spinnerAdapter);
         spRateReason.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -93,7 +88,6 @@ public class RateDialog extends Dialog {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         });
 
@@ -122,7 +116,6 @@ public class RateDialog extends Dialog {
     }
 
     private class RateCallback implements OkHttpHelper.ResultCallback {
-
         @Override
         public void onError(Request request, Exception e) {
             Logger.e(e);
@@ -134,6 +127,7 @@ public class RateDialog extends Dialog {
             if (response.contains("succeedhandle")) {
                 mProgressDialog.dismiss("评分成功");
                 dismiss();
+
                 if (mFragment != null)
                     mFragment.refresh();
             } else {
@@ -141,5 +135,4 @@ public class RateDialog extends Dialog {
             }
         }
     }
-
 }

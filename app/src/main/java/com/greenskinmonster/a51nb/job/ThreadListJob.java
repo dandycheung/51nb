@@ -27,7 +27,6 @@ import okhttp3.Response;
  */
 
 public class ThreadListJob extends BaseJob {
-
     public final static String ORDER_BY_THREAD = "dateline";
     public final static String ORDER_BY_REPLY = "";
 
@@ -86,29 +85,27 @@ public class ThreadListJob extends BaseJob {
                 if (!LoginHelper.checkLoggedin(doc)) {
                     if (HiSettingsHelper.getInstance().isLoginInfoValid()) {
                         int status = new LoginHelper().login();
-                        if (status == Constants.STATUS_SUCCESS) {
+                        if (status == Constants.STATUS_SUCCESS)
                             continue;
-                        }
                     }
                 }
 
                 HiSettingsHelper.updateMobileNetworkStatus(mCtx);
                 NotiHelper.fetchNotification(doc);
-                if (mForumId == HiUtils.FID_TRADE && TextUtils.isEmpty(mTypeId)) {
+                if (mForumId == HiUtils.FID_TRADE && TextUtils.isEmpty(mTypeId))
                     data = ThreadListParser.parseTradeForum(doc);
-                } else if (mForumId == HiUtils.FID_RECOMMEND) {
+                else if (mForumId == HiUtils.FID_RECOMMEND)
                     data = ThreadListParser.parseRecommendForum(doc);
-                } else {
+                else
                     data = ThreadListParser.parse(doc, mForumId);
-                }
 
                 if (data == null) {
                     String error = HiParser.parseErrorMessage(doc);
-                    if (!TextUtils.isEmpty(error)) {
+                    if (!TextUtils.isEmpty(error))
                         eventMessage = error;
-                    } else {
+                    else
                         eventMessage = "页面加载失败";
-                    }
+
                     eventStatus = Constants.STATUS_FAIL_ABORT;
                 }
 
@@ -148,13 +145,13 @@ public class ThreadListJob extends BaseJob {
 
     private Response fetchForumList() throws Exception {
         mUrl = HiUtils.ThreadListUrl + mForumId + "&page=" + mPage;
-        if (!TextUtils.isEmpty(mOrderBy) && !TextUtils.isEmpty(mTypeId)) {
+        if (!TextUtils.isEmpty(mOrderBy) && !TextUtils.isEmpty(mTypeId))
             mUrl += "&filter=author&orderby=dateline&typeid=" + mTypeId;
-        } else if (!TextUtils.isEmpty(mOrderBy)) {
+        else if (!TextUtils.isEmpty(mOrderBy))
             mUrl += "&filter=author&orderby=dateline";
-        } else if (!TextUtils.isEmpty(mTypeId)) {
+        else if (!TextUtils.isEmpty(mTypeId))
             mUrl += "&filter=typeid&typeid=" + mTypeId;
-        }
+
         return OkHttpHelper.getInstance().getResponse(mUrl, mSessionId);
     }
 }

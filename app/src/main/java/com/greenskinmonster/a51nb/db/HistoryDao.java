@@ -17,7 +17,6 @@ import java.util.List;
  * Created by GreenSkinMonster on 2016-07-23.
  */
 public class HistoryDao {
-
     private final static int MAX_SIZE = 100;
 
     public synchronized static void saveHistoryInBackground(
@@ -116,7 +115,7 @@ public class HistoryDao {
                 String post_time = Utils.nullToText(cursor.getString(cursor.getColumnIndex("post_time")));
                 long visit_time = cursor.getLong(cursor.getColumnIndex("visit_time"));
 
-                //remove time info, only keep date
+                // remove time info, only keep date
                 if (post_time.contains("-") && post_time.contains(" "))
                     post_time = post_time.substring(0, post_time.indexOf(" "));
 
@@ -142,5 +141,4 @@ public class HistoryDao {
 
         return histories;
     }
-
 }

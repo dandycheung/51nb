@@ -10,7 +10,6 @@ import com.greenskinmonster.a51nb.utils.Utils;
  * Created by GreenSkinMonster on 2015-04-24.
  */
 public class ImageInfo {
-
     public static final int IDLE = 0;
     public static final int IN_PROGRESS = 1;
     public static final int FAIL = 2;
@@ -141,15 +140,15 @@ public class ImageInfo {
     }
 
     private int getDisplaySize(boolean isWidth) {
-        //calculate ImageView size for image to display
+        // calculate ImageView size for image to display
 
-        //leave 12dp on both left and right side, this should match layout setup
+        // leave 12dp on both left and right side, this should match layout setup
         int tmpMaxViewWidth = Utils.getScreenWidth() - Utils.dpToPx(HiApplication.getAppContext(), 12 * 2);
 
         if (maxViewWidth != tmpMaxViewWidth) {
             maxViewWidth = tmpMaxViewWidth;
 
-            //if image width < half maxViewWidth, scale it up for better view
+            // if image width < half maxViewWidth, scale it up for better view
             int maxScaleWidth = Math.round(maxViewWidth * 0.5f);
 
             double scaleRate = getScaleRate(mWidth);
@@ -164,20 +163,17 @@ public class ImageInfo {
                 displayWidth = scaledWidth;
                 displayHeight = scaledHeight;
             }
-            //at last, limit ImageView height for gif or very long images
+
+            // at last, limit ImageView height for gif or very long images
             float maxHeightScale = isGif() ? 0.75f : 2f;
-            if (displayHeight > maxHeightScale * Utils.getScreenHeight()) {
+            if (displayHeight > maxHeightScale * Utils.getScreenHeight())
                 displayHeight = Math.round(maxHeightScale * Utils.getScreenHeight());
-            }
         }
 
-        if (isWidth)
-            return displayWidth;
-        else
-            return displayHeight;
+        return isWidth ? displayWidth : displayHeight;
     }
 
-    //Math! http://www.mathsisfun.com/data/function-grapher.php
+    // Math! http://www.mathsisfun.com/data/function-grapher.php
     private double getScaleRate(int x) {
         return Math.pow(x, 1.2) / x;
     }

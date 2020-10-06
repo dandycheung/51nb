@@ -12,7 +12,6 @@ import com.greenskinmonster.a51nb.utils.Logger;
 import com.greenskinmonster.a51nb.utils.Utils;
 
 public class OnSwipeTouchListener implements OnTouchListener {
-
     private static final int SWIPE_THRESHOLD = Utils.dpToPx(HiApplication.getAppContext(), 36);
     private static final int SWIPE_VELOCITY_THRESHOLD = Utils.dpToPx(HiApplication.getAppContext(), 36);
 
@@ -23,8 +22,6 @@ public class OnSwipeTouchListener implements OnTouchListener {
     }
 
     private final class GestureListener extends SimpleOnGestureListener {
-
-
         @Override
         public boolean onDown(MotionEvent e) {
             return true;
@@ -38,19 +35,17 @@ public class OnSwipeTouchListener implements OnTouchListener {
                 float diffX = e2.getX() - e1.getX();
                 if (Math.abs(diffX) > 2 * Math.abs(diffY)) {
                     if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                        if (diffX > 0) {
+                        if (diffX > 0)
                             onSwipeRight();
-                        } else {
+                        else
                             onSwipeLeft();
-                        }
                     }
                 } else if (Math.abs(diffY) > 2 * Math.abs(diffX)) {
                     if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
-                        if (diffY > 0) {
+                        if (diffY > 0)
                             onSwipeBottom();
-                        } else {
+                        else
                             onSwipeTop();
-                        }
                     }
                 }
             } catch (Exception exception) {
@@ -76,5 +71,4 @@ public class OnSwipeTouchListener implements OnTouchListener {
     public boolean onTouch(View v, MotionEvent event) {
         return gestureDetector.onTouchEvent(event);
     }
-
 }

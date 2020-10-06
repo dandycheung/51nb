@@ -15,7 +15,7 @@ import android.text.TextUtils;
 import com.greenskinmonster.a51nb.R;
 import com.greenskinmonster.a51nb.async.PostHelper;
 import com.greenskinmonster.a51nb.job.SimpleListJob;
-import com.greenskinmonster.a51nb.ui.setting.PasswordFragment;
+import com.greenskinmonster.a51nb.ui.settings.PasswordFragment;
 import com.greenskinmonster.a51nb.utils.Constants;
 import com.greenskinmonster.a51nb.utils.HiUtils;
 import com.greenskinmonster.a51nb.utils.Utils;
@@ -25,51 +25,59 @@ import com.greenskinmonster.a51nb.utils.Utils;
  * Created by GreenSkinMonster on 2015-09-01.
  */
 public class FragmentUtils {
-
     public static FragmentArgs parse(Intent intent) {
-        if (intent != null) {
-            if (Constants.INTENT_NOTIFICATION.equals(intent.getAction())) {
-                return parseNotification(
-                        intent.getIntExtra(Constants.EXTRA_SMS_COUNT, -1),
-                        intent.getIntExtra(Constants.EXTRA_NOTI_COUNT, -1),
-                        intent.getStringExtra(Constants.EXTRA_UID),
-                        intent.getStringExtra(Constants.EXTRA_USERNAME)
-                );
-            } else if (Constants.INTENT_SMS.equals(intent.getAction())) {
-                FragmentArgs args = new FragmentArgs();
-                args.setType(FragmentArgs.TYPE_SMS);
-                return args;
-            } else if (Constants.INTENT_SEARCH.equals(intent.getAction())) {
-                FragmentArgs args = new FragmentArgs();
-                args.setType(FragmentArgs.TYPE_SEARCH);
-                return args;
-            } else if (Constants.INTENT_FAVORITE.equals(intent.getAction())) {
-                FragmentArgs args = new FragmentArgs();
-                args.setType(FragmentArgs.TYPE_FAVORITE);
-                return args;
-            } else if (Constants.INTENT_NEW_THREAD.equals(intent.getAction())) {
-                FragmentArgs args = new FragmentArgs();
-                args.setType(FragmentArgs.TYPE_NEW_THREAD);
-                return args;
-            } else if (Constants.INTENT_NEW_POSTS.equals(intent.getAction())) {
-                FragmentArgs args = new FragmentArgs();
-                args.setType(FragmentArgs.TYPE_NEW_POSTS);
-                return args;
-            } else {
-                Uri data = intent.getData();
-                if (data != null) {
-                    return FragmentUtils.parseUrl(data.toString());
-                }
-            }
+        if (intent == null)
+            return null;
+
+        if (Constants.INTENT_NOTIFICATION.equals(intent.getAction())) {
+            return parseNotification(
+                    intent.getIntExtra(Constants.EXTRA_SMS_COUNT, -1),
+                    intent.getIntExtra(Constants.EXTRA_NOTI_COUNT, -1),
+                    intent.getStringExtra(Constants.EXTRA_UID),
+                    intent.getStringExtra(Constants.EXTRA_USERNAME)
+            );
         }
+
+        if (Constants.INTENT_SMS.equals(intent.getAction())) {
+            FragmentArgs args = new FragmentArgs();
+            args.setType(FragmentArgs.TYPE_SMS);
+            return args;
+        }
+
+        if (Constants.INTENT_SEARCH.equals(intent.getAction())) {
+            FragmentArgs args = new FragmentArgs();
+            args.setType(FragmentArgs.TYPE_SEARCH);
+            return args;
+        }
+
+        if (Constants.INTENT_FAVORITE.equals(intent.getAction())) {
+            FragmentArgs args = new FragmentArgs();
+            args.setType(FragmentArgs.TYPE_FAVORITE);
+            return args;
+        }
+
+        if (Constants.INTENT_NEW_THREAD.equals(intent.getAction())) {
+            FragmentArgs args = new FragmentArgs();
+            args.setType(FragmentArgs.TYPE_NEW_THREAD);
+            return args;
+        }
+
+        if (Constants.INTENT_NEW_POSTS.equals(intent.getAction())) {
+            FragmentArgs args = new FragmentArgs();
+            args.setType(FragmentArgs.TYPE_NEW_POSTS);
+            return args;
+        }
+
+        Uri data = intent.getData();
+        if (data != null)
+            return FragmentUtils.parseUrl(data.toString());
+
         return null;
     }
 
     private static FragmentArgs parseNotification(int smsCount, int notiCount, String uid, String username) {
         FragmentArgs args = null;
-        if (smsCount == 1
-                && HiUtils.isValidId(uid)
-                && !TextUtils.isEmpty(username)) {
+        if (smsCount == 1 && HiUtils.isValidId(uid) && !TextUtils.isEmpty(username)) {
             args = new FragmentArgs();
             args.setType(FragmentArgs.TYPE_SMS_DETAIL);
             args.setUid(uid);
@@ -88,6 +96,7 @@ public class FragmentUtils {
     public static FragmentArgs parseUrl(String url) {
         if (TextUtils.isEmpty(url))
             return null;
+
         if (url.startsWith(HiUtils.ForumServerHttp))
             url = url.replace(HiUtils.ForumServerHttp, HiUtils.ForumServer);
 
@@ -117,7 +126,7 @@ public class FragmentUtils {
                 String gotoStr = Utils.getMiddleString(url, "goto=", "&");
                 if (!TextUtils.isEmpty(gotoStr)) {
                     if ("lastpost".equals(gotoStr)) {
-                        //goto last post
+                        // goto last post
                         String tid = Utils.getMiddleString(url, "tid=", "&");
                         if (HiUtils.isValidId(tid)) {
                             FragmentArgs args = new FragmentArgs();
@@ -130,7 +139,7 @@ public class FragmentUtils {
                             return args;
                         }
                     } else if ("findpost".equals(gotoStr)) {
-                        //goto specific post by post id
+                        // goto specific post by post id
                         String tid = Utils.getMiddleString(url, "ptid=", "&");
                         String postId = Utils.getMiddleString(url, "pid=", "&");
 
@@ -146,9 +155,8 @@ public class FragmentUtils {
                     }
                 }
             } else if (url.contains("home.php?mod=space")) {
-                //goto post by post id
+                // goto post by post id
                 String uid = Utils.getMiddleString(url, "uid=", "&");
-
                 if (HiUtils.isValidId(uid)) {
                     FragmentArgs args = new FragmentArgs();
                     args.setType(FragmentArgs.TYPE_USER_INFO);
@@ -156,7 +164,7 @@ public class FragmentUtils {
                     return args;
                 }
             } else if (url.contains("thread-") && url.contains(".html")) {
-                //thread-1620589-2-2.html , {tid}-{page}-?
+                // thread-1620589-2-2.html , {tid}-{page}-?
                 String tid = Utils.getMiddleString(url, "thread-", "-");
                 if (HiUtils.isValidId(tid)) {
                     FragmentArgs args = new FragmentArgs();
@@ -170,15 +178,16 @@ public class FragmentUtils {
                     return args;
                 }
             } else if (url.contains("forum-") && url.contains(".html")) {
-                //forum-thinkpad-1.html
-                //forum-54-1.html
+                // forum-thinkpad-1.html
+                // forum-54-1.html
                 String fidKeyword = Utils.getMiddleString(url, "forum-", "-");
+
                 int fid = 0;
-                if (HiUtils.StaticKeywordMap.containsKey(fidKeyword)) {
+                if (HiUtils.StaticKeywordMap.containsKey(fidKeyword))
                     fid = HiUtils.StaticKeywordMap.get(fidKeyword);
-                } else if (HiUtils.isValidId(fidKeyword)) {
+                else if (HiUtils.isValidId(fidKeyword))
                     fid = Utils.parseInt(fidKeyword);
-                }
+
                 if (HiUtils.isForumValid(fid)) {
                     FragmentArgs args = new FragmentArgs();
                     args.setType(FragmentArgs.TYPE_FORUM);
@@ -187,14 +196,16 @@ public class FragmentUtils {
                 }
             }
         }
+
         return null;
     }
 
     public static void showForum(FragmentManager fragmentManager, int fid) {
-        //show forum always use Transaction.replace
+        // show forum always use Transaction.replace
         Bundle argments = new Bundle();
         if (HiUtils.isForumValid(fid))
             argments.putInt(ThreadListFragment.ARG_FID_KEY, fid);
+
         ThreadListFragment fragment = new ThreadListFragment();
         fragment.setArguments(argments);
         fragmentManager.beginTransaction()
@@ -204,13 +215,17 @@ public class FragmentUtils {
 
     public static void showThreadActivity(Activity activity, boolean skipEnterAnim, String tid, String title, int page, int floor, String pid, int maxPage) {
         Intent intent = new Intent(activity, ThreadDetailActivity.class);
+
         intent.putExtra(ThreadDetailFragment.ARG_TID_KEY, tid);
         intent.putExtra(ThreadDetailFragment.ARG_TITLE_KEY, title);
         intent.putExtra(ThreadDetailFragment.ARG_MAX_PAGE_KEY, maxPage);
+
         if (page != -1)
             intent.putExtra(ThreadDetailFragment.ARG_PAGE_KEY, page);
+
         if (floor != -1)
             intent.putExtra(ThreadDetailFragment.ARG_FLOOR_KEY, floor);
+
         if (HiUtils.isValidId(pid))
             intent.putExtra(ThreadDetailFragment.ARG_PID_KEY, pid);
 
@@ -218,12 +233,8 @@ public class FragmentUtils {
     }
 
     public static Bundle getAnimBundle(Activity activity, boolean skipEnterAnim) {
-        ActivityOptionsCompat options;
-        if (skipEnterAnim) {
-            options = ActivityOptionsCompat.makeCustomAnimation(activity, R.anim.activity_open_enter, 0);
-        } else {
-            options = ActivityOptionsCompat.makeCustomAnimation(activity, R.anim.slide_in_right, 0);
-        }
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeCustomAnimation(activity,
+                skipEnterAnim ? R.anim.activity_open_enter : R.anim.slide_in_right, 0);
         return options.toBundle();
     }
 
@@ -306,11 +317,10 @@ public class FragmentUtils {
     public static void showFragment(FragmentManager fragmentManager, Fragment fragment, boolean skipEnterAnim) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-        if (skipEnterAnim) {
+        if (skipEnterAnim)
             transaction.setCustomAnimations(0, 0, 0, R.anim.slide_out_right);
-        } else {
+        else
             transaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right, R.anim.slide_in_right, R.anim.slide_out_right);
-        }
 
         transaction.add(R.id.main_frame_container, fragment, fragment.getClass().getName())
                 .addToBackStack(fragment.getClass().getName())
@@ -320,27 +330,26 @@ public class FragmentUtils {
     public static void show(FragmentActivity activity, FragmentArgs args) {
         if (args == null)
             return;
-        if (args.getType() == FragmentArgs.TYPE_THREAD) {
-            showThreadActivity(activity, args.isSkipEnterAnim(), args.getTid(), "", args.getPage(), args.getFloor(), args.getPostId(), -1);
-        } else if (args.getType() == FragmentArgs.TYPE_USER_INFO) {
-            showUserInfoActivity(activity, args.isSkipEnterAnim(), args.getUid(), args.getUsername());
-        } else if (args.getType() == FragmentArgs.TYPE_SMS) {
-            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_SMS);
-        } else if (args.getType() == FragmentArgs.TYPE_SEARCH) {
-            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_SEARCH);
-        } else if (args.getType() == FragmentArgs.TYPE_FAVORITE) {
-            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_FAVORITES);
-        } else if (args.getType() == FragmentArgs.TYPE_SMS_DETAIL) {
-            showSmsActivity(activity, args.isSkipEnterAnim(), args.getUid(), args.getUsername());
-        } else if (args.getType() == FragmentArgs.TYPE_THREAD_NOTIFY) {
-            showNotifyListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_THREAD_NOTIFY, args.getExtra());
-        } else if (args.getType() == FragmentArgs.TYPE_FORUM) {
-            showForum(activity.getSupportFragmentManager(), args.getFid());
-        } else if (args.getType() == FragmentArgs.TYPE_NEW_THREAD) {
-            showNewPostActivity(activity, args.getFid(), "1", args.getParentId());
-        } else if (args.getType() == FragmentArgs.TYPE_NEW_POSTS) {
-            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_NEW_POSTS);
-        }
-    }
 
+        if (args.getType() == FragmentArgs.TYPE_THREAD)
+            showThreadActivity(activity, args.isSkipEnterAnim(), args.getTid(), "", args.getPage(), args.getFloor(), args.getPostId(), -1);
+        else if (args.getType() == FragmentArgs.TYPE_USER_INFO)
+            showUserInfoActivity(activity, args.isSkipEnterAnim(), args.getUid(), args.getUsername());
+        else if (args.getType() == FragmentArgs.TYPE_SMS)
+            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_SMS);
+        else if (args.getType() == FragmentArgs.TYPE_SEARCH)
+            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_SEARCH);
+        else if (args.getType() == FragmentArgs.TYPE_FAVORITE)
+            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_FAVORITES);
+        else if (args.getType() == FragmentArgs.TYPE_SMS_DETAIL)
+            showSmsActivity(activity, args.isSkipEnterAnim(), args.getUid(), args.getUsername());
+        else if (args.getType() == FragmentArgs.TYPE_THREAD_NOTIFY)
+            showNotifyListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_THREAD_NOTIFY, args.getExtra());
+        else if (args.getType() == FragmentArgs.TYPE_FORUM)
+            showForum(activity.getSupportFragmentManager(), args.getFid());
+        else if (args.getType() == FragmentArgs.TYPE_NEW_THREAD)
+            showNewPostActivity(activity, args.getFid(), "1", args.getParentId());
+        else if (args.getType() == FragmentArgs.TYPE_NEW_POSTS)
+            showSimpleListActivity(activity, args.isSkipEnterAnim(), SimpleListJob.TYPE_NEW_POSTS);
+    }
 }

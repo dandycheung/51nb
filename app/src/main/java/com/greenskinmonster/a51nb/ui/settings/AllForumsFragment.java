@@ -1,4 +1,4 @@
-package com.greenskinmonster.a51nb.ui.setting;
+package com.greenskinmonster.a51nb.ui.settings;
 
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
@@ -48,7 +48,6 @@ import io.fabric.sdk.android.services.concurrency.AsyncTask;
  */
 
 public class AllForumsFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
-
     public static final String TAG_KEY = "ALL_FORUMS_KEY";
 
     private LayoutInflater mInflater;
@@ -81,11 +80,10 @@ public class AllForumsFragment extends BaseFragment implements SwipeRefreshLayou
 
     private void addForums() {
         mForums.clear();
-        for (Forum forum : HiSettingsHelper.getInstance().getAllForums()) {
-            if (mShowAllForums || forum.getLevel() < Forum.SUB_FORUM) {
+
+        for (Forum forum : HiSettingsHelper.getInstance().getAllForums())
+            if (mShowAllForums || forum.getLevel() < Forum.SUB_FORUM)
                 mForums.add(forum);
-            }
-        }
     }
 
     @Override
@@ -112,19 +110,21 @@ public class AllForumsFragment extends BaseFragment implements SwipeRefreshLayou
         mCheckboxClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (v instanceof CompoundButton) {
-                    int position = (Integer) v.getTag();
-                    Forum forum = mForums.get(position);
-                    if (((CompoundButton) v).isChecked()) {
-                        if (!mFreqForums.contains(forum))
-                            mFreqForums.add(forum);
-                    } else {
-                        mFreqForums.remove(forum);
-                    }
-                    HiSettingsHelper.getInstance().setFreqForums(mFreqForums);
-                    mAdapter.notifyItemChanged(position);
-                    mChanged = true;
+                if (!(v instanceof CompoundButton))
+                    return;
+
+                int position = (Integer) v.getTag();
+                Forum forum = mForums.get(position);
+                if (((CompoundButton) v).isChecked()) {
+                    if (!mFreqForums.contains(forum))
+                        mFreqForums.add(forum);
+                } else {
+                    mFreqForums.remove(forum);
                 }
+
+                HiSettingsHelper.getInstance().setFreqForums(mFreqForums);
+                mAdapter.notifyItemChanged(position);
+                mChanged = true;
             }
         };
 
@@ -178,7 +178,6 @@ public class AllForumsFragment extends BaseFragment implements SwipeRefreshLayou
             mSwipeLayout.setRefreshing(true);
 
         new AsyncTask<Void, Void, List<Forum>>() {
-
             @Override
             protected List<Forum> doInBackground(Void... voids) {
                 return ForumParser.fetchAllForums();
@@ -194,11 +193,9 @@ public class AllForumsFragment extends BaseFragment implements SwipeRefreshLayou
                 }
             }
         }.execute();
-
     }
 
     private class RvAdapter extends RecyclerView.Adapter {
-
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new ViewHolder(mInflater.inflate(R.layout.item_forum_list, parent, false));
@@ -212,13 +209,12 @@ public class AllForumsFragment extends BaseFragment implements SwipeRefreshLayou
             holder.itemView.setTag(forum);
             holder.tv_name.setText(forum.getName() + " " + ForumParser.getForumNewPostCount(forum.getId()));
 
-            if (mFreqForums.contains(forum)) {
+            if (mFreqForums.contains(forum))
                 holder.tv_name.setTextColor(ColorHelper.getColorAccent(getActivity()));
-            } else if (forum.getLevel() == Forum.SUB_FORUM) {
+            else if (forum.getLevel() == Forum.SUB_FORUM)
                 holder.tv_name.setTextColor(ColorHelper.getTextColorSecondary(getActivity()));
-            } else {
+            else
                 holder.tv_name.setTextColor(ColorHelper.getTextColorPrimary(getActivity()));
-            }
 
             if (forum.getLevel() == Forum.GROUP) {
                 holder.cb_forum.setVisibility(View.GONE);
@@ -319,7 +315,6 @@ public class AllForumsFragment extends BaseFragment implements SwipeRefreshLayou
     }
 
     private class FreqRvAdapter extends RecyclerView.Adapter {
-
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new FreqViewHolder(mInflater.inflate(R.layout.item_forum_sort, parent, false));
@@ -365,5 +360,4 @@ public class AllForumsFragment extends BaseFragment implements SwipeRefreshLayou
             ib_remove = (ImageButton) itemView.findViewById(R.id.ib_remove);
         }
     }
-
 }

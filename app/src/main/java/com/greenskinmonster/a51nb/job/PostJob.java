@@ -12,7 +12,6 @@ import org.greenrobot.eventbus.EventBus;
  * Created by GreenSkinMonster on 2016-03-28.
  */
 public class PostJob extends BaseJob {
-
     private final static int MIN_JOB_TIME_MS = 500;
 
     private PostBean mPostArg;
@@ -21,7 +20,6 @@ public class PostJob extends BaseJob {
     private PostEvent mEvent;
 
     public PostJob(String sessionId, int mode, PrePostInfoBean prePostInfo, PostBean postArg, boolean fromQuickReply) {
-
         super(sessionId, JobMgr.PRIORITY_HIGH);
 
         mPostArg = postArg;
@@ -52,11 +50,9 @@ public class PostJob extends BaseJob {
         mEvent.mMessage = postResult.getMessage();
 
         long delta = System.currentTimeMillis() - start;
-        if (delta < MIN_JOB_TIME_MS) {
+        if (delta < MIN_JOB_TIME_MS)
             Thread.sleep(MIN_JOB_TIME_MS - delta);
-        }
 
         EventBus.getDefault().postSticky(mEvent);
     }
-
 }

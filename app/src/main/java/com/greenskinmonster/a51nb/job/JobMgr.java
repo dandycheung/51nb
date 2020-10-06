@@ -13,7 +13,6 @@ import com.greenskinmonster.a51nb.utils.Logger;
  * Created by GreenSkinMonster on 2015-08-27.
  */
 public class JobMgr {
-
     public final static int PRIORITY_HIGH = 9;
     public final static int PRIORITY_MIDIUM = 6;
     public final static int PRIORITY_LOW = 3;
@@ -32,8 +31,8 @@ public class JobMgr {
 
             @Override
             public void d(String text, Object... args) {
-//                if (isDebugEnabled())
-//                    Log.d(TAG, String.format(text, args));
+                // if (isDebugEnabled())
+                //     Log.d(TAG, String.format(text, args));
             }
 
             @Override
@@ -69,11 +68,10 @@ public class JobMgr {
     }
 
     private void addJobImpl(BaseJob job) {
-        if (job instanceof GlideImageJob) {
+        if (job instanceof GlideImageJob)
             glideJobManager.addJob(job);
-        } else {
+        else
             jobManager.addJob(job);
-        }
     }
 
     public static void addJob(BaseJob job) {

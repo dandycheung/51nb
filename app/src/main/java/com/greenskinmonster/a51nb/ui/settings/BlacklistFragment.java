@@ -1,4 +1,4 @@
-package com.greenskinmonster.a51nb.ui.setting;
+package com.greenskinmonster.a51nb.ui.settings;
 
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -43,7 +43,6 @@ import okhttp3.Request;
  */
 
 public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
-
     public static final String TAG_KEY = "BLACKLIST_KEY";
 
     private List<UserBean> mBlacklists = new ArrayList<>();
@@ -89,7 +88,6 @@ public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayou
         mLoadingView = (ContentLoadingView) view.findViewById(R.id.content_loading);
 
         recyclerView.setAdapter(mAdapter);
-
         refresh();
 
         setActionBarTitle("黑名单");
@@ -151,9 +149,11 @@ public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayou
             public void onResponse(String response) {
                 try {
                     Document doc = Jsoup.parse(response);
+
                     String errorMsg = Utils.nullToText(HiParser.parseErrorMessage(doc));
                     if (!TextUtils.isEmpty(errorMsg))
                         UIUtils.toast(errorMsg);
+
                     if (errorMsg.contains("成功")) {
                         int pos = -1;
                         for (int i = 0; i < mBlacklists.size(); i++) {
@@ -163,6 +163,7 @@ public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayou
                                 break;
                             }
                         }
+
                         if (pos != -1) {
                             mBlacklists.remove(pos);
                             mAdapter.notifyItemRemoved(pos);
@@ -173,6 +174,7 @@ public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayou
                         } else {
                             refresh();
                         }
+
                         HiSettingsHelper.getInstance().removeFromBlacklist(user);
                     } else {
                         refresh();
@@ -180,7 +182,6 @@ public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayou
                 } catch (Exception e) {
                     UIUtils.toast(OkHttpHelper.getErrorMessage(e).getMessage());
                 }
-
             }
         });
     }
@@ -191,7 +192,6 @@ public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayou
     }
 
     private class RvAdapter extends RecyclerView.Adapter {
-
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new ViewHolder(mInflater.inflate(R.layout.item_blacklist, parent, false));
@@ -225,5 +225,4 @@ public class BlacklistFragment extends BaseFragment implements SwipeRefreshLayou
             ib_remove = (ImageButton) itemView.findViewById(R.id.ib_remove);
         }
     }
-
 }

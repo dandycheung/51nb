@@ -7,18 +7,17 @@ import android.view.View;
  * http://stackoverflow.com/questions/5608720/android-preventing-double-click-on-a-button
  */
 public abstract class OnSingleClickListener implements View.OnClickListener {
-
     /**
-     * 最短click事件的时间间隔
+     * 最短 click 事件的时间间隔
      */
     private static final long MIN_CLICK_INTERVAL = 600;
     /**
-     * 上次click的时间
+     * 上次 click 的时间
      */
     private long mLastClickTime;
 
     /**
-     * click响应函数
+     * click 响应函数
      *
      * @param v The view that was clicked.
      */
@@ -28,7 +27,8 @@ public abstract class OnSingleClickListener implements View.OnClickListener {
     public final void onClick(View v) {
         long currentClickTime = System.currentTimeMillis();
         long elapsedTime = currentClickTime - mLastClickTime;
-        //有可能2次连击，也有可能3连击，保证mLastClickTime记录的总是上次click的时间
+
+        // 有可能 2 次连击，也有可能 3 连击，保证 mLastClickTime 记录的总是上次 click 的时间
         mLastClickTime = currentClickTime;
 
         if (elapsedTime <= MIN_CLICK_INTERVAL)
@@ -36,5 +36,4 @@ public abstract class OnSingleClickListener implements View.OnClickListener {
 
         onSingleClick(v);
     }
-
 }

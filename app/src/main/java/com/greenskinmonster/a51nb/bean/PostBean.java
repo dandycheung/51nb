@@ -5,7 +5,6 @@ package com.greenskinmonster.a51nb.bean;
  * Created by GreenSkinMonster on 2015-03-14.
  */
 public class PostBean {
-
     private String mTid;
     private String mPid;
     private int mFid;
@@ -123,5 +122,4 @@ public class PostBean {
     public void setCommentListBean(CommentListBean commentListBean) {
         mCommentListBean = commentListBean;
     }
-
 }

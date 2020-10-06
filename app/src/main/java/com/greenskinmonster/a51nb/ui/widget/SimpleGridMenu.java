@@ -28,7 +28,6 @@ import java.util.List;
  */
 
 public class SimpleGridMenu {
-
     private Context mContext;
     private LayoutInflater mInflater;
     private String mTitle;
@@ -74,9 +73,9 @@ public class SimpleGridMenu {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long row) {
                 String actionKey = (String) view.getTag();
                 MenuItem menuItem = mMenuItems.get(actionKey);
-                if (menuItem != null) {
+                if (menuItem != null)
                     menuItem.listener.onItemClick(adapterView, view, position, row);
-                }
+
                 dismiss();
             }
         });
@@ -96,11 +95,11 @@ public class SimpleGridMenu {
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             View view;
-            if (convertView == null) {
+            if (convertView == null)
                 view = mInflater.inflate(R.layout.item_grid_menu, parent, false);
-            } else {
+            else
                 view = convertView;
-            }
+
             final String actionKey = mActionKeys.get(position);
             view.setTag(actionKey);
 
@@ -145,6 +144,7 @@ public class SimpleGridMenu {
         menuItem.icon = icon;
         menuItem.iconListener = iconListener;
         mMenuItems.put(actionKey, menuItem);
+
         if (!mActionKeys.contains(actionKey))
             mActionKeys.add(actionKey);
     }
@@ -156,5 +156,4 @@ public class SimpleGridMenu {
         IIcon icon;
         View.OnClickListener iconListener;
     }
-
 }

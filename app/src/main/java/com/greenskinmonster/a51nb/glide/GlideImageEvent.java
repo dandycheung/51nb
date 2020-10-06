@@ -7,7 +7,6 @@ import com.greenskinmonster.a51nb.utils.Constants;
  * Created by GreenSkinMonster on 2015-08-27.
  */
 public class GlideImageEvent {
-
     private int mStatus = -1;
     private String mUrl;
     private int mProgress;
@@ -45,5 +44,4 @@ public class GlideImageEvent {
     public String getMessage() {
         return mMessage;
     }
-
 }

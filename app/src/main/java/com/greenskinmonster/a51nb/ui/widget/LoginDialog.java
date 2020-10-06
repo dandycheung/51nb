@@ -25,7 +25,6 @@ import com.greenskinmonster.a51nb.utils.UIUtils;
  * Created by GreenSkinMonster on 2015-04-18.
  */
 public class LoginDialog extends Dialog {
-
     private Context mCtx;
     private HiProgressDialog progressDialog;
 
@@ -36,8 +35,7 @@ public class LoginDialog extends Dialog {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.dialog_login, null);
 
         final EditText etUsername = (EditText) view.findViewById(R.id.login_username);
@@ -64,7 +62,6 @@ public class LoginDialog extends Dialog {
         btnLogin.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onSingleClick(View v) {
-
                 if (mCtx instanceof Activity)
                     UIUtils.hideSoftKeyboard((Activity) mCtx);
 
@@ -79,7 +76,6 @@ public class LoginDialog extends Dialog {
                 final LoginHelper loginHelper = new LoginHelper();
 
                 new AsyncTask<Void, Void, Integer>() {
-
                     @Override
                     protected Integer doInBackground(Void... voids) {
                         return loginHelper.login(true);
@@ -105,5 +101,4 @@ public class LoginDialog extends Dialog {
 
         setContentView(view);
     }
-
 }

@@ -20,7 +20,6 @@ import com.greenskinmonster.a51nb.ui.widget.OnSingleClickListener;
 import java.lang.ref.WeakReference;
 
 public class GlideImageView extends AppCompatImageView {
-
     private ThreadDetailFragment mFragment;
     private String mUrl;
     private int mImageIndex;
@@ -120,5 +119,4 @@ public class GlideImageView extends AppCompatImageView {
         mCurrentUrl = null;
         mCurrentViewHolder = null;
     }
-
 }

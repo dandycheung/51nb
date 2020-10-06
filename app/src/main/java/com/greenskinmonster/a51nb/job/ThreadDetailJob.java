@@ -25,7 +25,6 @@ import org.jsoup.nodes.Document;
  */
 
 public class ThreadDetailJob extends BaseJob {
-
     public final static String FIND_AUTHOR_ID = "-1";
     private final static int MIN_JOB_TIME_MS = 150;
 
@@ -77,9 +76,8 @@ public class ThreadDetailJob extends BaseJob {
                     if (!LoginHelper.checkLoggedin(doc)) {
                         if (HiSettingsHelper.getInstance().isLoginInfoValid()) {
                             int status = new LoginHelper().login();
-                            if (status == Constants.STATUS_SUCCESS) {
+                            if (status == Constants.STATUS_SUCCESS)
                                 continue;
-                            }
                         }
                     }
 
@@ -89,9 +87,8 @@ public class ThreadDetailJob extends BaseJob {
                         eventStatus = Constants.STATUS_FAIL_ABORT;
                         eventMessage = "页面加载失败";
                         String message = HiParser.parseErrorMessage(doc);
-                        if (!TextUtils.isEmpty(message)) {
+                        if (!TextUtils.isEmpty(message))
                             eventMessage = message;
-                        }
                     }
                     break;
                 }
@@ -107,9 +104,8 @@ public class ThreadDetailJob extends BaseJob {
         }
 
         long delta = System.currentTimeMillis() - start;
-        if (delta < MIN_JOB_TIME_MS) {
+        if (delta < MIN_JOB_TIME_MS)
             Thread.sleep(MIN_JOB_TIME_MS - delta);
-        }
 
         mEvent.mData = data;
         mEvent.mStatus = eventStatus;
@@ -130,12 +126,13 @@ public class ThreadDetailJob extends BaseJob {
             mUrl = HiUtils.LastPageUrl.replace("{tid}", mTid);
         } else {
             mUrl = HiUtils.DetailListUrl + mTid + "&page=" + mPage;
-            if (FIND_AUTHOR_ID.equals(mAuthorId)) {
+            if (FIND_AUTHOR_ID.equals(mAuthorId))
                 mAuthorId = getThreadAuthorId();
-            }
+
             if (HiUtils.isValidId(mAuthorId))
                 mUrl += "&authorid=" + mAuthorId;
         }
+
         return OkHttpHelper.getInstance().get(mUrl, mSessionId, OkHttpHelper.FORCE_NETWORK);
     }
 
@@ -149,5 +146,4 @@ public class ThreadDetailJob extends BaseJob {
             return "";
         }
     }
-
 }

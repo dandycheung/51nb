@@ -5,7 +5,6 @@ package com.greenskinmonster.a51nb.bean;
  */
 
 public class RecommendThreadBean extends ThreadBean {
-
     private String mPostInfo;
     private String mContent;
     private String mItemImageUrl;

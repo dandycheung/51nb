@@ -38,7 +38,6 @@ public class SwipeBackActivityHelper {
 
             @Override
             public void onScrollOverThreshold() {
-
             }
         });
     }
@@ -48,9 +47,9 @@ public class SwipeBackActivityHelper {
     }
 
     public View findViewById(int id) {
-        if (mSwipeBackLayout != null) {
+        if (mSwipeBackLayout != null)
             return mSwipeBackLayout.findViewById(id);
-        }
+
         return null;
     }
 

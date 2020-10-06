@@ -25,18 +25,18 @@ public class AndroidBug5497Workaround {
 
     private AndroidBug5497Workaround(Activity activity) {
 
-        //获取状态栏的高度
-        // 原例子中更改toobar margin的情况需要考虑状态栏高度
-        //int resourceId = activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
-        //statusBarHeight = activity.getResources().getDimensionPixelSize(resourceId);
+        // 获取状态栏的高度
+        // 原例子中更改 toolbar margin 的情况需要考虑状态栏高度
+        // int resourceId = activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        // statusBarHeight = activity.getResources().getDimensionPixelSize(resourceId);
 
-        //更改 AppBarLayout 的 layoutParams 不需要考虑
+        // 更改 AppBarLayout 的 layoutParams 不需要考虑
         statusBarHeight = 0;
 
         FrameLayout content = (FrameLayout) activity.findViewById(android.R.id.content);
         mChildOfContent = content.getChildAt(0);
 
-        //界面出现变动都会调用这个监听事件
+        // 界面出现变动都会调用这个监听事件
         mChildOfContent.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             public void onGlobalLayout() {
                 if (isfirst) {
@@ -51,24 +51,20 @@ public class AndroidBug5497Workaround {
                 mChildOfContent.getLayoutParams();
     }
 
-    //重新调整跟布局的高度
+    // 重新调整跟布局的高度
     private void possiblyResizeChildOfContent() {
-
         int usableHeightNow = computeUsableHeight();
 
-        //当前可见高度和上一次可见高度不一致 布局变动
+        // 当前可见高度和上一次可见高度不一致 布局变动
         if (usableHeightNow != usableHeightPrevious) {
-            //int usableHeightSansKeyboard2 = mChildOfContent.getHeight();//兼容华为等机型
+            // int usableHeightSansKeyboard2 = mChildOfContent.getHeight(); // 兼容华为等机型
             int usableHeightSansKeyboard = mChildOfContent.getRootView().getHeight();
             int heightDifference = usableHeightSansKeyboard - usableHeightNow;
             if (heightDifference > (usableHeightSansKeyboard / 4)) {
                 // keyboard probably just became visible
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    //frameLayoutParams.height = usableHeightSansKeyboard - heightDifference;
-                    frameLayoutParams.height = usableHeightSansKeyboard - heightDifference + statusBarHeight;
-                } else {
-                    frameLayoutParams.height = usableHeightSansKeyboard - heightDifference;
-                }
+                frameLayoutParams.height = usableHeightSansKeyboard - heightDifference;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                    frameLayoutParams.height += statusBarHeight;
             } else {
                 frameLayoutParams.height = contentHeight;
             }
@@ -79,7 +75,7 @@ public class AndroidBug5497Workaround {
     }
 
     /**
-     * 计算mChildOfContent可见高度     ** @return
+     * 计算 mChildOfContent 可见高度
      */
     private int computeUsableHeight() {
         Rect r = new Rect();

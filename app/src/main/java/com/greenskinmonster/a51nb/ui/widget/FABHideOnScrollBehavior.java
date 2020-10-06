@@ -14,7 +14,6 @@ import android.view.View;
  */
 @SuppressWarnings("unused")
 public class FABHideOnScrollBehavior extends FloatingActionButton.Behavior {
-
     public FABHideOnScrollBehavior() {
         super();
     }
@@ -30,13 +29,13 @@ public class FABHideOnScrollBehavior extends FloatingActionButton.Behavior {
         boolean isNearBottom = target != null && (target instanceof XRecyclerView) && ((XRecyclerView) target).isNearBottom();
         if (isNearBottom && child.getVisibility() == View.INVISIBLE) {
             child.show();
-        } else {
-            if (!isNearBottom && dyConsumed > 0 && child.getVisibility() == View.VISIBLE) {
-                hideFab(child);
-            } else if (dyConsumed < 0 && child.getVisibility() != View.VISIBLE) {
-                child.show();
-            }
+            return;
         }
+
+        if (!isNearBottom && dyConsumed > 0 && child.getVisibility() == View.VISIBLE)
+            hideFab(child);
+        else if (dyConsumed < 0 && child.getVisibility() != View.VISIBLE)
+            child.show();
     }
 
     @Override

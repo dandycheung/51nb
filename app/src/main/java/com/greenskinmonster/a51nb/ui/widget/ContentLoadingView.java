@@ -13,7 +13,6 @@ import com.greenskinmonster.a51nb.R;
  */
 
 public class ContentLoadingView extends RelativeLayout {
-
     public static final int LOADING = 0;
     public static final int LOAD_NOW = 1;
     public static final int ERROR = 2;
@@ -49,19 +48,18 @@ public class ContentLoadingView extends RelativeLayout {
         mContentInfo.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onSingleClick(View view) {
-                if (mState == ERROR && mOnErrorListener != null) {
+                if (mState == ERROR && mOnErrorListener != null)
                     mOnErrorListener.onClick(view);
-                } else if (mState == NOT_LOGIN && mOnNotLoginListener != null) {
+                else if (mState == NOT_LOGIN && mOnNotLoginListener != null)
                     mOnNotLoginListener.onClick(view);
-                }
             }
         });
     }
 
     public void setState(int state) {
-        if (mState == state ||
-                (mState == LOAD_NOW && state == LOADING))
+        if (mState == state || (mState == LOAD_NOW && state == LOADING))
             return;
+
         mState = state;
         if (state == LOADING) {
             mContentInfo.setVisibility(View.GONE);

@@ -1,4 +1,4 @@
-package com.greenskinmonster.a51nb.ui.setting;
+package com.greenskinmonster.a51nb.ui.settings;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -46,7 +46,6 @@ import okhttp3.Response;
  */
 
 public class PasswordFragment extends BaseFragment {
-
     public static final String TAG_KEY = "PASSWORD_KEY";
     public static final String FORCE_SECQUEST_KEY = "FORCE_SECQUEST_KEY";
 
@@ -68,15 +67,13 @@ public class PasswordFragment extends BaseFragment {
     private MenuItem mSaveMenuItem;
     private KeyValueArrayAdapter adapter;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        if (getArguments() != null) {
+        if (getArguments() != null)
             mForceSecQuestion = getArguments().getBoolean(FORCE_SECQUEST_KEY);
-        }
     }
 
     @Override
@@ -140,27 +137,25 @@ public class PasswordFragment extends BaseFragment {
     private boolean mImageRefreshing = false;
 
     private void refreshSecCode() {
-
         if (TextUtils.isEmpty(mIdhash)) {
-            UIUtils.toast("无法获得参数1");
+            UIUtils.toast("无法获得参数 1");
             mSaveMenuItem.setEnabled(false);
             return;
         }
+
         if (mImageRefreshing)
             return;
 
         mImageRefreshing = true;
 
         new AsyncTask<Void, Void, Void>() {
-
             private String mMessage;
 
             @Override
             protected void onPreExecute() {
                 mImageView.setImageBitmap(null);
-                if (mCodeBitmap != null) {
+                if (mCodeBitmap != null)
                     mCodeBitmap.recycle();
-                }
             }
 
             @Override
@@ -179,10 +174,10 @@ public class PasswordFragment extends BaseFragment {
                             mCodeBitmap = BitmapFactory.decodeStream(inputStream);
                             inputStream.close();
                         } else {
-                            mMessage = "错误代码 : " + response.code();
+                            mMessage = "错误代码: " + response.code();
                         }
                     } else {
-                        mMessage = "无法获得参数2";
+                        mMessage = "无法获得参数 2";
                     }
                 } catch (Exception e) {
                     Logger.e(e);
@@ -203,7 +198,6 @@ public class PasswordFragment extends BaseFragment {
                 }
             }
         }.execute();
-
     }
 
     private void loadPage() {
@@ -217,18 +211,21 @@ public class PasswordFragment extends BaseFragment {
             @Override
             public void onResponse(String response) {
                 mProgressDialog.dismiss();
+
                 mIdhash = Utils.getMiddleString(response, "\"seccode_", "\"");
+
                 Document doc = Jsoup.parse(response);
                 Element emailEl = doc.select("input#emailnew").first();
                 mFormhash = HiParser.parseFormhash(doc);
                 if (emailEl == null || TextUtils.isEmpty(mFormhash) || TextUtils.isEmpty(mIdhash)) {
                     String error = HiParser.parseErrorMessage(doc);
-                    if (TextUtils.isEmpty(error)) {
+                    if (TextUtils.isEmpty(error))
                         error = "无法获得参数";
-                    }
+
                     UIUtils.toast(error);
                     return;
                 }
+
                 mEmail = emailEl.attr("value");
                 refreshSecCode();
             }
@@ -249,10 +246,11 @@ public class PasswordFragment extends BaseFragment {
         }
 
         if (newpassword.length() > 0 && newpassword.length() < 6) {
-            UIUtils.toast("新密码至少为6位");
+            UIUtils.toast("新密码至少为 6 位");
             mTvNewPassword.requestFocus();
             return;
         }
+
         if (!newpassword2.equals(newpassword)) {
             UIUtils.toast("确认新密码需要与新密码相同");
             mTvNewPassword2.requestFocus();
@@ -299,7 +297,6 @@ public class PasswordFragment extends BaseFragment {
         params.put("passwordsubmit", "true");
 
         new AsyncTask<Void, Void, Void>() {
-
             private String mMessage;
             private int mStatus = Constants.STATUS_FAIL;
 
@@ -310,11 +307,10 @@ public class PasswordFragment extends BaseFragment {
 
             @Override
             protected void onPostExecute(Void aVoid) {
-                if (mStatus == Constants.STATUS_SUCCESS) {
+                if (mStatus == Constants.STATUS_SUCCESS)
                     mProgressDialog.dismiss(mMessage, 2000);
-                } else {
+                else
                     mProgressDialog.dismissError(mMessage);
-                }
             }
 
             @Override
@@ -326,17 +322,18 @@ public class PasswordFragment extends BaseFragment {
                     if (mMessage.contains("成功")) {
                         if (!TextUtils.isEmpty(newpassword))
                             HiSettingsHelper.getInstance().setPassword(newpassword);
+
                         if (!TextUtils.isEmpty(questionidnew)) {
                             HiSettingsHelper.getInstance().setSecQuestion(questionidnew);
                             HiSettingsHelper.getInstance().setSecAnswer(answernew);
                         }
+
                         LoginHelper loginHelper = new LoginHelper();
                         mStatus = loginHelper.login();
-                        if (mStatus == Constants.STATUS_SUCCESS) {
+                        if (mStatus == Constants.STATUS_SUCCESS)
                             mMessage = "个人信息保存成功";
-                        } else {
+                        else
                             mMessage = loginHelper.getErrorMsg();
-                        }
                     }
                 } catch (Exception e) {
                     mMessage = OkHttpHelper.getErrorMessage(e).getMessage();

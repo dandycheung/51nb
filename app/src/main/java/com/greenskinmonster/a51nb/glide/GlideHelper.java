@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GlideHelper {
-
     private static LRUCache<String, String> NOT_FOUND_AVATARS = new LRUCache<>(1024);
 
     private static File AVATAR_CACHE_DIR;
@@ -54,21 +53,23 @@ public class GlideHelper {
     private static Map<String, String> AVATAR_CACHE_KEYS = new HashMap<>();
 
     public static void loadAvatar(BaseFragment fragment, ImageView view, String avatarUrl) {
-        if (isOkToLoad(fragment)) {
+        if (isOkToLoad(fragment))
             loadAvatar(Glide.with(fragment), view, avatarUrl);
-        }
     }
 
     public static void loadAvatar(RequestManager glide, ImageView view, String avatarUrl) {
         String cacheKey = null;
+
         if (avatarUrl != null)
             cacheKey = AVATAR_CACHE_KEYS.get(avatarUrl);
+
         if (cacheKey == null) {
-            if (avatarUrl == null || NOT_FOUND_AVATARS.containsKey(avatarUrl)) {
+            if (avatarUrl == null || NOT_FOUND_AVATARS.containsKey(avatarUrl))
                 avatarUrl = DEFAULT_AVATAR_FILE.getAbsolutePath();
-            }
+
             cacheKey = avatarUrl;
         }
+
         if (HiSettingsHelper.getInstance().isCircleAvatar()) {
             glide.load(avatarUrl)
                     .signature(new StringSignature(cacheKey))
@@ -106,17 +107,17 @@ public class GlideHelper {
     }
 
     public static File getAvatarFile(String url) {
-        if (url.startsWith(HiUtils.AvatarBaseUrl)) {
+        if (url.startsWith(HiUtils.AvatarBaseUrl))
             return new File(AVATAR_CACHE_DIR, url.substring(HiUtils.AvatarBaseUrl.length()));
-        }
+
         return null;
     }
 
     public static void clearAvatarCache(String url) {
         File f = getAvatarFile(url);
-        if (f != null && f.exists()) {
+        if (f != null && f.exists())
             f.delete();
-        }
+
         AVATAR_CACHE_KEYS.put(url, System.currentTimeMillis() + "");
     }
 
@@ -125,9 +126,9 @@ public class GlideHelper {
     }
 
     public static boolean isOkToLoad(Context activity) {
-        if (activity instanceof Activity) {
+        if (activity instanceof Activity)
             return !Utils.isDestroyed((Activity) activity);
-        }
+
         return true;
     }
 
@@ -149,11 +150,11 @@ public class GlideHelper {
             if (!file.exists()) {
                 try {
                     Bitmap b = drawableToBitmap(drawable);
-                    if ("circle".equals(key)) {
+                    if ("circle".equals(key))
                         b = getCroppedBitmap(b);
-                    }
+
                     b.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(file));
-//                    b.recycle();
+                    // b.recycle();
                 } catch (Exception e) {
                     Logger.e(e);
                 }
@@ -167,13 +168,13 @@ public class GlideHelper {
             DEFAULT_USER_ICON = avatars.get("default");
             DEFAULT_AVATAR_FILE = new File(AVATAR_CACHE_DIR, "default" + AVATAR_VER + ".png");
         }
+
         SYSTEM_AVATAR_FILE = new File(AVATAR_CACHE_DIR, "system" + AVATAR_VER + ".png");
     }
 
     private static Bitmap drawableToBitmap(Drawable drawable) {
-        if (drawable instanceof BitmapDrawable) {
+        if (drawable instanceof BitmapDrawable)
             return ((BitmapDrawable) drawable).getBitmap();
-        }
 
         Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
@@ -184,8 +185,7 @@ public class GlideHelper {
     }
 
     private static Bitmap getCroppedBitmap(Bitmap bitmap) {
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
-                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
 
         final int color = 0xff424242;
@@ -195,11 +195,10 @@ public class GlideHelper {
         paint.setAntiAlias(true);
         canvas.drawARGB(0, 0, 0, 0);
         paint.setColor(color);
-        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
-                bitmap.getWidth() / 2, paint);
+        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2, bitmap.getWidth() / 2, paint);
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
         canvas.drawBitmap(bitmap, rect, rect, paint);
+
         return output;
     }
-
 }

@@ -15,7 +15,6 @@ import android.view.WindowManager;
  */
 
 public class BottomDialog extends BottomSheetDialog {
-
     public BottomDialog(@NonNull Context context) {
         super(context);
     }
@@ -26,9 +25,9 @@ public class BottomDialog extends BottomSheetDialog {
 
         int orientation = getContext().getResources().getConfiguration().orientation;
 
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (orientation == Configuration.ORIENTATION_PORTRAIT)
             getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        } else {
+        else {
             DisplayMetrics metrics = new DisplayMetrics();
             getWindow().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 

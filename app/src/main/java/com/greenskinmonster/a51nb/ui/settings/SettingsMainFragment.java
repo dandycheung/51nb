@@ -1,4 +1,4 @@
-package com.greenskinmonster.a51nb.ui.setting;
+package com.greenskinmonster.a51nb.ui.settings;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,11 +23,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * main setting fragment
+ * main settings fragment
  * Created by GreenSkinMonster on 2015-09-11.
  */
-public class SettingMainFragment extends BaseSettingFragment {
-
+public class SettingsMainFragment extends SettingsBaseFragment {
     private int mScreenOrietation;
     private String mTheme;
     private int mPrimaryColor;
@@ -58,7 +57,7 @@ public class SettingMainFragment extends BaseSettingFragment {
 
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    //avoid double click
+                    // avoid double click
                     long currentClickTime = System.currentTimeMillis();
                     long elapsedTime = currentClickTime - mLastClickTime;
                     mLastClickTime = currentClickTime;
@@ -66,7 +65,7 @@ public class SettingMainFragment extends BaseSettingFragment {
                         return true;
 
                     Intent intent = new Intent(getActivity(), SettingActivity.class);
-                    intent.putExtra(SettingNestedFragment.TAG_KEY, screenKey);
+                    intent.putExtra(SettingsNestedFragment.TAG_KEY, screenKey);
                     ActivityOptionsCompat options = ActivityOptionsCompat.makeCustomAnimation(getActivity(), R.anim.slide_in_right, 0);
                     ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
                     return true;
@@ -92,11 +91,11 @@ public class SettingMainFragment extends BaseSettingFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (!mFirstResume) {
+
+        if (!mFirstResume)
             updateSettingStatus();
-        } else {
+        else
             mFirstResume = false;
-        }
     }
 
     private void updateSettingStatus() {
@@ -109,11 +108,10 @@ public class SettingMainFragment extends BaseSettingFragment {
             HiSettingsHelper.getInstance().setNightMode(false);
 
         if (mNotiTaskEnabled != HiSettingsHelper.getInstance().isNotiTaskEnabled()) {
-            if (HiSettingsHelper.getInstance().isNotiTaskEnabled()) {
+            if (HiSettingsHelper.getInstance().isNotiTaskEnabled())
                 NotiHelper.scheduleJob();
-            } else {
+            else
                 NotiHelper.cancelJob();
-            }
         }
 
         if (mCacheCleared
@@ -140,7 +138,6 @@ public class SettingMainFragment extends BaseSettingFragment {
                 + (Utils.isFromGooglePlay(getActivity()) ? " (Google Play)" : ""));
         dialogPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
-
                 Intent intent = new Intent(getActivity(), SettingActivity.class);
                 intent.putExtra(AboutFragment.TAG_KEY, AboutFragment.TAG_KEY);
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeCustomAnimation(getActivity(), R.anim.slide_in_right, 0);
@@ -157,13 +154,11 @@ public class SettingMainFragment extends BaseSettingFragment {
                 return true;
             }
         });
+
         Date lastCheckTime = HiSettingsHelper.getInstance().getLastUpdateCheckTime();
-        if (lastCheckTime != null) {
+        if (lastCheckTime != null)
             checkPreference.setSummary("上次检查 ：" + Utils.shortyTime(lastCheckTime));
-        } else {
+        else
             checkPreference.setSummary("上次检查 ：- ");
-        }
-
     }
-
 }

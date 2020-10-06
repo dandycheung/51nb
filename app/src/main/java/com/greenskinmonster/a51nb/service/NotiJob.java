@@ -13,21 +13,20 @@ import com.greenskinmonster.a51nb.utils.Logger;
  */
 
 public class NotiJob extends Job {
-
     public static final String TAG = "noti_job_tag";
 
     @Override
     @NonNull
     protected Result onRunJob(Params params) {
-        if (!LoginHelper.isLoggedIn()) {
+        if (!LoginHelper.isLoggedIn())
             NotiHelper.cancelJob();
-        } else {
-            if (!HiApplication.isAppVisible()
-                    && !HiSettingsHelper.getInstance().isInSilentMode()) {
+        else {
+            if (!HiApplication.isAppVisible() && !HiSettingsHelper.getInstance().isInSilentMode()) {
                 HiSettingsHelper.getInstance().setNotiJobLastRunTime();
                 checkNotifications();
             }
         }
+
         return Result.SUCCESS;
     }
 
@@ -39,5 +38,4 @@ public class NotiJob extends Job {
             Logger.e(e);
         }
     }
-
 }

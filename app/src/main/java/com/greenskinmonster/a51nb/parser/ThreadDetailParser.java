@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 public class ThreadDetailParser {
-
     public static String getThreadAuthorId(Document doc) {
         Elements authorLinksEs = doc.select("td.postauthor div.postinfo a");
         if (authorLinksEs.size() > 0) {
@@ -56,12 +55,11 @@ public class ThreadDetailParser {
         if (pagesES.size() != 0) {
             for (Node n : pagesES.first().childNodes()) {
                 int tmp = Utils.getIntFromString(((Element) n).text());
-                if (tmp > last_page) {
+                if (tmp > last_page)
                     last_page = tmp;
-                }
-                if ("strong".equals(n.nodeName())) {
+
+                if ("strong".equals(n.nodeName()))
                     page = tmp;
-                }
             }
         }
 
@@ -93,14 +91,12 @@ public class ThreadDetailParser {
         }
 
         Elements postES = doc.select("div#postlist table[id^=pid]");
-        if (postES.size() == 0) {
+        if (postES.size() == 0)
             return null;
-        }
 
         // update max posts in page, this is controlled by user setting
-        if (last_page > page) {
+        if (last_page > page)
             HiSettingsHelper.getInstance().setMaxPostsInPage(postES.size());
-        }
 
         for (Element postE : postES) {
             DetailBean detail = new DetailBean();
@@ -120,15 +116,16 @@ public class ThreadDetailParser {
 
             // id
             String postId = Utils.getMiddleString(postE.attr("id"), "pid", "");
-            if (TextUtils.isEmpty(postId)) continue;
+            if (TextUtils.isEmpty(postId))
+                continue;
 
             detail.setPostId(postId);
 
             // time
             Element timeEl = postE.select("div.authi em").first();
-            if (timeEl == null) {
+            if (timeEl == null)
                 continue;
-            }
+
             String time = Utils.getMiddleString(timeEl.text(), "发表于", "").trim();
             detail.setTimePost(time);
 
@@ -153,11 +150,10 @@ public class ThreadDetailParser {
             Element floorEl = postE.select("div.pi strong").first();
             if (floorEl != null) {
                 floor = Utils.parseInt(floorEl.text().replace("#", ""));
-                if (floor == 0 && "推荐".equals(floorEl.text())) {
+                if (floor == 0 && "推荐".equals(floorEl.text()))
                     detail.setFloor(ThreadDetailFragment.RECOMMEND_FLOOR);
-                } else {
+                else
                     detail.setFloor(floor);
-                }
             }
 
             // author
@@ -166,7 +162,9 @@ public class ThreadDetailParser {
                 continue;
 
             Element authorLink = authorDiv.select("div.authi a").first();
-            if (authorLink != null) {
+            if (authorLink == null)
+                detail.setAuthor(authorDiv.text());
+            else {
                 String uid = Utils.getMiddleString(authorLink.attr("href"), "space-uid-", ".");
                 if (TextUtils.isEmpty(uid))
                     continue;
@@ -183,27 +181,22 @@ public class ThreadDetailParser {
                 detail.setAuthor(author);
 
                 String linkStyle = authorLink.attr("style");
-                if (!TextUtils.isEmpty(linkStyle)) {
+                if (!TextUtils.isEmpty(linkStyle))
                     detail.setAuthorColor(Utils.getMiddleString(linkStyle, "color:", ";").trim());
-                }
-            } else {
-                detail.setAuthor(authorDiv.text());
             }
 
             Element onlineImg = authorDiv.select("img[src*=userstatus]").first();
             if (onlineImg != null) {
                 String src = onlineImg.attr("src");
-                if (src.contains("online")) {
+                if (src.contains("online"))
                     detail.setOnlineStatus(1);
-                } else if (src.contains("offline")) {
+                else if (src.contains("offline"))
                     detail.setOnlineStatus(0);
-                }
             }
 
             Element nicknameEl = authorDiv.select("div.authi > span").first();
-            if (nicknameEl != null) {
+            if (nicknameEl != null)
                 detail.setNickname(nicknameEl.text());
-            }
 
             // content
             Elements postMessageES = postE.select("td[id^=postmessage_]");
@@ -233,14 +226,12 @@ public class ThreadDetailParser {
 
             // post info
             Element divInfoEl = postE.select("#pid" + postId + " > tbody > tr:nth-child(1) > td.plc > div.pct > div > div.info").first();
-            if (divInfoEl != null && !TextUtils.isEmpty(divInfoEl.text())) {
+            if (divInfoEl != null && !TextUtils.isEmpty(divInfoEl.text()))
                 content.addInfo(divInfoEl.text());
-            }
 
             Element creditInfoEl = postE.select("#pid" + postId + " > tbody > tr:nth-child(1) > td.plc > div.pct > div.cm > h3").first();
-            if (creditInfoEl != null && !TextUtils.isEmpty(creditInfoEl.text())) {
+            if (creditInfoEl != null && !TextUtils.isEmpty(creditInfoEl.text()))
                 content.addInfo(creditInfoEl.text());
-            }
 
             // post status
             Element postStatusEl = postmessageE.select("i.pstatus").first();
@@ -259,19 +250,23 @@ public class ThreadDetailParser {
                     if (commentBean != null)
                         comments.add(commentBean);
                 }
+
                 if (comments.size() > 0) {
                     int commentPage = 1;
                     int nextCommentPage = 1;
+
                     if (comments.size() >= 5) {
                         if (postE.select("div#comment_" + postId + " a.nxt").first() != null)
                             nextCommentPage = 2;
                     }
+
                     CommentListBean commentListBean = new CommentListBean();
                     commentListBean.setPage(commentPage);
                     commentListBean.setHasNextPage(nextCommentPage > 1);
                     commentListBean.setComments(comments);
                     detail.setCommentLists(commentListBean);
                 }
+
                 divCommtnetEl.remove();
             }
 
@@ -319,9 +314,8 @@ public class ThreadDetailParser {
             }
 
             Element replyToEl = postE.select("div.pcb > h2").first();
-            if (replyToEl != null) {
+            if (replyToEl != null)
                 content.addText("<b>" + replyToEl.text() + "</b><br><br>");
-            }
 
             // Nodes including Elements(have tag) and text without tag
             TextStyleHolder textStyles = new TextStyleHolder();
@@ -346,6 +340,7 @@ public class ThreadDetailParser {
                         textStyles.removeLevel(level - 1);
                         level--;
                     }
+
                     contentN = contentN.parent().nextSibling();
                     textStyles.removeLevel(level);
                     textStyles.removeLevel(level - 1);
@@ -370,20 +365,25 @@ public class ThreadDetailParser {
                         String sizeText = Utils.getMiddleString(sizeEl.text(), "(", ",");
                         size = Utils.parseSizeText(sizeText);
                     }
+
                     ContentImg contentImg = getContentImg(imgEl, size);
                     content.addImg(contentImg);
-                } else {
-                    Element attachLinkEl = dlEl.select("a[id^=aid]").first();
-                    if (attachLinkEl != null) {
-                        attachLinkEl.remove();
-                        dlEl.select("div.tip_c").remove();
-                        String url = ParserUtil.getAbsoluteUrl(attachLinkEl.attr("href"));
-                        String desc = dlEl.text();
-                        String title = attachLinkEl.text();
-                        ContentAttach attach = new ContentAttach(url, title, desc);
-                        content.addAttach(attach);
-                    }
+
+                    continue;
                 }
+
+                Element attachLinkEl = dlEl.select("a[id^=aid]").first();
+                if (attachLinkEl == null)
+                    continue;
+
+                attachLinkEl.remove();
+                dlEl.select("div.tip_c").remove();
+
+                String url = ParserUtil.getAbsoluteUrl(attachLinkEl.attr("href"));
+                String desc = dlEl.text();
+                String title = attachLinkEl.text();
+                ContentAttach attach = new ContentAttach(url, title, desc);
+                content.addAttach(attach);
             }
 
             // 投票
@@ -394,10 +394,11 @@ public class ThreadDetailParser {
                     Element divTitle = pollEl.select("div.pinf").first();
                     divTitle.select("a").remove();
                     pollBean.setTitle(divTitle.html());
+
                     Element ptmrEl = pollEl.select("#poll p.ptmr").first();
-                    if (ptmrEl != null) {
+                    if (ptmrEl != null)
                         pollBean.setTitle(pollBean.getTitle() + "<br>" + ptmrEl.html());
-                    }
+
                     if (divTitle.text().trim().startsWith("多选投票")) {
                         int maxAnswer = Utils.getMiddleInt(divTitle.text(), "最多可选", "项");
                         if (maxAnswer > 1)
@@ -430,26 +431,24 @@ public class ThreadDetailParser {
                             if (textEl != null) {
                                 PollOptionBean option = new PollOptionBean();
                                 option.setOptionId(checkEl != null ? checkEl.attr("value") : "");
-                                option.setText(textEl != null ? textEl.text() : "");
+                                option.setText(textEl.text());
                                 options.add(option);
                             } else {
                                 Element ratesTdEl = optionEl.select("td").last();
-                                if (options.size() > 0 && ratesTdEl.select("em").size() > 0) {
+                                if (options.size() > 0 && ratesTdEl.select("em").size() > 0)
                                     options.get(options.size() - 1).setRates(ratesTdEl.text());
-                                }
                             }
                         }
                     }
+
                     Element lastTr = pollEl.select("div.pcht > table > tbody > tr").last();
-                    if (lastTr != null && lastTr.select("td").size() == 1) {
+                    if (lastTr != null && lastTr.select("td").size() == 1)
                         pollBean.setFooter(lastTr.select("td").first().html());
-                    }
 
                     pollBean.setPollOptions(options);
                     detail.setPoll(pollBean);
                 }
             }
-
 
             Element divActionEl = postE.select("div.pob").first();
             if (divActionEl != null) {
@@ -460,6 +459,7 @@ public class ThreadDetailParser {
                     Element supportEl = divActionEl.select("a.replyadd").first();
                     if (supportEl != null)
                         detail.setSupportCount(Utils.getIntFromString(supportEl.text()));
+
                     Element againstEl = divActionEl.select("a.replysubtract").first();
                     if (againstEl != null)
                         detail.setAgainstCount(Utils.getIntFromString(againstEl.text()));
@@ -468,6 +468,7 @@ public class ThreadDetailParser {
 
             details.add(detail);
         }
+
         return details;
     }
 
@@ -476,11 +477,10 @@ public class ThreadDetailParser {
         Elements tableES = divTradeInfo.select("#" + divTradeInfo.attr("id") + " > div > table  table tr");
         for (Element tr : tableES) {
             Elements tdES = tr.select("td");
-            if (tdES.size() == 1) {
+            if (tdES.size() == 1)
                 infos.put(tr.text(), "");
-            } else if (tdES.size() == 2) {
+            else if (tdES.size() == 2)
                 infos.put(tdES.get(0).text(), tdES.get(1).text());
-            }
         }
         return infos;
     }
@@ -505,10 +505,13 @@ public class ThreadDetailParser {
         bean.setRator(rator);
         bean.setRatorId(uid);
         bean.setReason(reason);
+
         if (scoreIndexes[0] > 0)
             bean.setScore1(tdES.get(scoreIndexes[0]).text());
+
         if (scoreIndexes[1] > 0)
             bean.setScore2(tdES.get(scoreIndexes[1]).text());
+
         if (scoreIndexes[2] > 0)
             bean.setScore3(tdES.get(scoreIndexes[2]).text());
 
@@ -521,6 +524,7 @@ public class ThreadDetailParser {
         String content = "";
         String time = "";
         String tocId = "";
+
         Element linkEl = divComment.select("a.xi2").first();
         if (linkEl != null) {
             author = linkEl.text();
@@ -529,6 +533,7 @@ public class ThreadDetailParser {
                 uid = Utils.getMiddleString(linkEl.attr("href"), "space-uid-", ".");
             linkEl.remove();
         }
+
         Element contentDiv = divComment.select("div.psti").first();
         if (contentDiv != null) {
             Element spanTime = contentDiv.select("span.xg1").first();
@@ -537,15 +542,17 @@ public class ThreadDetailParser {
                 Element replyLinkEl = spanTime.select("a").first();
                 if (replyLinkEl != null)
                     tocId = Utils.getMiddleString(replyLinkEl.attr("href"), "tocid=", "&").trim();
+
                 spanTime.remove();
             }
+
             // 去掉 回复 和 详情 链接
             Elements links = contentDiv.select("a");
             for (Element link : links) {
-                if ("回复".equals(link.text()) || "详情".equals(link.text())) {
+                if ("回复".equals(link.text()) || "详情".equals(link.text()))
                     link.remove();
-                }
             }
+
             content = contentDiv.html();
         }
 
@@ -555,6 +562,7 @@ public class ThreadDetailParser {
         commentBean.setConent(content);
         commentBean.setTime(time);
         commentBean.setTocId(tocId);
+
         return commentBean;
     }
 
@@ -564,26 +572,32 @@ public class ThreadDetailParser {
             Element elemFont = (Element) contentN;
             textStyles.setColor(level, Utils.nullToText(elemFont.attr("color")).trim());
             return true;
-        } else if (contentN.nodeName().equals("i")      // text in an alternate voice or mood
-                || contentN.nodeName().equals("u")      // text that should be stylistically different from normal text
-                || contentN.nodeName().equals("em")     // text emphasized
-                || contentN.nodeName().equals("strike") // text strikethrough
-                || contentN.nodeName().equals("ol")     // ordered list
-                || contentN.nodeName().equals("ul")     // unordered list
-                || contentN.nodeName().equals("hr")     // a thematic change in the content(h line)
-                || contentN.nodeName().equals("blockquote")) {
+        }
+
+        if (contentN.nodeName().equals("i")      // text in an alternate voice or mood
+            || contentN.nodeName().equals("u")      // text that should be stylistically different from normal text
+            || contentN.nodeName().equals("em")     // text emphasized
+            || contentN.nodeName().equals("strike") // text strikethrough
+            || contentN.nodeName().equals("ol")     // ordered list
+            || contentN.nodeName().equals("ul")     // unordered list
+            || contentN.nodeName().equals("hr")     // a thematic change in the content(h line)
+            || contentN.nodeName().equals("blockquote")) {
             textStyles.addStyle(level, contentN.nodeName());
             // continue parse child node
             return true;
-        } else if (contentN.nodeName().equals("strong")) {
+        }
+
+        if (contentN.nodeName().equals("strong")) {
             String tmp = ((Element) contentN).text();
             String postId = "";
             String tid = "";
+
             Elements floorLink = ((Element) contentN).select("a[href]");
             if (floorLink.size() > 0) {
                 postId = Utils.getMiddleString(floorLink.first().attr("href"), "pid=", "&");
                 tid = Utils.getMiddleString(floorLink.first().attr("href"), "ptid=", "&");
             }
+
             if (tmp.startsWith("回复 ") && tmp.contains("#")) {
                 int floor = Utils.getIntFromString(tmp.substring(0, tmp.indexOf("#")));
                 String author = tmp.substring(tmp.lastIndexOf("#") + 1).trim();
@@ -592,9 +606,12 @@ public class ThreadDetailParser {
                     return false;
                 }
             }
+
             textStyles.addStyle(level, contentN.nodeName());
             return true;
-        } else if (contentN.nodeName().equals("#text")) {
+        }
+
+        if (contentN.nodeName().equals("#text")) {
             // replace  < >  to &lt; &gt; , or they will become to unsupported tag
             String text = ((TextNode) contentN).text()
                     .replace("<", "&lt;")
@@ -611,40 +628,48 @@ public class ThreadDetailParser {
                 String t = text.substring(lastPos, matcher.start());
                 String url = text.substring(matcher.start(), matcher.end());
 
-                if (!TextUtils.isEmpty(t.trim())) {
+                if (!TextUtils.isEmpty(t.trim()))
                     content.addText(t, ts);
-                }
-                if (url.contains("@") && !url.contains("/")) {
+
+                if (url.contains("@") && !url.contains("/"))
                     content.addEmail(url);
-                } else {
+                else
                     content.addLink(url, url);
-                }
+
                 lastPos = matcher.end();
             }
+
             if (lastPos < text.length()) {
                 String t = text.substring(lastPos);
-                if (!TextUtils.isEmpty(t.trim())) {
+                if (!TextUtils.isEmpty(t.trim()))
                     content.addText(t, ts);
-                }
             }
+
             return false;
-        } else if (contentN.nodeName().equals("li")) {    // list item
+        }
+
+        if (contentN.nodeName().equals("li"))      // list item
             return true;
-        } else if (contentN.nodeName().equals("br")) {    // single line break
+
+        if (contentN.nodeName().equals("br")) {    // single line break
             content.addText("<br>");
             return false;
-        } else if (contentN.nodeName().equals("p")) {     // paragraph
+        }
+
+        if (contentN.nodeName().equals("p")) {     // paragraph
             Element pE = (Element) contentN;
-            if (pE.hasClass("imgtitle")) {
-                return false;
-            }
-            return true;
-        } else if (contentN.nodeName().equals("img")) {
+            return !pE.hasClass("imgtitle");
+        }
+
+        if (contentN.nodeName().equals("img")) {
             parseImageElement((Element) contentN, content);
             return false;
-        } else if (contentN.nodeName().equals("span")) {    // a section in a document
+        }
+
+        if (contentN.nodeName().equals("span")) {    // a section in a document
+            boolean isInternalAttach = false;
+
             Elements attachAES = ((Element) contentN).select("a");
-            Boolean isInternalAttach = false;
             for (int attIdx = 0; attIdx < attachAES.size(); attIdx++) {
                 Element attachAE = attachAES.get(attIdx);
                 // it is an attachment and not an image attachment
@@ -656,22 +681,24 @@ public class ThreadDetailParser {
                         desc = sibNode.toString();
                         sibNode.remove();
                     }
+
                     ContentAttach attach = new ContentAttach(ParserUtil.getAbsoluteUrl(attachAE.attr("href")), attachAE.text(), desc);
                     content.addAttach(attach);
                     isInternalAttach = true;
                 }
             }
-            if (isInternalAttach) {
-                return false;
-            }
-            return true;
-        } else if (contentN.nodeName().equals("a")) {
+
+            return !isInternalAttach;
+        }
+
+        if (contentN.nodeName().equals("a")) {
             Element aE = (Element) contentN;
             String text = aE.text();
             String url = aE.attr("href");
             if (aE.childNodeSize() > 0 && aE.childNode(0).nodeName().equals("img")) {
                 if (!url.startsWith("javascript:"))
                     content.addLink(url, url);
+
                 return true;
             }
 
@@ -682,24 +709,28 @@ public class ThreadDetailParser {
             }
 
             content.addLink(text, url);
+
             // rare case, link tag contains images
             Elements imgEs = aE.select("img");
-            if (imgEs.size() > 0) {
-                for (int i = 0; i < imgEs.size(); i++) {
-                    parseImageElement(imgEs.get(i), content);
-                }
-            }
+            for (int i = 0; i < imgEs.size(); i++)
+                parseImageElement(imgEs.get(i), content);
+
             return false;
-        } else if (contentN.nodeName().equals("div")) {    // a section in a document
+        }
+
+        if (contentN.nodeName().equals("div")) {    // a section in a document
             Element divE = (Element) contentN;
             if (divE.hasClass("modact")) {
                 content.addNotice(divE.text());
                 return false;
-            } else if (divE.hasClass("msgbody")) {
+            }
+
+            if (divE.hasClass("msgbody")) {
                 String tid = "";
                 String postId = "";
                 String author = "";
                 String postTime = "";
+
                 Element authorEl = divE.select("font").first();
                 if (authorEl != null) {
                     String authorAndTime = authorEl.text();
@@ -709,6 +740,7 @@ public class ThreadDetailParser {
                         postTime = authorAndTime.substring(index + "发表于".length()).trim();
                     }
                 }
+
                 Element redirectEl = divE.select("a[href*=findpost]").first();
                 if (redirectEl != null) {
                     String href = redirectEl.attr("href");
@@ -716,45 +748,64 @@ public class ThreadDetailParser {
                     tid = Utils.getMiddleString(href, "ptid=", "&");
                     redirectEl.remove();
                 }
+
                 if (authorEl != null)
                     authorEl.remove();
+
                 Element quoteTextEl = divE.select("div.msgborder").first();
                 String quoteText;
                 if (quoteTextEl != null) {
                     quoteText = quoteTextEl.html();
                     content.addQuote(Utils.clean(quoteText), author, postTime, tid, postId);
                 }
-                return false;
-            } else if (divE.hasClass("attach_popup")) {
-                // remove div.attach_popup
+
                 return false;
             }
+
+            // remove div.attach_popup
+            if (divE.hasClass("attach_popup"))
+                return false;
+
             return true;
-        } else if (contentN.nodeName().equals("ignore_js_op")) {
+        }
+
+        if (contentN.nodeName().equals("ignore_js_op")) {
             ContentAttach attach = parseAttach((Element) contentN);
             if (attach != null) {
                 content.addAttach(attach);
                 return false;
             }
+
             return true;
-        } else if (contentN.nodeName().equals("table")) {
+        }
+
+        if (contentN.nodeName().equals("table"))
             return true;
-        } else if (contentN.nodeName().equals("tbody")) { // Groups the body content in a table
+
+        if (contentN.nodeName().equals("tbody"))   // Groups the body content in a table
             return true;
-        } else if (contentN.nodeName().equals("tr")) {    // a row in a table
+
+        if (contentN.nodeName().equals("tr")) {    // a row in a table
             content.addText("<br>");
             return true;
-        } else if (contentN.nodeName().equals("td")) {    // a cell in a table
+        }
+
+        if (contentN.nodeName().equals("td")) {    // a cell in a table
             content.addText(" ");
             return true;
-        } else if (contentN.nodeName().equals("dl")) {    // a description list
+        }
+
+        if (contentN.nodeName().equals("dl"))      // a description list
             return true;
-        } else if (contentN.nodeName().equals("dt")) {    // a term/name in a description list
+
+        if (contentN.nodeName().equals("dt"))      // a term/name in a description list
             return true;
-        } else if (contentN.nodeName().equals("dd")) {    // a description/value of a term in a description list
+
+        if (contentN.nodeName().equals("dd"))      // a description/value of a term in a description list
             return true;
-        } else if (contentN.nodeName().equals("script") || contentN.nodeName().equals("#data")) {
-            // video
+
+        // video
+        if (contentN.nodeName().equals("script") || contentN.nodeName().equals("#data")) {
             String html = contentN.toString();
             String url = Utils.getMiddleString(html, "'src', '", "'");
             if (url.startsWith("http://player.youku.com/player.php")) {
@@ -762,45 +813,52 @@ public class ThreadDetailParser {
                 // http://v.youku.com/v_show/id_XNzIyMTUxMzEy.html
                 url = Utils.getMiddleString(url, "sid/", "/v.swf");
                 url = "http://v.youku.com/v_show/id_" + url;
-                if (!url.endsWith(".html")) {
-                    url = url + ".html";
-                }
-                content.addLink("YouKu视频自动转换手机通道 " + url, url);
+                if (!url.endsWith(".html"))
+                    url += ".html";
+
+                content.addLink("优酷视频自动转换手机通道 " + url, url);
             } else if (url.startsWith("http")) {
-                content.addLink("FLASH VIDEO,手机可能不支持 " + url, url);
-            }
-            return false;
-        } else if (contentN.nodeName().equals("style")) {
-            return false;
-        } else if (contentN.nodeName().equals("h2")) {
-            return true;
-        } else {
-            if (HiSettingsHelper.getInstance().isErrorReportMode()
-                    && !"#comment".equals(contentN.nodeName())) {
-                content.addNotice("[[ERROR:UNPARSED TAG:" + contentN.nodeName() + ":" + contentN.toString() + "]]");
-                Logger.e("[[ERROR:UNPARSED TAG:" + contentN.nodeName() + "]]");
+                content.addLink("Flash 视频，手机可能不支持 " + url, url);
             }
             return false;
         }
+
+        if (contentN.nodeName().equals("style"))
+            return false;
+
+        if (contentN.nodeName().equals("h2"))
+            return true;
+
+        if (HiSettingsHelper.getInstance().isErrorReportMode() && !"#comment".equals(contentN.nodeName())) {
+            content.addNotice("[[ERROR:UNPARSED TAG:" + contentN.nodeName() + ":" + contentN.toString() + "]]");
+            Logger.e("[[ERROR:UNPARSED TAG:" + contentN.nodeName() + "]]");
+        }
+
+        return false;
     }
 
     private static ContentAttach parseAttach(Element contentN) {
         // ignore_js_op Node
         Element spanEl = contentN.select("span[id^=attach_]").first();
-        if (spanEl != null) {
-            String attachId = Utils.getMiddleString(spanEl.attr("id"), "attach_", "");
-            if (!HiUtils.isValidId(attachId)) return null;
+        if (spanEl == null)
+            return null;
 
-            Element linkEl = spanEl.select("a").first();
-            if (linkEl == null) return null;
-            String url = ParserUtil.getAbsoluteUrl(linkEl.attr("href"));
-            String name = linkEl.text();
+        String attachId = Utils.getMiddleString(spanEl.attr("id"), "attach_", "");
+        if (!HiUtils.isValidId(attachId))
+            return null;
 
-            Element sizeEl = spanEl.select("em.xg1").first();
-            if (sizeEl == null) return null;
-            return new ContentAttach(url, name, sizeEl.text());
-        }
-        return null;
+        Element linkEl = spanEl.select("a").first();
+        if (linkEl == null)
+            return null;
+
+        String url = ParserUtil.getAbsoluteUrl(linkEl.attr("href"));
+        String name = linkEl.text();
+
+        Element sizeEl = spanEl.select("em.xg1").first();
+        if (sizeEl == null)
+            return null;
+
+        return new ContentAttach(url, name, sizeEl.text());
     }
 
     private static void parseImageElement(Element e, Contents content) {
@@ -824,8 +882,7 @@ public class ThreadDetailParser {
 
             ContentImg contentImg = getContentImg(e, size);
             content.addImg(contentImg);
-        } else if (src.contains(HiUtils.SmiliesPattern)
-                || src.contains(HiUtils.SmiliesPattern2)) {
+        } else if (src.contains(HiUtils.SmiliesPattern) || src.contains(HiUtils.SmiliesPattern2)) {
             // emotion added as img tag, will be parsed in TextViewWithEmoticon later
             content.addText("<img src=\"" + src + "\"/>");
         } else if (src.contains(HiUtils.ForumCommonSmiliesPattern)) {
@@ -845,15 +902,15 @@ public class ThreadDetailParser {
         String zoomfile = ParserUtil.getAbsoluteUrl(e.attr("zoomfile"));
 
         String thumbUrl = "";
-        if (file.contains(HiUtils.ForumImagePattern)) {
+        if (file.contains(HiUtils.ForumImagePattern))
             thumbUrl = file;
-        } else if (src.contains(HiUtils.ForumImagePattern)) {
+        else if (src.contains(HiUtils.ForumImagePattern))
             thumbUrl = src;
-        }
+
         String fullUrl = zoomfile;
         if (!fullUrl.contains(HiUtils.ForumImagePattern))
             fullUrl = thumbUrl;
+
         return new ContentImg(fullUrl, size, thumbUrl);
     }
-
 }

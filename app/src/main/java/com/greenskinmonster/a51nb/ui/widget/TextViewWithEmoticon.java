@@ -208,8 +208,7 @@ public class TextViewWithEmoticon extends AppCompatTextView {
                     return;
 
                 int floor = 0;
-                if (args.getType() == FragmentArgs.TYPE_THREAD
-                        && mFragment instanceof ThreadDetailFragment) {
+                if (args.getType() == FragmentArgs.TYPE_THREAD && mFragment instanceof ThreadDetailFragment) {
                     // redirect by goto floor in same fragment
                     ThreadDetailFragment detailFragment = (ThreadDetailFragment) mFragment;
                     if (!TextUtils.isEmpty(args.getTid()) && args.getTid().equals(detailFragment.getTid())) {
@@ -228,15 +227,12 @@ public class TextViewWithEmoticon extends AppCompatTextView {
                     }
                 }
 
-                if (floor > 0 || floor == ThreadDetailFragment.LAST_FLOOR) {
-                    // redirect in same thread
+                if (floor > 0 || floor == ThreadDetailFragment.LAST_FLOOR) // redirect in same thread
                     ((ThreadDetailFragment) mFragment).gotoFloor(floor);
-                } else {
-                    if (args.getType() == FragmentArgs.TYPE_THREAD)
-                        FragmentUtils.showThreadActivity(mFragment.getActivity(), args.isSkipEnterAnim(), args.getTid(), "", args.getPage(), args.getFloor(), args.getPostId(), -1);
-                    else
-                        FragmentUtils.show(mFragment.getActivity(), args);
-                }
+                else if (args.getType() == FragmentArgs.TYPE_THREAD)
+                    FragmentUtils.showThreadActivity(mFragment.getActivity(), args.isSkipEnterAnim(), args.getTid(), "", args.getPage(), args.getFloor(), args.getPostId(), -1);
+                else
+                    FragmentUtils.show(mFragment.getActivity(), args);
             }
         };
     }
@@ -249,16 +245,18 @@ public class TextViewWithEmoticon extends AppCompatTextView {
 
                     // clean way to get fileName
                     SpannableStringBuilder b = new SpannableStringBuilder(((TextView) view).getText());
+
                     URLSpan[] urls = b.getSpans(0, b.length(), URLSpan.class);
-                    if (urls.length > 0) {
+                    if (urls.length > 0)
                         fileName = b.toString().substring(b.getSpanStart(urls[0]), b.getSpanEnd(urls[0]));
-                    }
+
                     if (TextUtils.isEmpty(fileName)) {
                         // failsafe dirty way, to get rid of ( xxx K ) file size string
                         fileName = ((TextView) view).getText().toString();
                         if (fileName.contains(" ("))
                             fileName = fileName.substring(0, fileName.lastIndexOf(" (")).trim();
                     }
+
                     UIUtils.toast("开始下载 " + fileName + " ...");
                     Utils.download(mCtx, getURL(), fileName);
                 } catch (Exception e) {
@@ -278,7 +276,6 @@ public class TextViewWithEmoticon extends AppCompatTextView {
         if (action != MotionEvent.ACTION_UP && action != MotionEvent.ACTION_DOWN)
             return false;
 
-        boolean ret = false;
         CharSequence text = getText();
         Spannable stext = Spannable.Factory.getInstance().newSpannable(text);
 

@@ -526,14 +526,17 @@ public class HiSettingsHelper {
 
     private List<Forum> getFreqForumsFromPref() {
         String v = mSharedPref.getString(PERF_FORUMS, "");
+
         try {
             Gson gson = new Gson();
             mFreqForums = gson.fromJson(v, new TypeToken<List<Forum>>() {
             }.getType());
         } catch (Exception e) {
         }
+
         if (mFreqForums == null)
             mFreqForums = new ArrayList<>();
+
         if (mFreqForums.size() == 0) {
             for (int fid : HiUtils.DEFAULT_FORUMS) {
                 Forum forum = HiUtils.getForumByFid(fid);
@@ -541,14 +544,14 @@ public class HiSettingsHelper {
                     mFreqForums.add(forum);
             }
         }
+
         return mFreqForums;
     }
 
     public void setFreqForums(List<Forum> freqForums) {
         mFreqForums = freqForums;
         Gson gson = new Gson();
-        String v = gson.toJson(mFreqForums, new TypeToken<List<Forum>>() {
-        }.getType());
+        String v = gson.toJson(mFreqForums, new TypeToken<List<Forum>>() {}.getType());
         mSharedPref.edit().putString(PERF_FORUMS, v).apply();
     }
 
@@ -559,8 +562,7 @@ public class HiSettingsHelper {
     public void setAllForums(List<Forum> forums) {
         mAllForums = forums;
         Gson gson = new Gson();
-        String v = gson.toJson(forums, new TypeToken<List<Forum>>() {
-        }.getType());
+        String v = gson.toJson(forums, new TypeToken<List<Forum>>() {}.getType());
         mSharedPref.edit().putString(PERF_ALL_FORUMS, v).apply();
     }
 
@@ -572,15 +574,15 @@ public class HiSettingsHelper {
         String v = mSharedPref.getString(PERF_ALL_FORUMS, "");
         try {
             Gson gson = new Gson();
-            mAllForums = gson.fromJson(v, new TypeToken<List<Forum>>() {
-            }.getType());
+            mAllForums = gson.fromJson(v, new TypeToken<List<Forum>>() {}.getType());
         } catch (Exception e) {
         }
+
         if (mAllForums == null)
             mAllForums = new ArrayList<>();
-        if (mAllForums.size() == 0) {
+
+        if (mAllForums.size() == 0)
             Collections.addAll(mAllForums, HiUtils.FORUMS);
-        }
     }
 
     private Set<String> getFreqMenusFromPref() {
@@ -611,11 +613,10 @@ public class HiSettingsHelper {
     }
 
     public String getEncode() {
-        if (mEncodeUtf8) {
+        if (mEncodeUtf8)
             return "UTF-8";
-        } else {
-            return "GBK";
-        }
+
+        return "GBK";
     }
 
     public boolean isErrorReportMode() {
@@ -673,31 +674,30 @@ public class HiSettingsHelper {
         String v = mSharedPref.getString(PERF_BLACKLIST, "");
         try {
             Gson gson = new Gson();
-            mBlacklists = gson.fromJson(v, new TypeToken<List<UserBean>>() {
-            }.getType());
+            mBlacklists = gson.fromJson(v, new TypeToken<List<UserBean>>() {}.getType());
         } catch (Exception e) {
             Logger.e(e);
         }
-        if (mBlacklists == null) {
+
+        if (mBlacklists == null)
             mBlacklists = new ArrayList<>();
-        }
+
         return mBlacklists;
     }
 
     public void setBlacklists(List<UserBean> blacklists) {
         mBlacklists = blacklists;
         Gson gson = new Gson();
-        String v = gson.toJson(mBlacklists, new TypeToken<List<UserBean>>() {
-        }.getType());
+        String v = gson.toJson(mBlacklists, new TypeToken<List<UserBean>>() {}.getType());
         SharedPreferences.Editor editor = mSharedPref.edit();
         editor.putString(PERF_BLACKLIST, v).apply();
     }
 
     public boolean isInBlacklist(String uid) {
-        for (UserBean user : mBlacklists) {
+        for (UserBean user : mBlacklists)
             if (user.getUid().equals(uid))
                 return true;
-        }
+
         return false;
     }
 
@@ -741,9 +741,9 @@ public class HiSettingsHelper {
 
     private int getPostLineSpacingFromPref() {
         String value = mSharedPref.getString(PERF_POST_LINE_SPACING, "0");
-        if (TextUtils.isDigitsOnly(value)) {
+        if (TextUtils.isDigitsOnly(value))
             mPostLineSpacing = Integer.parseInt(value);
-        }
+
         return mPostLineSpacing;
     }
 
@@ -822,9 +822,9 @@ public class HiSettingsHelper {
     }
 
     public int getMaxPostsInPage() {
-        if (mMaxPostsInPage <= 0) {
+        if (mMaxPostsInPage <= 0)
             mMaxPostsInPage = mSharedPref.getInt(PERF_MAX_POSTS_IN_PAGE, 50);
-        }
+
         return mMaxPostsInPage;
     }
 
@@ -871,7 +871,7 @@ public class HiSettingsHelper {
         if (!isAutoUpdateCheck() || Utils.isFromGooglePlay(mCtx))
             return false;
         Date lastCheck = HiSettingsHelper.getInstance().getLastUpdateCheckTime();
-        //check update if last check is older than 12 hours
+        // check update if last check is older than 12 hours
         return lastCheck == null
                 || System.currentTimeMillis() > lastCheck.getTime() + 12 * 60 * 60 * 1000;
     }
@@ -942,8 +942,8 @@ public class HiSettingsHelper {
     public String getActiveTheme() {
         if (isNightMode() && !TextUtils.isEmpty(getNightTheme()))
             return getNightTheme();
-        else
-            return getTheme();
+
+        return getTheme();
     }
 
     public boolean isUsingLightTheme() {
@@ -1057,5 +1057,4 @@ public class HiSettingsHelper {
     public void setNotiJobLastRunTime() {
         setLongValue(PERF_NOTI_JOB_LAST_TIME, System.currentTimeMillis());
     }
-
 }

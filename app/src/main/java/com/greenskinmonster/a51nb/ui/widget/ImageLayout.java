@@ -36,7 +36,6 @@ import java.util.ArrayList;
  */
 
 public class ImageLayout extends RelativeLayout {
-
     private ImageView mImageView;
     private ProgressBar mProgressBar;
     private String mUrl;
@@ -63,11 +62,10 @@ public class ImageLayout extends RelativeLayout {
             @Override
             public void onSingleClick(View v) {
                 ImageInfo imageInfo = ImageContainer.getImageInfo(mUrl);
-                if (imageInfo.getStatus() == ImageInfo.IDLE || imageInfo.getStatus() == ImageInfo.FAIL) {
+                if (imageInfo.getStatus() == ImageInfo.IDLE || imageInfo.getStatus() == ImageInfo.FAIL)
                     JobMgr.addJob(new GlideImageJob(mUrl, JobMgr.PRIORITY_LOW, "", true));
-                } else if (imageInfo.getStatus() == ImageInfo.SUCCESS) {
+                else if (imageInfo.getStatus() == ImageInfo.SUCCESS)
                     startImageGallery();
-                }
             }
         });
     }
@@ -104,11 +102,7 @@ public class ImageLayout extends RelativeLayout {
         } else {
             mImageView.setImageResource(R.drawable.ic_action_image);
             boolean autoload = HiSettingsHelper.getInstance().isImageLoadableByNetwork();
-            JobMgr.addJob(new GlideImageJob(
-                    mUrl,
-                    JobMgr.PRIORITY_LOW,
-                    "",
-                    autoload));
+            JobMgr.addJob(new GlideImageJob(mUrl, JobMgr.PRIORITY_LOW, "", autoload));
         }
     }
 
@@ -134,13 +128,14 @@ public class ImageLayout extends RelativeLayout {
     public void onEvent(GlideImageEvent event) {
         if (!event.getImageUrl().equals(mUrl))
             return;
+
         final ImageInfo imageInfo = ImageContainer.getImageInfo(mUrl);
         imageInfo.setMessage(event.getMessage());
 
-        if (event.getStatus() == ImageInfo.IN_PROGRESS
-                && imageInfo.getStatus() != ImageInfo.SUCCESS) {
+        if (event.getStatus() == ImageInfo.IN_PROGRESS && imageInfo.getStatus() != ImageInfo.SUCCESS) {
             if (mProgressBar.getVisibility() != View.VISIBLE)
                 mProgressBar.setVisibility(View.VISIBLE);
+
             mProgressBar.setProgress(event.getProgress());
 
             imageInfo.setProgress(event.getProgress());
@@ -148,6 +143,7 @@ public class ImageLayout extends RelativeLayout {
         } else if (event.getStatus() == ImageInfo.SUCCESS) {
             if (mProgressBar.getVisibility() == View.VISIBLE)
                 mProgressBar.setVisibility(View.GONE);
+
             if (GlideHelper.isOkToLoad(getContext()))
                 loadImage();
         } else if (event.getStatus() == ImageInfo.FAIL) {
@@ -159,14 +155,14 @@ public class ImageLayout extends RelativeLayout {
     }
 
     public void startImageGallery() {
-        if (mContentImgs != null && mContentImgs.size() > 0) {
-            Intent intent = new Intent(getContext(), ImageViewerActivity.class);
-            ActivityOptionsCompat options = ActivityOptionsCompat.
-                    makeScaleUpAnimation(mImageView, 0, 0, mImageView.getMeasuredWidth(), mImageView.getMeasuredHeight());
-            intent.putExtra(ImageViewerActivity.KEY_IMAGE_INDEX, mIndex);
-            intent.putParcelableArrayListExtra(ImageViewerActivity.KEY_IMAGES, mContentImgs);
-            ActivityCompat.startActivity(getContext(), intent, options.toBundle());
-        }
-    }
+        if (mContentImgs == null || mContentImgs.size() <= 0)
+            return;
 
+        Intent intent = new Intent(getContext(), ImageViewerActivity.class);
+        ActivityOptionsCompat options = ActivityOptionsCompat.
+                makeScaleUpAnimation(mImageView, 0, 0, mImageView.getMeasuredWidth(), mImageView.getMeasuredHeight());
+        intent.putExtra(ImageViewerActivity.KEY_IMAGE_INDEX, mIndex);
+        intent.putParcelableArrayListExtra(ImageViewerActivity.KEY_IMAGES, mContentImgs);
+        ActivityCompat.startActivity(getContext(), intent, options.toBundle());
+    }
 }

@@ -50,9 +50,8 @@ public class ImageViewerActivity extends SwipeBackActivity {
         final TextView tvImageInfo = (TextView) findViewById(R.id.tv_image_info);
         final TextView tvFloorInfo = (TextView) findViewById(R.id.tv_floor_info);
 
-        if (images == null || images.size() == 0) {
+        if (images == null || images.size() == 0)
             finish();
-        }
 
         mPagerAdapter = new ImageViewerAdapter(this, images);
         viewPager.setAdapter(mPagerAdapter);
@@ -67,9 +66,9 @@ public class ImageViewerActivity extends SwipeBackActivity {
             @Override
             public void onPageSelected(int position) {
                 ContentImg contentImg = images.get(position);
-                if (contentImg.getFloor() > 0) {
+                if (contentImg.getFloor() > 0)
                     tvFloorInfo.setText(contentImg.getFloor() + "# " + contentImg.getAuthor());
-                }
+
                 tvImageInfo.setText((position + 1) + " / " + images.size());
                 updateSwipeEdges(images.size(), position);
             }
@@ -81,9 +80,9 @@ public class ImageViewerActivity extends SwipeBackActivity {
 
         viewPager.setCurrentItem(imageIndex);
         ContentImg contentImg = images.get(imageIndex);
-        if (contentImg.getFloor() > 0) {
+        if (contentImg.getFloor() > 0)
             tvFloorInfo.setText(contentImg.getFloor() + "# " + contentImg.getAuthor());
-        }
+
         tvImageInfo.setText((imageIndex + 1) + " / " + images.size());
 
         updateSwipeEdges(images.size(), imageIndex);
@@ -100,7 +99,6 @@ public class ImageViewerActivity extends SwipeBackActivity {
                         UIUtils.saveImage(ImageViewerActivity.this, findViewById(R.id.image_viewer), url);
                     }
                 }
-
         );
 
         ImageButton btnShare = (ImageButton) findViewById(R.id.btn_share_image);
@@ -116,7 +114,6 @@ public class ImageViewerActivity extends SwipeBackActivity {
                     }
                 }
         );
-
     }
 
     @Override
@@ -128,13 +125,12 @@ public class ImageViewerActivity extends SwipeBackActivity {
     }
 
     private void updateSwipeEdges(int total, int position) {
-        if (total == 1) {
+        if (total == 1)
             getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_ALL);
-        } else if (position == 0) {
+        else if (position == 0)
             getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_LEFT);
-        } else if (position == total - 1) {
+        else if (position == total - 1)
             getSwipeBackLayout().setEdgeTrackingEnabled(SwipeBackLayout.EDGE_RIGHT);
-        }
     }
 
     @Override
@@ -156,5 +152,4 @@ public class ImageViewerActivity extends SwipeBackActivity {
         }
         super.onDestroy();
     }
-
 }

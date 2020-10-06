@@ -10,7 +10,6 @@ import com.greenskinmonster.a51nb.utils.ColorHelper;
  */
 
 public class RateBean {
-
     private String mRator;
     private String mRatorId;
     private String mScore1;
@@ -73,5 +72,4 @@ public class RateBean {
                 + (TextUtils.isEmpty(mScore3) ? "" : "联谊分 " + mScore3 + " · ")
                 + getReason();
     }
-
 }

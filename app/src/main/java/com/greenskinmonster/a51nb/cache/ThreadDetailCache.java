@@ -12,15 +12,13 @@ import java.util.HashMap;
  * Created by GreenSkinMonster on 2015-03-31.
  */
 public class ThreadDetailCache {
-
     private SparseArray<DetailListBean> mCache = new SparseArray<>();
     private HashMap<String, Integer> mPostIdToPageMap = new HashMap<>();
 
     public void put(int page, DetailListBean detailListBean) {
         mCache.put(page, detailListBean);
-        for (DetailBean detailBean : detailListBean.getAll()) {
+        for (DetailBean detailBean : detailListBean.getAll())
             mPostIdToPageMap.put(detailBean.getPostId(), page);
-        }
     }
 
     public void remove(int page) {
@@ -37,10 +35,9 @@ public class ThreadDetailCache {
 
     public DetailBean getPostByPostId(String postId) {
         Integer page = mPostIdToPageMap.get(postId);
-        if (page != null && page > 0 && mCache.get(page) != null) {
+        if (page != null && page > 0 && mCache.get(page) != null)
             return mCache.get(page).getPostInPage(postId);
-        }
+
         return null;
     }
-
 }

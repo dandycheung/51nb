@@ -16,7 +16,6 @@ import okhttp3.Request;
  */
 
 public class QianDaoHelper {
-
     public static void qiandao(String formhash) {
         try {
             ParamsMap params = new ParamsMap();
@@ -32,9 +31,9 @@ public class QianDaoHelper {
                 @Override
                 public void onResponse(String response) {
                     String message = Utils.getMiddleString(response, "<div class=\"c\">", "</div>");
-                    if (TextUtils.isEmpty(message)) {
+                    if (TextUtils.isEmpty(message))
                         message = "返回未知签到结果";
-                    }
+
                     UIUtils.toast(message.trim());
                 }
             });
@@ -43,5 +42,4 @@ public class QianDaoHelper {
             UIUtils.toast(OkHttpHelper.getErrorMessage(e).getMessage());
         }
     }
-
 }

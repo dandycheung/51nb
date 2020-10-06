@@ -26,7 +26,6 @@ import org.jsoup.nodes.Element;
 import okhttp3.Response;
 
 public class PostHelper {
-
     public static final int MODE_REPLY_THREAD = 0;
     public static final int MODE_REPLY_POST = 1;
     public static final int MODE_NEW_THREAD = 3;
@@ -86,11 +85,6 @@ public class PostHelper {
         String url;
         switch (mMode) {
             case MODE_REPLY_THREAD:
-                url = HiUtils.ReplyUrl
-                        .replace("{fid}", String.valueOf(fid))
-                        .replace("{tid}", tid);
-                doPost(url, replyText, null, null);
-                break;
             case MODE_REPLY_POST:
                 url = HiUtils.ReplyUrl
                         .replace("{fid}", String.valueOf(fid))
@@ -127,7 +121,7 @@ public class PostHelper {
         String formhash = mInfo != null ? mInfo.getFormhash() : null;
 
         if (TextUtils.isEmpty(formhash)) {
-            mResult = "发表失败，无法获取必要信息 ！";
+            mResult = "发表失败，无法获取必要信息！";
             mStatus = Constants.STATUS_FAIL;
             return;
         }
@@ -138,12 +132,12 @@ public class PostHelper {
         params.put("wysiwyg", "0");
         params.put("message", replyText);
 
-        for (String attach : mInfo.getNewAttaches()) {
+        for (String attach : mInfo.getNewAttaches())
             params.put("attachnew[" + attach + "][description]", "");
-        }
-        for (String attach : mInfo.getDeleteAttaches()) {
+
+        for (String attach : mInfo.getDeleteAttaches())
             deleteImage(mPostArg.getTid(), mPostArg.getPid(), attach);
-        }
+
         if (mMode == MODE_NEW_THREAD || (mMode == MODE_EDIT_POST && mFloor == 1)) {
             params.put("subject", subject);
             params.put("typeid", typeid);
@@ -155,11 +149,10 @@ public class PostHelper {
 
             mTitle = subject;
 
-            if (PostHelper.SPECIAL_POLL.equals(mInfo.getSpecial())
-                    && mInfo.getPollChoices().size() > 0) {
-                for (String polloption : mInfo.getPollChoices()) {
+            if (PostHelper.SPECIAL_POLL.equals(mInfo.getSpecial()) && mInfo.getPollChoices().size() > 0) {
+                for (String polloption : mInfo.getPollChoices())
                     params.put("polloption[]", polloption);
-                }
+
                 params.put("polloption[]", "");
                 params.put("polloptions", "");
                 params.put("polls", "yes");
@@ -168,8 +161,7 @@ public class PostHelper {
                 params.put("expiration", mInfo.getPollDays());
                 params.put("visibilitypoll", mInfo.isPollVisibility() ? "1" : "");
                 params.put("overt", mInfo.isPollOvert() ? "1" : "");
-            } else if (PostHelper.SPECIAL_TRADE.equals(mInfo.getSpecial())
-                    && !TextUtils.isEmpty(mInfo.getItemName())) {
+            } else if (PostHelper.SPECIAL_TRADE.equals(mInfo.getSpecial()) && !TextUtils.isEmpty(mInfo.getItemName())) {
                 params.put("item_name", mInfo.getItemName());
                 params.put("item_locus", mInfo.getItemLocus());
                 params.put("item_number", mInfo.getItemNumber());
@@ -193,14 +185,13 @@ public class PostHelper {
             if (!TextUtils.isEmpty(subject)) {
                 params.put("subject", subject);
                 mTitle = subject;
-                if (!TextUtils.isEmpty(typeid)) {
+                if (!TextUtils.isEmpty(typeid))
                     params.put("typeid", typeid);
-                }
             }
         }
 
         if (mInfo.getExtCredit() >= 0) {
-            //new thread or edit first floor
+            // new thread or edit first floor
             params.put("replycredit_extcredits", mInfo.getExtCredit());
             params.put("replycredit_times", mInfo.getCreditTimes());
             params.put("replycredit_membertimes", mInfo.getCreditMemberTimes());
@@ -211,6 +202,7 @@ public class PostHelper {
             String noticeauthor = mInfo.getNoticeAuthor();
             String noticeauthormsg = mInfo.getNoticeAuthorMsg();
             String noticetrimstr = mInfo.getNoticeTrimStr();
+
             if (!TextUtils.isEmpty(noticeauthor)) {
                 params.put("noticeauthor", noticeauthor);
                 params.put("noticeauthormsg", Utils.nullToText(noticeauthormsg));
@@ -224,7 +216,7 @@ public class PostHelper {
             String requestUrl = response.request().url().toString();
             Document doc = Jsoup.parse(resp);
 
-            //when success, okhttp will follow 302 redirect get the page content
+            // when success, okhttp will follow 302 redirect get the page content
             String tid = ParserUtil.parseTid(requestUrl);
             if (HiUtils.isValidId(tid)) {
                 mTid = tid;
@@ -232,21 +224,20 @@ public class PostHelper {
                 mStatus = Constants.STATUS_SUCCESS;
                 try {
                     HiSettingsHelper.updateMobileNetworkStatus(mCtx);
-                    //parse resp to get redirected page content
+                    // parse resp to get redirected page content
 
                     DetailListBean data = ThreadDetailParser.parse(doc, tid);
-                    if (data != null && data.getCount() > 0) {
+                    if (data != null && data.getCount() > 0)
                         mDetailListBean = data;
-                    }
                 } catch (Exception e) {
                     Logger.e(e);
                 }
             } else {
                 mStatus = Constants.STATUS_FAIL;
                 mResult = HiParser.parseErrorMessage(doc);
-                if (TextUtils.isEmpty(mResult)) {
+                if (TextUtils.isEmpty(mResult))
                     mResult = "发表失败! ";
-                }
+
                 if (mResult.contains("需要审核")) {
                     mStatus = Constants.STATUS_SUCCESS;
                     Element linkEl = doc.select("div#messagetext a[href*=thread]").first();
@@ -266,9 +257,9 @@ public class PostHelper {
 
     public static int getWaitTimeToPost() {
         long delta = (System.currentTimeMillis() - LAST_POST_TIME) / 1000;
-        if (POST_DELAY_IN_SECS > delta) {
+        if (POST_DELAY_IN_SECS > delta)
             return (int) (POST_DELAY_IN_SECS - delta);
-        }
+
         return 0;
     }
 
@@ -309,23 +300,27 @@ public class PostHelper {
                     sb.append(Utils.replaceUrlWithTag(text));
                     break;
                 }
+
                 int tagEnd = text.indexOf("]", tagStart);
                 if (tagEnd == -1) {
                     sb.append(Utils.replaceUrlWithTag(text));
                     break;
                 }
+
                 String tag = text.substring(tagStart + 1, tagEnd);
                 if (tag.contains("=")) {
                     tag = tag.substring(0, tag.indexOf("="));
                 }
+
                 String tagE = "[/" + tag + "]";
                 int tagEIndex = text.indexOf(tagE);
-                if (tagEIndex != -1) {
+                if (tagEIndex != -1)
                     tagEIndex = tagEIndex + tagE.length();
-                } else {
+                else {
                     sb.append(Utils.replaceUrlWithTag(text));
                     break;
                 }
+
                 sb.append(Utils.replaceUrlWithTag(text.substring(0, tagStart)));
                 sb.append(text.substring(tagStart, tagEIndex));
                 text = text.substring(tagEIndex);
@@ -334,6 +329,7 @@ public class PostHelper {
             Logger.e(e);
             return replyText;
         }
+
         return sb.toString();
     }
 
@@ -342,6 +338,7 @@ public class PostHelper {
             tid = "0";
             pid = "0";
         }
+
         try {
             String resp = OkHttpHelper.getInstance().get(
                     HiUtils.DeleteImgUrl
@@ -354,5 +351,4 @@ public class PostHelper {
             return OkHttpHelper.getErrorMessage(e).getMessage();
         }
     }
-
 }

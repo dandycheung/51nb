@@ -23,7 +23,6 @@ import com.greenskinmonster.a51nb.utils.Utils;
  */
 
 public class ThreadItemTradeLayout extends LinearLayout implements ItemLayout {
-
     private ImageView mAvatar;
     private TextView mTvAuthor;
     private TextView mTvTitle;
@@ -70,27 +69,31 @@ public class ThreadItemTradeLayout extends LinearLayout implements ItemLayout {
             mTvTitle.setTextColor(ColorHelper.getTextColorPrimary(getContext()));
 
         String location = Utils.nullToText(thread.getLocation());
-        if (location.length() > 8) {
+        if (location.length() > 8)
             location = location.substring(0, 8) + "..";
-        }
+
         mTvLocation.setText(location);
 
         mTvPrice.setText("¥" + thread.getPrice());
 
         StringBuilder sb = new StringBuilder();
-        if (thread.isStick()) {
+        if (thread.isStick())
             sb.append("置顶");
-        }
+
         if (!TextUtils.isEmpty(thread.getTraderType())) {
             if (sb.length() > 0)
                 sb.append(" · ");
+
             sb.append(thread.getTraderType());
         }
+
         if (!TextUtils.isEmpty(bean.getCreateTime())) {
             if (sb.length() > 0)
                 sb.append(" · ");
+
             sb.append(Utils.shortyTime(bean.getCreateTime()));
         }
+
         mTvAuthorInfo.setText(sb.toString());
 
         if (HiSettingsHelper.getInstance().isLoadAvatar() && !TextUtils.isEmpty(thread.getAuthorId())) {
@@ -99,6 +102,7 @@ public class ThreadItemTradeLayout extends LinearLayout implements ItemLayout {
         } else {
             mAvatar.setVisibility(View.GONE);
         }
+
         mAvatar.setTag(R.id.avatar_tag_uid, thread.getAuthorId());
         mAvatar.setTag(R.id.avatar_tag_username, thread.getAuthor());
     }

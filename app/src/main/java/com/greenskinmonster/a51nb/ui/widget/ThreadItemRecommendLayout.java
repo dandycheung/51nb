@@ -20,7 +20,6 @@ import com.greenskinmonster.a51nb.utils.Utils;
  */
 
 public class ThreadItemRecommendLayout extends RelativeLayout implements ItemLayout {
-
     private ImageLayout mImageLayout;
     private Button mBtnLink;
     private TextViewWithEmoticon mTvTitle;
@@ -31,10 +30,12 @@ public class ThreadItemRecommendLayout extends RelativeLayout implements ItemLay
 
     public ThreadItemRecommendLayout(Context context, RequestManager glide) {
         super(context, null, 0);
+
         inflate(context, R.layout.item_thread_list_recommend, this);
 
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         setLayoutParams(layoutParams);
+
         setPadding(Utils.dpToPx(context, 8), Utils.dpToPx(context, 4), Utils.dpToPx(context, 8), Utils.dpToPx(context, 4));
 
         mImageLayout = (ImageLayout) findViewById(R.id.image_layout);
@@ -75,5 +76,4 @@ public class ThreadItemRecommendLayout extends RelativeLayout implements ItemLay
         mTvPostInfo.setRichText(thread.getPostInfo());
         mTvContent.setRichText(thread.getContent());
     }
-
 }

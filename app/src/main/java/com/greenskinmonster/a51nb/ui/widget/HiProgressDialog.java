@@ -16,7 +16,6 @@ import com.mikepenz.iconics.IconicsDrawable;
  * Created by GreenSkinMonster on 2015-03-11.
  */
 public class HiProgressDialog extends ProgressDialog {
-
     private final static int INFO = 0;
     private final static int ERROR = 9;
     private final static int MIN_SHOW_TIME = 300;
@@ -49,8 +48,10 @@ public class HiProgressDialog extends ProgressDialog {
 
     private void dismiss(String message, int millisToWait, int status) {
         setCancelable(true);
+
         if (message != null)
             setMessage(message);
+
         if (status == ERROR) {
             setIndeterminateDrawable(new IconicsDrawable(getContext(),
                     GoogleMaterial.Icon.gmd_error).sizeDp(48)
@@ -60,8 +61,11 @@ public class HiProgressDialog extends ProgressDialog {
                     GoogleMaterial.Icon.gmd_info).sizeDp(48)
                     .color(ContextCompat.getColor(getContext(), R.color.md_green_500)));
         }
+
         setIndeterminate(true);
+
         mMillisToWait = Math.max(millisToWait, MIN_SHOW_TIME);
+
         dismiss();
     }
 
@@ -90,7 +94,9 @@ public class HiProgressDialog extends ProgressDialog {
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
         mAttachedToWindow = true;
+
         setCancelable(false);
+
         if (getWindow() != null)
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
     }
@@ -108,5 +114,4 @@ public class HiProgressDialog extends ProgressDialog {
         progressDialog.setCancelable(false);
         return progressDialog;
     }
-
 }

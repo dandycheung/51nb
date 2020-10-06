@@ -5,7 +5,6 @@ package com.greenskinmonster.a51nb.bean;
  */
 
 public class UserBean {
-
     private String mUid = "";
     private String mUsername = "";
 
@@ -27,13 +26,14 @@ public class UserBean {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         UserBean userBean = (UserBean) o;
-
         return mUid != null ? mUid.equals(userBean.mUid) : userBean.mUid == null;
-
     }
 
     @Override

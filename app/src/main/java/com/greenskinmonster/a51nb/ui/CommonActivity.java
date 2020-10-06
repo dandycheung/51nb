@@ -12,7 +12,6 @@ import com.greenskinmonster.a51nb.R;
  */
 
 public class CommonActivity extends SwipeBaseActivity {
-
     public static final String FRAGMENT_KEY = "FRAGMENT_KEY";
 
     @Override
@@ -43,5 +42,4 @@ public class CommonActivity extends SwipeBaseActivity {
             }
         }
     }
-
 }

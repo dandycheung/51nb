@@ -36,7 +36,7 @@ public class IntentActivity extends AppCompatActivity {
             intent.setData(srcIntent.getData());
         }
 
-        //to send a test notification
+        // to send a test notification
         boolean finished = false;
         if (BuildConfig.DEBUG) {
             NotificationBean bean = NotiHelper.getCurrentNotification();
@@ -62,21 +62,22 @@ public class IntentActivity extends AppCompatActivity {
             }
         }
 
-        if (!finished) {
-            boolean clearActivities = !HiApplication.isAppVisible();
-            FragmentArgs args = FragmentUtils.parse(intent);
-            if (!clearActivities) {
-                clearActivities = args != null && args.getType() == FragmentArgs.TYPE_FORUM;
-            }
-            if (clearActivities) {
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                ActivityCompat.startActivity(this, intent, null);
-            } else {
-                if (args != null) {
-                    FragmentUtils.show(this, args);
-                }
-            }
-            finish();
+        if (finished)
+            return;
+
+        boolean clearActivities = !HiApplication.isAppVisible();
+        FragmentArgs args = FragmentUtils.parse(intent);
+        if (!clearActivities)
+            clearActivities = args != null && args.getType() == FragmentArgs.TYPE_FORUM;
+
+        if (clearActivities) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            ActivityCompat.startActivity(this, intent, null);
+        } else {
+            if (args != null)
+                FragmentUtils.show(this, args);
         }
+
+        finish();
     }
 }

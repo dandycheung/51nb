@@ -8,7 +8,6 @@ import java.util.List;
  */
 
 public class PollBean {
-
     private String mTitle;
     private String mFooter;
     private List<PollOptionBean> mPollOptions;
@@ -48,9 +47,9 @@ public class PollBean {
 
     public ArrayList<ContentImg> getImages() {
         ArrayList<ContentImg> imgs = new ArrayList<>();
-        for (PollOptionBean optionBean : mPollOptions) {
+        for (PollOptionBean optionBean : mPollOptions)
             imgs.add(optionBean.getImage());
-        }
+
         return imgs;
     }
 }

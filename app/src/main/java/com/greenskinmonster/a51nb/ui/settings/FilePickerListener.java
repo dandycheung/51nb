@@ -1,4 +1,4 @@
-package com.greenskinmonster.a51nb.ui.setting;
+package com.greenskinmonster.a51nb.ui.settings;
 
 import android.app.Activity;
 import android.os.Environment;
@@ -18,7 +18,6 @@ import java.io.File;
  */
 
 public class FilePickerListener extends OnPreferenceClickListener implements DialogSelectionListener {
-
     public final static int FONT_FILE = 0;
     public final static int SAVE_DIR = 1;
 
@@ -39,17 +38,18 @@ public class FilePickerListener extends OnPreferenceClickListener implements Dia
         String current = HiSettingsHelper.getInstance().getStringValue(preference.getKey(), "");
         if (!TextUtils.isEmpty(current)) {
             File currentFile = new File(current);
-            if (currentFile.exists()) {
+            if (currentFile.exists())
                 offset = currentFile.getParentFile();
-            }
         }
 
         DialogProperties properties = new DialogProperties();
         properties.root = Environment.getExternalStorageDirectory();
         properties.error_dir = Environment.getExternalStorageDirectory();
         properties.selection_mode = DialogConfigs.SINGLE_MODE;
+
         if (offset != null)
             properties.offset = offset;
+
         if (mType == FONT_FILE) {
             properties.selection_type = DialogConfigs.FILE_SELECT;
             properties.extensions = "ttf:otf".split(":");
@@ -63,6 +63,7 @@ public class FilePickerListener extends OnPreferenceClickListener implements Dia
         mDialog.setDialogSelectionListener(this);
         mDialog.setTitle(preference.getTitle());
         mDialog.show();
+
         return false;
     }
 
@@ -74,6 +75,7 @@ public class FilePickerListener extends OnPreferenceClickListener implements Dia
             if (i != files.length - 1)
                 buff.append(":");
         }
+
         String dFiles = buff.toString();
         if (mPreference != null) {
             HiSettingsHelper.getInstance().setStringValue(mPreference.getKey(), dFiles);

@@ -24,7 +24,6 @@ import com.greenskinmonster.a51nb.utils.Utils;
  */
 
 public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
-
     private LayoutInflater mInflater;
     private BaseFragment mFragment;
     private int mType;
@@ -38,11 +37,10 @@ public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolderImpl(ViewGroup parent, int viewType) {
-        if (mType == SimpleListJob.TYPE_THREAD_NOTIFY) {
-            return new ViewHolderImpl(mInflater.inflate(R.layout.item_simple_list_notify, parent, false));
-        } else {
-            return new ViewHolderImpl(mInflater.inflate(R.layout.item_simple_list, parent, false));
-        }
+        int resource = mType == SimpleListJob.TYPE_THREAD_NOTIFY
+            ? R.layout.item_simple_list_notify : R.layout.item_simple_list;
+
+        return new ViewHolderImpl(mInflater.inflate(resource, parent, false));
     }
 
     @Override
@@ -53,24 +51,23 @@ public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
 
         holder.tv_title.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
         holder.tv_title.setText(Utils.trim(item.getTitle()));
-        if (item.isNew()) {
+        if (item.isNew())
             holder.tv_title.setTextColor(ContextCompat.getColor(mFragment.getActivity(), R.color.red));
-        } else {
+        else
             holder.tv_title.setTextColor(ColorHelper.getTextColorPrimary(mFragment.getActivity()));
-        }
 
-        if (TextUtils.isEmpty(item.getInfo())) {
+        if (TextUtils.isEmpty(item.getInfo()))
             holder.tv_info.setVisibility(View.GONE);
-        } else {
+        else {
             holder.tv_info.setVisibility(View.VISIBLE);
             holder.tv_info.setFragment(mFragment);
             holder.tv_info.setRichText(item.getInfo());
             holder.tv_info.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
         }
 
-        if (TextUtils.isEmpty(item.getCreateTime())) {
+        if (TextUtils.isEmpty(item.getCreateTime()))
             holder.tv_time.setVisibility(View.GONE);
-        } else {
+        else {
             holder.tv_time.setVisibility(View.VISIBLE);
             holder.tv_time.setText(Utils.shortyTime(item.getCreateTime()));
         }
@@ -122,5 +119,4 @@ public class SimpleListAdapter extends BaseRvAdapter<SimpleListItemBean> {
             iv_avatar = (ImageView) itemView.findViewById(R.id.iv_avatar);
         }
     }
-
 }

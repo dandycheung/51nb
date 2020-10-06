@@ -46,7 +46,6 @@ import okhttp3.Response;
  * Created by GreenSkinMonster on 2015-10-22.
  */
 public class OkHttpHelper {
-
     public final static int NETWORK_TIMEOUT_SECS = 10;
     public final static int MAX_RETRY_TIMES = 3;
 
@@ -74,9 +73,8 @@ public class OkHttpHelper {
             @Override
             public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
                 if (cookies != null && cookies.size() > 0) {
-                    for (Cookie item : cookies) {
+                    for (Cookie item : cookies)
                         mCookiestore.add(url, item);
-                    }
                 }
             }
 
@@ -94,9 +92,8 @@ public class OkHttpHelper {
                 .cache(cache)
                 .cookieJar(mCookieJar);
 
-        if (HiSettingsHelper.getInstance().isTrustAllCerts()) {
+        if (HiSettingsHelper.getInstance().isTrustAllCerts())
             setupTrustAllCerts(builder);
-        }
 
         if (Logger.isDebug())
             builder.addInterceptor(new LoggingInterceptor());
@@ -270,6 +267,7 @@ public class OkHttpHelper {
             handleFailureCallback(null, e, rspCallBack);
             return;
         }
+
         mClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -290,19 +288,18 @@ public class OkHttpHelper {
 
 
     public static String getResponseBody(Response response) throws IOException {
-        if (!response.isSuccessful()) {
+        if (!response.isSuccessful())
             throw new IOException(ERROR_CODE_PREFIX + response.code() + ", " + response.message());
-        }
 
         String encoding = HiSettingsHelper.getInstance().getEncode();
         String contextType = response.headers().get("Content-Type");
         if (!TextUtils.isEmpty(contextType)) {
-            if (contextType.toUpperCase().contains("UTF")) {
+            if (contextType.toUpperCase().contains("UTF"))
                 encoding = "UTF-8";
-            } else if (contextType.toUpperCase().contains("GBK")) {
+            else if (contextType.toUpperCase().contains("GBK"))
                 encoding = "GBK";
-            }
         }
+
         return new String(response.body().bytes(), encoding);
     }
 
@@ -326,11 +323,8 @@ public class OkHttpHelper {
     }
 
     public interface ResultCallback {
-
         void onError(Request request, Exception e);
-
         void onResponse(String response);
-
     }
 
     private final ResultCallback DEFAULT_CALLBACK = new ResultCallback() {
@@ -351,6 +345,7 @@ public class OkHttpHelper {
         String msg = e.getClass().getSimpleName();
         if (!TextUtils.isEmpty(e.getMessage()))
             msg = e.getMessage();
+
         if (HiApplication.getAppContext() != null
                 && !Connectivity.isConnected(HiApplication.getAppContext())) {
             msg = "请检查网络连接";
@@ -360,12 +355,13 @@ public class OkHttpHelper {
             msg = "请求超时";
         } else if (e instanceof IOException) {
             String emsg = e.getMessage();
-            if (emsg != null && emsg.contains(ERROR_CODE_PREFIX)) {
+            if (emsg != null && emsg.contains(ERROR_CODE_PREFIX))
                 msg = "错误代码 (" + Utils.getMiddleString(emsg, ERROR_CODE_PREFIX, ",").trim() + ")";
-            }
         }
+
         if (longVersion)
-            msg = "加载失败 : " + msg;
+            msg = "加载失败: " + msg;
+
         return new NetworkError(msg, e.getClass().getName() + "\n" + e.getMessage());
     }
 
@@ -376,44 +372,46 @@ public class OkHttpHelper {
 
     public String getAuthCookie() {
         List<Cookie> cookies = mCookiestore.getCookies();
-        for (Cookie cookie : cookies) {
-            if (HiUtils.AuthCookie.equals(cookie.name())) {
+        for (Cookie cookie : cookies)
+            if (HiUtils.AuthCookie.equals(cookie.name()))
                 return cookie.value();
-            }
-        }
+
         return null;
     }
 
     private CacheControl getCacheControl(int cacheType) {
-        if (cacheType == FORCE_NETWORK) {
+        if (cacheType == FORCE_NETWORK)
             return CacheControl.FORCE_NETWORK;
-        } else if (cacheType == FORCE_CACHE) {
+
+        if (cacheType == FORCE_CACHE)
             return CacheControl.FORCE_CACHE;
-        } else if (cacheType == PREFER_CACHE) {
+
+        if (cacheType == PREFER_CACHE)
             return PREFER_CACHE_CTL;
-        }
+
         return null;
     }
 
     public void cancel(Object tag) {
-        for (Call call : mClient.dispatcher().queuedCalls()) {
-            if (tag.equals(call.request().tag())) call.cancel();
-        }
-        for (Call call : mClient.dispatcher().runningCalls()) {
-            if (tag.equals(call.request().tag())) call.cancel();
-        }
+        for (Call call : mClient.dispatcher().queuedCalls())
+            if (tag.equals(call.request().tag()))
+                call.cancel();
+
+        for (Call call : mClient.dispatcher().runningCalls())
+            if (tag.equals(call.request().tag()))
+                call.cancel();
     }
 
     public String printCookies(String url) {
         StringBuilder sb = new StringBuilder();
         sb.append(url).append("\n");
+
         Request.Builder builder = new Request.Builder().url(url);
         List<Cookie> cookies = OkHttpHelper.getInstance().getClient().cookieJar().loadForRequest(builder.build().url());
-        for (Cookie cookie : cookies) {
+        for (Cookie cookie : cookies)
             if (!cookie.name().endsWith("_sid") && !cookie.name().endsWith("_auth") && !cookie.name().endsWith("_saltkey"))
                 sb.append(cookie.name()).append(" : ").append(cookie.value()).append("\n");
-        }
+
         return sb.toString();
     }
-
 }

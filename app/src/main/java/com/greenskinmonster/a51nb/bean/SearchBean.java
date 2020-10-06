@@ -9,7 +9,6 @@ import com.greenskinmonster.a51nb.utils.Utils;
  */
 
 public class SearchBean {
-
     private String mQuery = "";
     private String mAuthor = "";
     private String mUid = "";
@@ -87,35 +86,55 @@ public class SearchBean {
 
     public String getDescription() {
         StringBuilder sb = new StringBuilder();
-        if (isFulltext() && !TextUtils.isEmpty(getQuery())) {
-            sb.append("全文：").append(getQuery());
-        } else if (isFulltext()) {
+
+        String query = getQuery();
+
+        if (isFulltext()) {
             sb.append("全文");
-        } else {
-            sb.append(getQuery());
+
+            if (!TextUtils.isEmpty(query))
+                sb.append("：");
         }
+
+        if (!TextUtils.isEmpty(query))
+            sb.append(query);
+
         if (!TextUtils.isEmpty(getAuthor())) {
             if (sb.length() > 0)
                 sb.append("，");
+
             sb.append("作者：").append(getAuthor());
         }
+
         return sb.toString();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         SearchBean bean = (SearchBean) o;
 
-        if (mFulltext != bean.mFulltext) return false;
-        if (mQuery != null ? !mQuery.equals(bean.mQuery) : bean.mQuery != null) return false;
-        if (mAuthor != null ? !mAuthor.equals(bean.mAuthor) : bean.mAuthor != null) return false;
-        if (mUid != null ? !mUid.equals(bean.mUid) : bean.mUid != null) return false;
-        if (mForum != null ? !mForum.equals(bean.mForum) : bean.mForum != null) return false;
-        return mSearchId != null ? mSearchId.equals(bean.mSearchId) : bean.mSearchId == null;
+        if (mFulltext != bean.mFulltext)
+            return false;
 
+        if (mQuery != null ? !mQuery.equals(bean.mQuery) : bean.mQuery != null)
+            return false;
+
+        if (mAuthor != null ? !mAuthor.equals(bean.mAuthor) : bean.mAuthor != null)
+            return false;
+
+        if (mUid != null ? !mUid.equals(bean.mUid) : bean.mUid != null)
+            return false;
+
+        if (mForum != null ? !mForum.equals(bean.mForum) : bean.mForum != null)
+            return false;
+
+        return mSearchId != null ? mSearchId.equals(bean.mSearchId) : bean.mSearchId == null;
     }
 
     @Override

@@ -52,7 +52,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class SimpleListFragment extends BaseFragment
+public class SimpleListFragment
+        extends BaseFragment
         implements SwipeRefreshLayout.OnRefreshListener, PostSmsAsyncTask.SmsPostListener {
     public static final String ARG_TYPE = "type";
     public static final String ARG_UID = "uid";
@@ -80,16 +81,17 @@ public class SimpleListFragment extends BaseFragment
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        if (getArguments().containsKey(ARG_TYPE)) {
+        if (getArguments().containsKey(ARG_TYPE))
             mType = getArguments().getInt(ARG_TYPE);
-        }
-        if (getArguments().containsKey(ARG_EXTRA)) {
+
+        if (getArguments().containsKey(ARG_EXTRA))
             mBundle.putString(ARG_EXTRA, getArguments().getString(ARG_EXTRA));
-        }
+
         mBundle.putAll(getArguments());
         if (mType == SimpleListJob.TYPE_MYPOST) {
             if (!mBundle.containsKey(ARG_UID))
                 mBundle.putString(ARG_UID, HiSettingsHelper.getInstance().getUid());
+
             if (!mBundle.containsKey(ARG_USERNAME))
                 mBundle.putString(ARG_USERNAME, HiSettingsHelper.getInstance().getUsername());
         }
@@ -101,6 +103,7 @@ public class SimpleListFragment extends BaseFragment
     @Override
     public void onResume() {
         super.onResume();
+
         if (!EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().register(this);
     }
@@ -190,11 +193,11 @@ public class SimpleListFragment extends BaseFragment
                 break;
             case SimpleListJob.TYPE_THREAD_NOTIFY:
                 setActionBarTitle(R.string.title_drawer_notify);
-                if (SimpleListJob.NOTIFY_UNREAD.equals(mBundle.get(ARG_EXTRA))) {
+                if (SimpleListJob.NOTIFY_UNREAD.equals(mBundle.get(ARG_EXTRA)))
                     setActionBarSubtitle("未读");
-                } else if (SimpleListJob.NOTIFY_THREAD.equals(mBundle.get(ARG_EXTRA))) {
+                else if (SimpleListJob.NOTIFY_THREAD.equals(mBundle.get(ARG_EXTRA)))
                     setActionBarSubtitle("帖子");
-                }
+
                 inflater.inflate(R.menu.menu_simple_list_notify, menu);
                 MenuItem notifyTypeItem = menu.findItem(R.id.notify_type);
                 notifyTypeItem.setIcon(new IconicsDrawable(getActivity(), GoogleMaterial.Icon.gmd_sort)
@@ -202,7 +205,7 @@ public class SimpleListFragment extends BaseFragment
                 break;
             case SimpleListJob.TYPE_FAVORITES:
                 setActionBarTitle(R.string.title_my_favorites);
-                //inflater.inflate(R.menu.menu_favorites, menu);
+                // inflater.inflate(R.menu.menu_favorites, menu);
                 break;
             case SimpleListJob.TYPE_HISTORIES:
                 setActionBarTitle(R.string.title_drawer_histories);
@@ -334,67 +337,71 @@ public class SimpleListFragment extends BaseFragment
 
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            if (dy > 0) {
-                LinearLayoutManager mLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                visibleItemCount = mLayoutManager.getChildCount();
-                totalItemCount = mLayoutManager.getItemCount();
-                int firstVisibleItem = mLayoutManager.findFirstVisibleItemPosition();
+            if (dy <= 0)
+                return;
 
-                if ((visibleItemCount + firstVisibleItem) >= totalItemCount - 5) {
-                    if (!mInloading) {
-                        mInloading = true;
-                        if (mPage < mMaxPage) {
-                            mPage++;
-                            mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
-                            SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mBundle);
-                            JobMgr.addJob(job);
-                        } else {
-                            mRecyclerView.setFooterState(XFooterView.STATE_END);
-                        }
-                    }
-                }
+            LinearLayoutManager mLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+            visibleItemCount = mLayoutManager.getChildCount();
+            totalItemCount = mLayoutManager.getItemCount();
+
+            int firstVisibleItem = mLayoutManager.findFirstVisibleItemPosition();
+            if ((visibleItemCount + firstVisibleItem) < totalItemCount - 5)
+                return;
+
+            if (mInloading)
+                return;
+
+            mInloading = true;
+            if (mPage >= mMaxPage) {
+                mRecyclerView.setFooterState(XFooterView.STATE_END);
+                return;
             }
+
+            mPage++;
+            mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
+            SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mBundle);
+            JobMgr.addJob(job);
         }
     }
 
     private class OnItemClickListener implements RecyclerItemClickListener.OnItemClickListener {
-
         @Override
         public void onItemClick(View view, int position) {
-            if (position < 0 || position >= mSimpleListAdapter.getItemCount()) {
+            if (position < 0 || position >= mSimpleListAdapter.getItemCount())
                 return;
-            }
+
             SimpleListItemBean item = mSimpleListAdapter.getItem(position);
             if (item == null)
                 return;
-            if (mType == SimpleListJob.TYPE_SMS) {
+
+            if (mType == SimpleListJob.TYPE_SMS)
                 FragmentUtils.showSmsActivity(getActivity(), false, item.getAuthorId(), item.getAuthor());
-            } else {
-                if (HiUtils.isValidId(item.getTid()) || HiUtils.isValidId(item.getPid())) {
+            else {
+                if (HiUtils.isValidId(item.getTid()) || HiUtils.isValidId(item.getPid()))
                     FragmentUtils.showThreadActivity(getActivity(), false, item.getTid(), item.getTitle(), -1, -1, item.getPid(), -1);
-                } else if (HiUtils.isValidId(item.getAuthorId())) {
+                else if (HiUtils.isValidId(item.getAuthorId()))
                     FragmentUtils.showUserInfoActivity(getActivity(), false, item.getAuthorId(), item.getAuthor());
-                }
             }
         }
 
         @Override
         public void onLongItemClick(View view, int position) {
-            if (position < 0 || position >= mSimpleListAdapter.getItemCount()) {
+            if (position < 0 || position >= mSimpleListAdapter.getItemCount())
                 return;
-            }
+
             SimpleListItemBean item = mSimpleListAdapter.getItem(position);
             if (item == null)
                 return;
+
             if (mType == SimpleListJob.TYPE_SMS) {
-            } else if (mType == SimpleListJob.TYPE_FAVORITES) {
+                // nothing to do
+            } else if (mType == SimpleListJob.TYPE_FAVORITES)
                 showFavoriteActionDialog(item);
-            } else {
-                if (HiUtils.isValidId(item.getTid()) || HiUtils.isValidId(item.getPid())) {
+            else {
+                if (HiUtils.isValidId(item.getTid()) || HiUtils.isValidId(item.getPid()))
                     showLastPage(item);
-                } else if (HiUtils.isValidId(item.getAuthorId())) {
+                else if (HiUtils.isValidId(item.getAuthorId()))
                     FragmentUtils.showUserInfoActivity(getActivity(), false, item.getAuthorId(), item.getAuthor());
-                }
             }
         }
 
@@ -430,26 +437,30 @@ public class SimpleListFragment extends BaseFragment
                 break;
             }
         }
-        if (pos != -1) {
-            mSimpleListAdapter.getDatas().remove(pos);
-            mSimpleListAdapter.notifyItemRemoved(pos);
-            if (mSimpleListAdapter.getItemCount() - pos - 1 > 0)
-                mSimpleListAdapter.notifyItemRangeChanged(pos, mSimpleListAdapter.getItemCount() - pos - 1);
-        } else {
+
+        if (pos == -1) {
             refresh();
+            return;
         }
+
+        mSimpleListAdapter.getDatas().remove(pos);
+        mSimpleListAdapter.notifyItemRemoved(pos);
+        if (mSimpleListAdapter.getItemCount() - pos - 1 > 0)
+            mSimpleListAdapter.notifyItemRangeChanged(pos, mSimpleListAdapter.getItemCount() - pos - 1);
     }
 
     private void showLastPage(SimpleListItemBean item) {
         String postId = "";
         int page = -1;
         int floor = -1;
-        if (HiUtils.isValidId(item.getPid())) {
+
+        if (HiUtils.isValidId(item.getPid()))
             postId = item.getPid();
-        } else {
+        else {
             page = ThreadDetailFragment.LAST_PAGE;
             floor = ThreadDetailFragment.LAST_FLOOR;
         }
+
         FragmentUtils.showThreadActivity(getActivity(), false, item.getTid(), item.getTitle(), page, floor, postId, -1);
     }
 
@@ -462,8 +473,10 @@ public class SimpleListFragment extends BaseFragment
     public void onSmsPostDone(int status, final String message, AlertDialog dialog) {
         if (status == Constants.STATUS_SUCCESS) {
             mSmsPostProgressDialog.dismiss(message);
+
             if (dialog != null)
                 dialog.dismiss();
+
             onRefresh();
         } else {
             mSmsPostProgressDialog.dismissError(message);
@@ -476,6 +489,7 @@ public class SimpleListFragment extends BaseFragment
         public void onFail(SimpleListEvent event) {
             mSwipeLayout.setEnabled(true);
             mSwipeLayout.setRefreshing(false);
+
             if (mSimpleListItemBeans.size() == 0)
                 mLoadingView.setState(ContentLoadingView.ERROR);
             else
@@ -491,13 +505,14 @@ public class SimpleListFragment extends BaseFragment
         public void onSuccess(SimpleListEvent event) {
             mSwipeLayout.setEnabled(true);
             mSwipeLayout.setRefreshing(false);
+
             mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
+
             mInloading = false;
             mFormhash = event.mFormhash;
 
-            if (mType == SimpleListJob.TYPE_THREAD_NOTIFY) {
+            if (mType == SimpleListJob.TYPE_THREAD_NOTIFY)
                 NotiHelper.getCurrentNotification().clearNotiCount();
-            }
 
             SimpleListBean list = event.mData;
             if (list == null || list.getCount() == 0) {
@@ -505,6 +520,7 @@ public class SimpleListFragment extends BaseFragment
                     mSimpleListItemBeans.clear();
                     mSimpleListAdapter.setDatas(mSimpleListItemBeans);
                 }
+
                 mLoadingView.setState(ContentLoadingView.NO_DATA);
                 return;
             }
@@ -514,21 +530,22 @@ public class SimpleListFragment extends BaseFragment
             if (mType == SimpleListJob.TYPE_FAVORITES) {
                 Set<String> tids = new HashSet<>();
                 List<SimpleListItemBean> beans = list.getAll();
-                for (SimpleListItemBean itemBean : beans) {
+                for (SimpleListItemBean itemBean : beans)
                     tids.add(itemBean.getTid());
-                }
-                //FIXME
-                //FavoriteHelper.getInstance().addToCahce(tids);
+
+                // FIXME
+                // FavoriteHelper.getInstance().addToCahce(tids);
             }
 
             if (mType == SimpleListJob.TYPE_SMS)
                 NotiHelper.getCurrentNotification().clearSmsCount();
+
             if (mType == SimpleListJob.TYPE_THREAD_NOTIFY)
                 NotiHelper.getCurrentNotification().setThreadCount(0);
 
-            if (mPage == 1) {
+            if (mPage == 1)
                 mSimpleListItemBeans.clear();
-            }
+
             mMaxPage = list.getMaxPage();
             mSimpleListItemBeans.addAll(list.getAll());
             mSimpleListAdapter.setDatas(mSimpleListItemBeans);
@@ -551,6 +568,7 @@ public class SimpleListFragment extends BaseFragment
     public void onEvent(SimpleListEvent event) {
         if (!mSessionId.equals(event.mSessionId))
             return;
+
         EventBus.getDefault().removeStickyEvent(event);
         mEventCallback.process(event);
     }
@@ -559,6 +577,7 @@ public class SimpleListFragment extends BaseFragment
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEvent(SmsRefreshEvent event) {
         EventBus.getDefault().removeStickyEvent(event);
+
         if (mType == SimpleListJob.TYPE_SMS) {
             mLoadingView.setState(ContentLoadingView.LOAD_NOW);
             onRefresh();
@@ -571,5 +590,4 @@ public class SimpleListFragment extends BaseFragment
         if (!mInloading && mSimpleListItemBeans.size() == 0)
             refresh();
     }
-
 }

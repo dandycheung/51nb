@@ -14,7 +14,6 @@ import com.greenskinmonster.a51nb.bean.HiSettingsHelper;
  */
 
 public class RecyclerItemClickListener implements View.OnTouchListener {
-
     private static final long MIN_CLICK_INTERVAL = 600;
 
     private OnItemClickListener mListener;
@@ -23,9 +22,7 @@ public class RecyclerItemClickListener implements View.OnTouchListener {
 
     public interface OnItemClickListener {
         void onItemClick(View view, int position);
-
         void onLongItemClick(View view, int position);
-
         void onDoubleTap(View view, int position);
     }
 
@@ -37,35 +34,34 @@ public class RecyclerItemClickListener implements View.OnTouchListener {
 
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
-                if (mChildView != null && mListener != null) {
-                    long currentClickTime = System.currentTimeMillis();
-                    long elapsedTime = currentClickTime - mLastClickTime;
-                    mLastClickTime = currentClickTime;
+                if (mChildView == null || mListener == null)
+                    return true;
 
-                    if (elapsedTime <= MIN_CLICK_INTERVAL)
-                        return true;
+                long currentClickTime = System.currentTimeMillis();
+                long elapsedTime = currentClickTime - mLastClickTime;
+                mLastClickTime = currentClickTime;
 
+                if (elapsedTime > MIN_CLICK_INTERVAL)
                     mListener.onItemClick(mChildView, (int) mChildView.getTag());
-                }
+
                 return true;
             }
 
             @Override
             public void onLongPress(MotionEvent e) {
-                if (mChildView != null && mListener != null) {
+                if (mChildView != null && mListener != null)
                     mListener.onLongItemClick(mChildView, (int) mChildView.getTag());
-                }
+
                 super.onLongPress(e);
             }
 
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                if (mChildView != null && mListener != null) {
+                if (mChildView != null && mListener != null)
                     mListener.onDoubleTap(mChildView, (int) mChildView.getTag());
-                }
+
                 return super.onDoubleTap(e);
             }
-
         });
     }
 
@@ -78,9 +74,8 @@ public class RecyclerItemClickListener implements View.OnTouchListener {
         float y = event.getY();
 
         if (HiSettingsHelper.getInstance().isClickEffect()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 view.drawableHotspotChanged(x, y);
-            }
 
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:

@@ -11,7 +11,6 @@ import android.view.ViewGroup;
  */
 
 public class CustomLinearLayoutManager extends LinearLayoutManager {
-
     private static final String TAG = CustomLinearLayoutManager.class.getSimpleName();
 
     public CustomLinearLayoutManager(Context context) {
@@ -26,7 +25,6 @@ public class CustomLinearLayoutManager extends LinearLayoutManager {
 
     @Override
     public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
-
         final int widthMode = View.MeasureSpec.getMode(widthSpec);
         final int heightMode = View.MeasureSpec.getMode(heightSpec);
         final int widthSize = View.MeasureSpec.getSize(widthSpec);
@@ -39,19 +37,17 @@ public class CustomLinearLayoutManager extends LinearLayoutManager {
                     View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED),
                     mMeasuredDimension);
 
-
             if (getOrientation() == HORIZONTAL) {
                 width = width + mMeasuredDimension[0];
-                if (i == 0) {
+                if (i == 0)
                     height = mMeasuredDimension[1];
-                }
             } else {
                 height = height + mMeasuredDimension[1];
-                if (i == 0) {
+                if (i == 0)
                     width = mMeasuredDimension[0];
-                }
             }
         }
+
         switch (widthMode) {
             case View.MeasureSpec.EXACTLY:
                 width = widthSize;
@@ -77,11 +73,8 @@ public class CustomLinearLayoutManager extends LinearLayoutManager {
             if (view != null) {
                 RecyclerView.LayoutParams p = (RecyclerView.LayoutParams) view.getLayoutParams();
 
-                int childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec,
-                        getPaddingLeft() + getPaddingRight(), p.width);
-
-                int childHeightSpec = ViewGroup.getChildMeasureSpec(heightSpec,
-                        getPaddingTop() + getPaddingBottom(), p.height);
+                int childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec, getPaddingLeft() + getPaddingRight(), p.width);
+                int childHeightSpec = ViewGroup.getChildMeasureSpec(heightSpec, getPaddingTop() + getPaddingBottom(), p.height);
 
                 view.measure(childWidthSpec, childHeightSpec);
                 measuredDimension[0] = view.getMeasuredWidth() + p.leftMargin + p.rightMargin;

@@ -10,7 +10,6 @@ import com.greenskinmonster.a51nb.ui.HiApplication;
  * Created by GreenSkinMonster on 2016-07-23.
  */
 public class HistoryDBHelper extends SQLiteOpenHelper {
-
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "history.db";
     public static final String TABLE_NAME = "History";
@@ -46,6 +45,5 @@ public class HistoryDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-
     }
 }

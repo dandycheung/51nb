@@ -76,7 +76,7 @@ import com.greenskinmonster.a51nb.ui.widget.RateDialog;
 import com.greenskinmonster.a51nb.ui.widget.SimpleDivider;
 import com.greenskinmonster.a51nb.ui.widget.SimpleGridMenu;
 import com.greenskinmonster.a51nb.ui.widget.SmoothLinearLayoutManager;
-import com.greenskinmonster.a51nb.ui.widget.ValueChagerView;
+import com.greenskinmonster.a51nb.ui.widget.ValueChangerView;
 import com.greenskinmonster.a51nb.ui.widget.XFooterView;
 import com.greenskinmonster.a51nb.ui.widget.XHeaderView;
 import com.greenskinmonster.a51nb.ui.widget.XRecyclerView;
@@ -1148,11 +1148,11 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
         final LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View view = inflater.inflate(R.layout.dialog_thread_font_size, null);
 
-        final ValueChagerView valueChangerSize = (ValueChagerView) view.findViewById(R.id.value_changer_size);
-        final ValueChagerView valueChangerLs = (ValueChagerView) view.findViewById(R.id.value_changer_ls);
+        final ValueChangerView valueChangerSize = (ValueChangerView) view.findViewById(R.id.value_changer_size);
+        final ValueChangerView valueChangerLs = (ValueChangerView) view.findViewById(R.id.value_changer_ls);
 
         valueChangerSize.setCurrentValue(HiSettingsHelper.getInstance().getPostTextSizeAdj());
-        valueChangerSize.setOnChangeListener(new ValueChagerView.OnChangeListener() {
+        valueChangerSize.setOnChangeListener(new ValueChangerView.OnChangeListener() {
             @Override
             public void onChange(int currentValue) {
                 HiSettingsHelper.getInstance().setPostTextSizeAdj(currentValue);
@@ -1162,7 +1162,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
         });
 
         valueChangerLs.setCurrentValue(HiSettingsHelper.getInstance().getPostLineSpacing());
-        valueChangerLs.setOnChangeListener(new ValueChagerView.OnChangeListener() {
+        valueChangerLs.setOnChangeListener(new ValueChangerView.OnChangeListener() {
             @Override
             public void onChange(int currentValue) {
                 HiSettingsHelper.getInstance().setPostLineSpacing(currentValue);
@@ -1712,7 +1712,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
     }
 
     @Override
-    public View.OnClickListener getViewAllCommemtsLisener() {
+    public View.OnClickListener getViewAllCommentsListener() {
         return mViewAllCommentsListener;
     }
 

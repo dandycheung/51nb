@@ -18,7 +18,6 @@ import com.greenskinmonster.a51nb.R;
  */
 
 public class CountdownButton extends RelativeLayout {
-
     private ImageButton mImageButton;
     private TextView mTextView;
     private CountDownTimer mCountDownTimer;
@@ -47,11 +46,13 @@ public class CountdownButton extends RelativeLayout {
     public void setCountdown(int timeToWait) {
         if (mCountDownTimer != null)
             mCountDownTimer.cancel();
+
         if (timeToWait > 0) {
             mImageButton.setVisibility(View.GONE);
             mTextView.setAlpha(1f);
             mTextView.setVisibility(View.VISIBLE);
             mTextView.setText(timeToWait + "");
+
             mCountDownTimer = new CountDownTimer(timeToWait * 1000, 500) {
                 public void onTick(long millisUntilFinished) {
                     mTextView.setText((millisUntilFinished / 1000) + "");

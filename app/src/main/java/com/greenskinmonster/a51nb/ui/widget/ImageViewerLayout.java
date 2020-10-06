@@ -15,7 +15,6 @@ import com.greenskinmonster.a51nb.glide.GlideImageView;
  * Created by GreenSkinMonster on 2015-11-07.
  */
 public class ImageViewerLayout extends RelativeLayout {
-
     private final SubsamplingScaleImageView scaleImageView;
     private final GlideImageView glideImageView;
     private final ProgressBar progressBar;

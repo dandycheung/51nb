@@ -5,7 +5,6 @@ import com.greenskinmonster.a51nb.async.PostHelper;
 import com.greenskinmonster.a51nb.utils.HiUtils;
 
 public class ThreadBean {
-
     private String mTitle;
     private String mTitleColor;
     private String mTid;
@@ -242,5 +241,4 @@ public class ThreadBean {
     public boolean isTrade() {
         return PostHelper.SPECIAL_TRADE.equals(mSpecial);
     }
-
 }

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ThreadListBean {
-
     private String mFormhash;
     private List<ThreadBean> mThreads = new ArrayList<>();
     private Map<String, String> mTypes;

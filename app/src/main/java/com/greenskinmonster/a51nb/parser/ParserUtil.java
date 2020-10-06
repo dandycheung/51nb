@@ -15,7 +15,6 @@ import org.jsoup.parser.Parser;
  */
 
 public class ParserUtil {
-
     public static String parseXmlMessage(String xml) {
         Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
         return doc.text();
@@ -30,31 +29,35 @@ public class ParserUtil {
     public static String getAbsoluteUrl(String url) {
         if (TextUtils.isEmpty(url))
             return "";
+
         if (url.contains("://"))
             return url;
+
         return HiUtils.BaseUrl + url;
     }
 
     public static int parseForumId(String url) {
-        int fid = 0;
-        if (url.contains("fid=")) {
-            fid = Utils.getMiddleInt(url, "fid=", "&");
-        } else if (url.contains("forum-")) {
+        if (url.contains("fid="))
+            return Utils.getMiddleInt(url, "fid=", "&");
+
+        if (url.contains("forum-")) {
             String fidKeyword = Utils.getMiddleString(url, "forum-", "-");
-            if (HiUtils.StaticKeywordMap.containsKey(fidKeyword)) {
-                fid = HiUtils.StaticKeywordMap.get(fidKeyword);
-            } else if (HiUtils.isValidId(fidKeyword)) {
-                fid = Utils.parseInt(fidKeyword);
-            }
+            if (HiUtils.StaticKeywordMap.containsKey(fidKeyword))
+                return HiUtils.StaticKeywordMap.get(fidKeyword);
+
+            if (HiUtils.isValidId(fidKeyword))
+                return Utils.parseInt(fidKeyword);
         }
-        return fid;
+
+        return 0;
     }
 
     public static String parseTid(String url) {
         String tid = Utils.getMiddleString(url, "tid=", "&");
+
         if (TextUtils.isEmpty(tid))
             tid = Utils.getMiddleString(url, "thread-", "-");
+
         return tid;
     }
-
 }

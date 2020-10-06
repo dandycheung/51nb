@@ -74,7 +74,6 @@ import java.util.List;
  */
 
 public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
-
     private final int mType = SimpleListJob.TYPE_SEARCH;
     private static final String PREFERENCE_NAME = "saved_historty";
     private static final String PREFERENCE_KEY = "queries";
@@ -115,25 +114,22 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     private TextView.OnEditorActionListener mSearchEditorActionListener = new TextView.OnEditorActionListener() {
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-            final boolean isEnterEvent = event != null
-                    && event.getKeyCode() == KeyEvent.KEYCODE_ENTER;
+            final boolean isEnterEvent = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER;
             final boolean isEnterUpEvent = isEnterEvent && event.getAction() == KeyEvent.ACTION_UP;
             final boolean isEnterDownEvent = isEnterEvent && event.getAction() == KeyEvent.ACTION_DOWN;
 
-            if (actionId == EditorInfo.IME_ACTION_SEARCH
-                    || actionId == EditorInfo.IME_ACTION_DONE
+            // Capture this event to receive ACTION_UP
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE
                     || isEnterUpEvent) {
                 if (!TextUtils.isEmpty(mSearchView.getQuery()) || !TextUtils.isEmpty(mEtAuthor.getText())) {
                     makeSearchBean();
                     startSearch();
                 }
+
                 return true;
-            } else if (isEnterDownEvent) {
-                // Capture this event to receive ACTION_UP
-                return true;
-            } else {
-                return false;
             }
+
+            return isEnterDownEvent;
         }
     };
 
@@ -185,13 +181,10 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         mCbFulltext.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (mSearchView != null) {
-                    if (isChecked) {
-                        mSearchView.setQueryHint("搜索全文");
-                    } else {
-                        mSearchView.setQueryHint("搜索标题");
-                    }
-                }
+                if (mSearchView == null)
+                    return;
+
+                mSearchView.setQueryHint(isChecked ? "搜索全文" : "搜索标题");
             }
         });
 
@@ -214,8 +207,8 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                //hide then show mSearchFilterLayout, cannot get it's height on first show
-                //so I use a fixed value here, tell me if you know a better way
+                // hide then show mSearchFilterLayout, cannot get it's height on first show
+                // so I use a fixed value here, tell me if you know a better way
                 mSearchFilterLayout.animate()
                         .alpha(0)
                         .setDuration(100)
@@ -253,11 +246,12 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 mSearchTextView.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
-                if (hasFocus) {
-                    if (mSearchFilterLayout.getVisibility() != View.VISIBLE) {
-                        restoreSearchBean();
-                        showSearchFilter();
-                    }
+                if (!hasFocus)
+                    return;
+
+                if (mSearchFilterLayout.getVisibility() != View.VISIBLE) {
+                    restoreSearchBean();
+                    showSearchFilter();
                 }
             }
         });
@@ -320,15 +314,18 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         mSearchBean.setForum(mSpAdapter.getEntryValue(mSpForum.getSelectedItemPosition()));
         mSearchBean.setAuthor(mEtAuthor.getText().toString());
         mSearchBean.setFulltext(mCbFulltext.isChecked());
+
         String title = mSearchBean.getDescription();
         if (TextUtils.isEmpty(title))
             title = getString(R.string.title_drawer_search);
+
         setActionBarTitle(title);
     }
 
     private void restoreSearchBean() {
         mEtAuthor.setText(mSearchBean.getAuthor());
         mCbFulltext.setChecked(mSearchBean.isFulltext());
+
         int position = 0;
         int i = 0;
         for (String fid : getForumIds()) {
@@ -338,6 +335,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
             }
             i++;
         }
+
         mSpForum.setSelection(position);
         mSearchView.setQuery(mSearchBean.getQuery(), false);
     }
@@ -345,11 +343,12 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     @Override
     public void onResume() {
         super.onResume();
+
         if (!EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().register(this);
-        if (mSearchView != null && mSimpleListAdapter.getDatas().size() > 0) {
+
+        if (mSearchView != null && mSimpleListAdapter.getDatas().size() > 0)
             collapseSearchView();
-        }
     }
 
     @Override
@@ -383,13 +382,17 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     private void addQuery(SearchBean searchBean) {
         if (TextUtils.isEmpty(searchBean.getDescription()))
             return;
+
         SearchBean bean = searchBean.newCopy();
+
         if (mQueries.contains(bean))
             mQueries.remove(bean);
+
         mQueries.add(0, bean);
-        while (mQueries.size() > MAX_HISTORY) {
+
+        while (mQueries.size() > MAX_HISTORY)
             mQueries.remove(mQueries.size() - 1);
-        }
+
         saveQueries();
     }
 
@@ -449,63 +452,66 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
 
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            if (dy > 0) {
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                visibleItemCount = layoutManager.getChildCount();
-                totalItemCount = layoutManager.getItemCount();
-                int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+            if (dy <= 0)
+                return;
 
-                if ((visibleItemCount + firstVisibleItem) >= totalItemCount - 5) {
-                    if (!mInloading) {
-                        mInloading = true;
-                        if (mPage < mMaxPage) {
-                            mPage++;
-                            mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
-                            mSearchBean.setSearchId(mSearchId);
-                            SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchBean);
-                            JobMgr.addJob(job);
-                        } else {
-                            mRecyclerView.setFooterState(XFooterView.STATE_END);
-                        }
-                    }
-                }
+            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+            visibleItemCount = layoutManager.getChildCount();
+            totalItemCount = layoutManager.getItemCount();
+            int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();
+
+            if ((visibleItemCount + firstVisibleItem) < totalItemCount - 5)
+                return;
+
+            if (mInloading)
+                return;
+
+            mInloading = true;
+            if (mPage < mMaxPage) {
+                mPage++;
+                mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
+                mSearchBean.setSearchId(mSearchId);
+                SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchBean);
+                JobMgr.addJob(job);
+            } else {
+                mRecyclerView.setFooterState(XFooterView.STATE_END);
             }
         }
     }
 
     private class OnItemClickListener implements RecyclerItemClickListener.OnItemClickListener {
-
         @Override
         public void onItemClick(View view, int position) {
             collapseSearchView();
             hideSearchFilter();
-            if (position < 0 || position >= mSimpleListAdapter.getItemCount()) {
+
+            if (position < 0 || position >= mSimpleListAdapter.getItemCount())
                 return;
-            }
+
             SimpleListItemBean item = mSimpleListAdapter.getItem(position);
             if (item == null)
                 return;
-            if (HiUtils.isValidId(item.getTid()) || HiUtils.isValidId(item.getPid())) {
+
+            if (HiUtils.isValidId(item.getTid()) || HiUtils.isValidId(item.getPid()))
                 FragmentUtils.showThreadActivity(getActivity(), false, item.getTid(), item.getTitle(), -1, -1, item.getPid(), -1);
-            }
         }
 
         @Override
         public void onLongItemClick(View view, int position) {
             collapseSearchView();
             hideSearchFilter();
-            if (position < 0 || position >= mSimpleListAdapter.getItemCount()) {
+
+            if (position < 0 || position >= mSimpleListAdapter.getItemCount())
                 return;
-            }
+
             SimpleListItemBean item = mSimpleListAdapter.getItem(position);
             if (item == null)
                 return;
 
-            if (HiUtils.isValidId(item.getTid()) || HiUtils.isValidId(item.getPid())) {
+            if (HiUtils.isValidId(item.getTid()) || HiUtils.isValidId(item.getPid()))
                 showLastPage(item);
-            } else if (HiUtils.isValidId(item.getAuthorId())) {
+            else if (HiUtils.isValidId(item.getAuthorId()))
                 FragmentUtils.showUserInfoActivity(getActivity(), false, item.getAuthorId(), item.getAuthor());
-            }
         }
 
         @Override
@@ -514,15 +520,16 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     }
 
     private class HistoryItemClickListener implements RecyclerItemClickListener.OnItemClickListener {
-
         @Override
         public void onItemClick(View view, int position) {
             hideSearchFilter();
-            if (position < 0 || position >= mHistoryAdapter.getItemCount()) {
+
+            if (position < 0 || position >= mHistoryAdapter.getItemCount())
                 return;
-            }
+
             SearchBean item = mHistoryAdapter.getItem(position);
             mSearchBean = item.newCopy();
+
             startSearch();
         }
 
@@ -539,12 +546,14 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         String postId = "";
         int page = -1;
         int floor = -1;
-        if (HiUtils.isValidId(item.getPid())) {
+
+        if (HiUtils.isValidId(item.getPid()))
             postId = item.getPid();
-        } else {
+        else {
             page = ThreadDetailFragment.LAST_PAGE;
             floor = ThreadDetailFragment.LAST_FLOOR;
         }
+
         FragmentUtils.showThreadActivity(getActivity(), false, item.getTid(), item.getTitle(), page, floor, postId, -1);
     }
 
@@ -564,6 +573,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         } catch (Exception e) {
             Logger.e(e);
         }
+
         if (mQueries == null)
             mQueries = new ArrayList<>();
     }
@@ -573,9 +583,10 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         String[] forumIds = new String[forums.size() + 1];
         forumIds[0] = "all";
         int i = 1;
-        for (Forum forum : forums) {
+
+        for (Forum forum : forums)
             forumIds[i++] = String.valueOf(forum.getId());
-        }
+
         return forumIds;
     }
 
@@ -584,18 +595,19 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         String[] forumNames = new String[forums.size() + 1];
         forumNames[0] = "全部版块";
         int i = 1;
-        for (Forum forum : forums) {
+
+        for (Forum forum : forums)
             forumNames[i++] = forum.getName();
-        }
+
         return forumNames;
     }
 
     private class SimpleListEventCallback extends EventCallback<SimpleListEvent> {
-
         @Override
         public void onFail(SimpleListEvent event) {
             mSwipeLayout.setEnabled(true);
             mSwipeLayout.setRefreshing(false);
+
             if (mSimpleListItemBeans.size() == 0)
                 mLoadingView.setState(ContentLoadingView.ERROR);
             else
@@ -627,9 +639,9 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
             mLoadingView.setState(ContentLoadingView.CONTENT);
             mSearchId = list.getSearchId();
 
-            if (mPage == 1) {
+            if (mPage == 1)
                 mSimpleListItemBeans.clear();
-            }
+
             mMaxPage = list.getMaxPage();
             mSimpleListItemBeans.addAll(list.getAll());
             mSimpleListAdapter.setDatas(mSimpleListItemBeans);
@@ -648,7 +660,6 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     }
 
     private class SearchHistoryAdapter extends BaseRvAdapter<SearchBean> {
-
         private LayoutInflater mInflater;
 
         SearchHistoryAdapter(Context context, RecyclerItemClickListener itemClickListener) {
@@ -668,11 +679,11 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
             SearchBean item = getItem(position);
             holder.textview.setText(item.getDescription());
             Forum forum = HiUtils.getForumByFid(Utils.parseInt(item.getForum()));
-            if (forum != null) {
+            if (forum != null)
                 holder.imageview.setImageDrawable(new IconicsDrawable(getActivity(), forum.getIcon()).sizeDp(16).color(Color.GRAY));
-            } else {
+            else
                 holder.imageview.setImageDrawable(mIconDrawable);
-            }
+
             holder.ib_remove.setImageDrawable(mIbDrawable);
             holder.ib_remove.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -703,7 +714,6 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
                 ib_remove = (ImageButton) itemView.findViewById(R.id.ib_remove);
             }
         }
-
     }
 
     @SuppressWarnings("unused")
@@ -711,8 +721,8 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     public void onEvent(SimpleListEvent event) {
         if (!mSessionId.equals(event.mSessionId))
             return;
+
         EventBus.getDefault().removeStickyEvent(event);
         mEventCallback.process(event);
     }
-
 }

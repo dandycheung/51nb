@@ -12,7 +12,6 @@ import com.bumptech.glide.request.target.SizeReadyCallback;
  * Created by GreenSkinMonster on 2015-05-08.
  */
 public class GlideBitmapTarget extends BitmapImageViewTarget {
-
     private int mDisplayWidth;
     private int mDisplayHeight;
 

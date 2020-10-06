@@ -43,6 +43,7 @@ public class AvatarStreamFetcher implements DataFetcher<InputStream> {
         File f = GlideHelper.getAvatarFile(stringUrl);
         if (f == null)
             return null;
+
         if (refetch(f)) {
             if (!f.exists() || f.delete()) {
                 Request request = getRequest();
@@ -63,47 +64,54 @@ public class AvatarStreamFetcher implements DataFetcher<InputStream> {
                     try {
                         input = new BufferedInputStream(is);
                         output = new FileOutputStream(f);
+
                         int count;
                         byte[] data = new byte[2048];
-                        while ((count = input.read(data)) != -1) {
+                        while ((count = input.read(data)) != -1)
                             output.write(data, 0, count);
-                        }
+
                         output.flush();
                     } catch (Exception e) {
                         if (f.exists())
                             f.delete();
                     } finally {
                         try {
-                            if (input != null) input.close();
-                            if (output != null) output.close();
-                            if (is != null) is.close();
+                            if (input != null)
+                                input.close();
+                            if (output != null)
+                                output.close();
+                            if (is != null)
+                                is.close();
                         } catch (Exception ignored) {
                         }
                     }
                 }
             }
         }
+
         if (!f.exists()) {
-            //no memory cahce, avatar will be re-download in next ImageView
+            // no memory cahce, avatar will be re-download in next ImageView
             return null;
-        } else if (f.length() == 0 || f.length() == 971) {
-            //如果用户没有头像，服务器会返回一个 1x1 971字节的空白图片
+        }
+
+        if (f.length() == 0 || f.length() == 971) {
+            // 如果用户没有头像，服务器会返回一个 1x1 971 字节的空白图片
             GlideHelper.markAvatarNotFound(stringUrl);
             return new FileInputStream(GlideHelper.DEFAULT_AVATAR_FILE);
         }
+
         return new FileInputStream(f);
     }
 
     private Request getRequest() {
-        Request.Builder requestBuilder = new Request.Builder()
-                .url(stringUrl);
+        Request.Builder requestBuilder = new Request.Builder().url(stringUrl);
 
         for (Map.Entry<String, String> headerEntry : url.getHeaders().entrySet()) {
             String key = headerEntry.getKey();
             requestBuilder.addHeader(key, headerEntry.getValue());
         }
 
-        //hack, replace User-Agent
+        // hack, replace User-Agent
         requestBuilder.removeHeader("User-Agent");
         requestBuilder.header("User-Agent", HiUtils.getUserAgent());
 
@@ -111,7 +119,7 @@ public class AvatarStreamFetcher implements DataFetcher<InputStream> {
     }
 
     private boolean refetch(File f) {
-        //cache avatar for 1 week, cache not found avatar for 1 day
+        // cache avatar for 1 week, cache not found avatar for 1 day
         return !f.exists()
                 || (f.length() > 0 && f.lastModified() < System.currentTimeMillis() - GlideHelper.AVATAR_CACHE_MILLS)
                 || (f.length() == 0 && f.lastModified() < System.currentTimeMillis() - GlideHelper.AVATAR_404_CACHE_MILLS);
@@ -119,9 +127,8 @@ public class AvatarStreamFetcher implements DataFetcher<InputStream> {
 
     @Override
     public void cleanup() {
-        if (responseBody != null) {
+        if (responseBody != null)
             responseBody.close();
-        }
     }
 
     @Override

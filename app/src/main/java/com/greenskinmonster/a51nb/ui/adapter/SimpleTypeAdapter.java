@@ -53,19 +53,20 @@ public class SimpleTypeAdapter extends BaseAdapter {
         String key = mTypes.keySet().toArray()[position].toString();
 
         View row;
-        if (convertView == null) {
+        if (convertView != null)
+            row = convertView;
+        else {
             LayoutInflater inflater = mContext.getLayoutInflater();
             row = inflater.inflate(R.layout.item_thread_type, parent, false);
-        } else {
-            row = convertView;
         }
+
         TextView textView = (TextView) row.findViewById(R.id.thread_type_text);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-        if (mShowValue && !TextUtils.isEmpty(key)) {
+        if (mShowValue && !TextUtils.isEmpty(key))
             textView.setText(mTypes.get(key) + "(" + key + ")");
-        } else {
+        else
             textView.setText(mTypes.get(key));
-        }
+
         return row;
     }
 }

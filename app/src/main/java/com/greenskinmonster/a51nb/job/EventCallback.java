@@ -7,9 +7,7 @@ import com.greenskinmonster.a51nb.utils.Constants;
  */
 
 public abstract class EventCallback<T extends BaseEvent> {
-
     public abstract void onSuccess(T event);
-
     public abstract void onFail(T event);
 
     public void onFailAbort(T event) {
@@ -39,5 +37,4 @@ public abstract class EventCallback<T extends BaseEvent> {
                 break;
         }
     }
-
 }

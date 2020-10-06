@@ -32,7 +32,6 @@ import okhttp3.Request;
  */
 
 public class WarrantyFragment extends BaseFragment {
-
     private Map<String, String> mInfos;
     private HiProgressDialog mProgressDialog;
     private LinearLayout mResulLayout;
@@ -46,17 +45,19 @@ public class WarrantyFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_warranty, container, false);
+
         final RadioButton radio1 = (RadioButton) view.findViewById(R.id.radio_1);
         final RadioButton radio2 = (RadioButton) view.findViewById(R.id.radio_2);
         final TextView tvDesc = (TextView) view.findViewById(R.id.tv_desc);
         Button btnSearch = (Button) view.findViewById(R.id.btn_search);
         final EditText etSearch = (EditText) view.findViewById(R.id.et_search);
+
         mResulLayout = (LinearLayout) view.findViewById(R.id.result_layout);
 
         radio1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tvDesc.setText("7位或10位格式如: 2007CA2或或20AA0000JJ");
+                tvDesc.setText("7 位或 10 位格式如: 2007CA2 或 20AA0000JJ");
             }
         });
 
@@ -73,7 +74,9 @@ public class WarrantyFragment extends BaseFragment {
                 UIUtils.hideSoftKeyboard(getActivity());
                 etSearch.clearFocus();
                 mResulLayout.removeAllViews();
+
                 mProgressDialog = HiProgressDialog.show(getActivity(), "正在查询，请稍候...");
+
                 ParamsMap params = new ParamsMap();
                 params.put("searchtype", radio1.isChecked() ? "1" : "2");
                 params.put("urltype1", radio1.isChecked() ? etSearch.getText().toString() : "");
@@ -90,6 +93,7 @@ public class WarrantyFragment extends BaseFragment {
         public void onError(Request request, Exception e) {
             if (mProgressDialog != null && !Utils.isDestroyed(getActivity()))
                 mProgressDialog.dismiss();
+
             Logger.e(e);
             UIUtils.toast(OkHttpHelper.getErrorMessage(e).getMessage());
         }
@@ -98,18 +102,21 @@ public class WarrantyFragment extends BaseFragment {
         public void onResponse(String response) {
             if (mProgressDialog != null && !Utils.isDestroyed(getActivity()))
                 mProgressDialog.dismiss();
+
             try {
-                mInfos = HiParser.parseWarrantyInfo(response);
                 mResulLayout.removeAllViews();
+
+                mInfos = HiParser.parseWarrantyInfo(response);
                 int i = mInfos.size() % 2;
                 for (String key : mInfos.keySet()) {
                     TextView textView = new TextView(getActivity());
-                    textView.setText(key + " : " + mInfos.get(key));
+                    textView.setText(key + ": " + mInfos.get(key));
                     textView.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
                     textView.setBackgroundColor(ContextCompat.getColor(getActivity(), i % 2 == 0 ? R.color.background_silver : android.R.color.transparent));
                     textView.setPadding(8, 8, 8, 8);
                     textView.setTextIsSelectable(true);
                     mResulLayout.addView(textView);
+
                     i++;
                 }
             } catch (Exception e) {
@@ -118,5 +125,4 @@ public class WarrantyFragment extends BaseFragment {
             }
         }
     }
-
 }

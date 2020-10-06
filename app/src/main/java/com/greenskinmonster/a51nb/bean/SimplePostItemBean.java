@@ -5,7 +5,6 @@ package com.greenskinmonster.a51nb.bean;
  */
 
 public class SimplePostItemBean {
-
     private String mContent;
     private String mPostId;
 

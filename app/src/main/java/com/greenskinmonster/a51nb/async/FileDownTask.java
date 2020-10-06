@@ -12,7 +12,6 @@ import com.greenskinmonster.a51nb.job.GlideImageJob;
  */
 
 public class FileDownTask extends AsyncTask<String, Void, Void> {
-
     private final Context mContext;
     protected Throwable mException;
     private HiProgressDialog mDialog;
@@ -41,5 +40,4 @@ public class FileDownTask extends AsyncTask<String, Void, Void> {
         }
         return null;
     }
-
 }

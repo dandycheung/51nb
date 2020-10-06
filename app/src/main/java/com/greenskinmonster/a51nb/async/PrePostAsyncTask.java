@@ -21,7 +21,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class PrePostAsyncTask extends AsyncTask<PostBean, Void, PrePostInfoBean> {
-
     private PrePostListener mListener;
     private int mFid;
     private int mMode;
@@ -39,7 +38,9 @@ public class PrePostAsyncTask extends AsyncTask<PostBean, Void, PrePostInfoBean>
         PostBean postBean = postBeans[0];
         String tid = postBean.getTid();
         String pid = postBean.getPid();
+
         mFid = postBean.getFid();
+
         String url = "";
         switch (mMode) {
             case PostHelper.MODE_REPLY_THREAD:
@@ -60,7 +61,7 @@ public class PrePostAsyncTask extends AsyncTask<PostBean, Void, PrePostInfoBean>
                         .replace("{special}", Utils.nullToText(mSpecial));
                 break;
             case PostHelper.MODE_EDIT_POST:
-                //fid is not really needed, just put a value here
+                // fid is not really needed, just put a value here
                 url = HiUtils.PreEditUrl
                         .replace("{fid}", String.valueOf(mFid))
                         .replace("{tid}", tid)
@@ -72,14 +73,14 @@ public class PrePostAsyncTask extends AsyncTask<PostBean, Void, PrePostInfoBean>
         for (int i = 0; i < OkHttpHelper.MAX_RETRY_TIMES; i++) {
             try {
                 String resp = OkHttpHelper.getInstance().get(url);
-                if (resp != null) {
+                if (resp != null)
                     return parseRsp(resp);
-                }
             } catch (Exception e) {
                 NetworkError message = OkHttpHelper.getErrorMessage(e);
                 mMessage = message.getMessage();
             }
         }
+
         return null;
     }
 

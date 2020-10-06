@@ -46,7 +46,7 @@ import com.greenskinmonster.a51nb.glide.GlideHelper;
 import com.greenskinmonster.a51nb.job.ForumChangedEvent;
 import com.greenskinmonster.a51nb.job.SimpleListJob;
 import com.greenskinmonster.a51nb.service.NotiHelper;
-import com.greenskinmonster.a51nb.ui.setting.AllForumsFragment;
+import com.greenskinmonster.a51nb.ui.settings.AllForumsFragment;
 import com.greenskinmonster.a51nb.ui.widget.FABHideOnScrollBehavior;
 import com.greenskinmonster.a51nb.ui.widget.HiProgressDialog;
 import com.greenskinmonster.a51nb.ui.widget.LoginDialog;
@@ -86,7 +86,6 @@ import java.util.List;
 import java.util.Set;
 
 public class MainFrameActivity extends BaseActivity {
-
     public final static int PERMISSIONS_REQUEST_CODE_STORAGE = 200;
     private final static int DRAG_SENSITIVITY = Utils.dpToPx(HiApplication.getAppContext(), 32);
 
@@ -101,7 +100,7 @@ public class MainFrameActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main_frame);
-        //hack, to avoid MainFrameActivity be created more than once
+        // hack, to avoid MainFrameActivity be created more than once
         if (HiApplication.getMainActivityCount() > 1) {
             finish();
             return;
@@ -129,17 +128,18 @@ public class MainFrameActivity extends BaseActivity {
         mToolbar.setOnClickListener(new OnSingleClickListener() {
             @Override
             public void onSingleClick(View v) {
-                //get top displaying fragment
+                // get top displaying fragment
                 Fragment fg = getSupportFragmentManager().findFragmentById(R.id.main_frame_container);
-                if (fg instanceof BaseFragment) {
+                if (fg instanceof BaseFragment)
                     ((BaseFragment) fg).scrollToTop();
-                }
             }
         });
 
         GlideHelper.initDefaultFiles();
         EmojiHandler.init();
+
         EventBus.getDefault().register(this);
+
         setupDrawer();
         updateAppBarScrollFlag();
 
@@ -154,23 +154,23 @@ public class MainFrameActivity extends BaseActivity {
         updateFabGravity();
 
         mNetworkReceiver = new NetworkStateReceiver();
-        registerReceiver(mNetworkReceiver,
-                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        registerReceiver(mNetworkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         if (savedInstanceState == null) {
-
             int fid = HiSettingsHelper.getInstance().getLastForumId();
             FragmentArgs args = FragmentUtils.parse(getIntent());
-            if (args != null && args.getType() == FragmentArgs.TYPE_FORUM) {
+            if (args != null && args.getType() == FragmentArgs.TYPE_FORUM)
                 fid = args.getFid();
-            }
+
             FragmentUtils.showForum(getSupportFragmentManager(), fid);
 
             if (args != null && args.getType() != FragmentArgs.TYPE_FORUM) {
                 args.setSkipEnterAnim(true);
                 args.setFid(fid);
+
                 if (args.getType() == FragmentArgs.TYPE_NEW_THREAD)
                     args.setParentId(mSessionId);
+
                 FragmentUtils.show(this, args);
             }
 
@@ -181,7 +181,7 @@ public class MainFrameActivity extends BaseActivity {
                 UIUtils.showReleaseNotesDialog(this);
             } else {
                 if (HiSettingsHelper.getInstance().isAutoUpdateCheckable()) {
-                    //new UpdateHelper(this, true).check();
+                    // new UpdateHelper(this, true).check();
                 }
             }
         }
@@ -190,6 +190,7 @@ public class MainFrameActivity extends BaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+
         FragmentArgs args = FragmentUtils.parse(intent);
         if (args != null) {
             NotiHelper.holdFetchNotify();
@@ -202,8 +203,7 @@ public class MainFrameActivity extends BaseActivity {
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
             @Override
             public void set(ImageView imageView, Uri uri, Drawable placeholder) {
-                GlideHelper.loadAvatar(Glide.with(MainFrameActivity.this),
-                        imageView, uri.toString());
+                GlideHelper.loadAvatar(Glide.with(MainFrameActivity.this), imageView, uri.toString());
             }
 
             @Override
@@ -217,7 +217,6 @@ public class MainFrameActivity extends BaseActivity {
         });
 
         // Create the AccountHeader
-
         mAccountHeader = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.header)
@@ -257,8 +256,7 @@ public class MainFrameActivity extends BaseActivity {
             subItems.add(DrawerHelper.getSecondaryMenuItem(DrawerHelper.DrawerItem.WARRANTY));
 
         if (subItems.size() > 0)
-            drawerItems.add(
-                    new ExpandableDrawerItem()
+            drawerItems.add(new ExpandableDrawerItem()
                             .withName(R.string.title_drawer_expandable)
                             .withIcon(GoogleMaterial.Icon.gmd_more_horiz)
                             .withIdentifier(Constants.DRAWER_NO_ACTION)
@@ -311,7 +309,8 @@ public class MainFrameActivity extends BaseActivity {
         List<Forum> forums = HiSettingsHelper.getInstance().getFreqForums();
         for (Forum forum : forums) {
             if (HiUtils.isForumValid(forum.getId())) {
-                drawerItems.add(new PrimaryDrawerItem().withName(forum.getName())
+                drawerItems.add(new PrimaryDrawerItem()
+                        .withName(forum.getName())
                         .withIdentifier(forum.getId())
                         .withIcon(forum.getIcon()));
             }
@@ -346,11 +345,12 @@ public class MainFrameActivity extends BaseActivity {
     public void updateFabGravity() {
         CoordinatorLayout.LayoutParams mainFabParams = (CoordinatorLayout.LayoutParams) mMainFab.getLayoutParams();
         CoordinatorLayout.LayoutParams notiFabParams = (CoordinatorLayout.LayoutParams) mNotiificationFab.getLayoutParams();
-        if (HiSettingsHelper.getInstance().isFabLeftSide()) {
+
+        if (HiSettingsHelper.getInstance().isFabLeftSide())
             mainFabParams.anchorGravity = Gravity.BOTTOM | Gravity.LEFT | Gravity.END;
-        } else {
+        else
             mainFabParams.anchorGravity = Gravity.BOTTOM | Gravity.RIGHT | Gravity.END;
-        }
+
         if (HiSettingsHelper.getInstance().isFabAutoHide()) {
             mainFabParams.setBehavior(new FABHideOnScrollBehavior());
             notiFabParams.setBehavior(new FABHideOnScrollBehavior());
@@ -371,6 +371,7 @@ public class MainFrameActivity extends BaseActivity {
     @Override
     protected void onPostResume() {
         super.onPostResume();
+
         if (HiApplication.getSettingStatus() == HiApplication.RESTART) {
             HiApplication.setSettingStatus(HiApplication.IDLE);
             Utils.restartActivity(this);
@@ -387,8 +388,8 @@ public class MainFrameActivity extends BaseActivity {
                 ((ThreadListFragment) fg).notifyDataSetChanged();
             }
         } else {
-//            if (!LoginHelper.isLoggedIn())
-//                showLoginDialog();
+            // if (!LoginHelper.isLoggedIn())
+            //     showLoginDialog();
         }
     }
 
@@ -396,15 +397,17 @@ public class MainFrameActivity extends BaseActivity {
     public void onDestroy() {
         if (mNetworkReceiver != null)
             unregisterReceiver(mNetworkReceiver);
+
         EventBus.getDefault().unregister(this);
         dismissLoginDialog();
+
         super.onDestroy();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.main_frame, menu);
+        // getMenuInflater().inflate(R.menu.main_frame, menu);
         return false;
     }
 
@@ -413,7 +416,7 @@ public class MainFrameActivity extends BaseActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 UIUtils.hideSoftKeyboard(this);
-                //popFragment();
+                // popFragment();
                 break;
             default:
                 break;
@@ -431,10 +434,9 @@ public class MainFrameActivity extends BaseActivity {
         FragmentManager fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.main_frame_container);
 
-        if (fragment instanceof BaseFragment) {
+        if (fragment instanceof BaseFragment)
             if (((BaseFragment) fragment).onBackPressed())
                 return;
-        }
 
         finishWithDefault();
     }
@@ -454,20 +456,19 @@ public class MainFrameActivity extends BaseActivity {
                 float deltaX = ev.getX() - mStartX;
                 float deltaY = Math.abs(ev.getY() - mStartY);
 
-                if (deltaX >= DRAG_SENSITIVITY && deltaY < 0.5 * deltaX) {
-                    if (!mDrawer.isDrawerOpen()) {
+                if (deltaX >= DRAG_SENSITIVITY && deltaY < 0.5 * deltaX)
+                    if (!mDrawer.isDrawerOpen())
                         mDrawer.openDrawer();
-                    }
-                }
+
                 break;
         }
+
         return super.dispatchTouchEvent(ev);
     }
 
     private class DrawerItemClickListener implements Drawer.OnDrawerItemClickListener {
         @Override
         public boolean onItemClick(View view, int position, IDrawerItem iDrawerItem) {
-
             if (iDrawerItem.getIdentifier() == Constants.DRAWER_NO_ACTION)
                 return false;
 
@@ -516,11 +517,9 @@ public class MainFrameActivity extends BaseActivity {
 
             return false;
         }
-
     }
 
     private class ProfileImageListener implements AccountHeader.OnAccountHeaderProfileImageListener {
-
         @Override
         public boolean onProfileImageClick(View view, IProfile profile, boolean current) {
             if (LoginHelper.isLoggedIn()) {
@@ -579,6 +578,7 @@ public class MainFrameActivity extends BaseActivity {
     public void updateDrawerBadge() {
         int smsCount = NotiHelper.getCurrentNotification().getSmsCount();
         int threadCount = NotiHelper.getCurrentNotification().getTotalNotiCount();
+
         int threadNotifyIndex = mDrawer.getPosition(Constants.DRAWER_THREADNOTIFY);
         if (threadNotifyIndex != -1) {
             PrimaryDrawerItem drawerItem = (PrimaryDrawerItem) mDrawer.getDrawerItem(Constants.DRAWER_THREADNOTIFY);
@@ -590,6 +590,7 @@ public class MainFrameActivity extends BaseActivity {
                 mDrawer.updateBadge(Constants.DRAWER_THREADNOTIFY, new StringHolder("0"));
             }
         }
+
         int smsNotifyIndex = mDrawer.getPosition(Constants.DRAWER_SMS);
         if (smsNotifyIndex != -1) {
             PrimaryDrawerItem drawerItem = (PrimaryDrawerItem) mDrawer.getDrawerItem(Constants.DRAWER_SMS);
@@ -639,7 +640,8 @@ public class MainFrameActivity extends BaseActivity {
                 HiSettingsHelper.getInstance().getActiveTheme(),
                 HiSettingsHelper.getInstance().getPrimaryColor());
         setTheme(theme);
-        //avoid “RuntimeException: Performing pause of activity that is not resumed”
+
+        // avoid “RuntimeException: Performing pause of activity that is not resumed”
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -657,7 +659,7 @@ public class MainFrameActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(LoginEvent event) {
         if (event.mManual) {
-            //clearBackStacks(true);
+            // clearBackStacks(true);
             Fragment fg = getSupportFragmentManager().findFragmentByTag(ThreadListFragment.class.getName());
             if (fg instanceof ThreadListFragment) {
                 fg.setHasOptionsMenu(true);
@@ -665,6 +667,7 @@ public class MainFrameActivity extends BaseActivity {
                 ((ThreadListFragment) fg).onRefresh();
             }
         }
+
         updateAccountHeader();
         dismissLoginDialog();
     }
@@ -681,33 +684,29 @@ public class MainFrameActivity extends BaseActivity {
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onEvent(ForumChangedEvent event) {
         EventBus.getDefault().removeStickyEvent(event);
-        if (event.mForumChanged) {
+        if (event.mForumChanged)
             setupDrawer();
-        }
-        if (HiUtils.isForumValid(event.mFid)) {
+
+        if (HiUtils.isForumValid(event.mFid))
             FragmentUtils.showForum(getSupportFragmentManager(), event.mFid);
-        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
-            case PERMISSIONS_REQUEST_CODE_STORAGE: {
+            case PERMISSIONS_REQUEST_CODE_STORAGE:
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     UIUtils.toast("授权成功");
-                }
+
                 break;
-            }
-            case FilePickerDialog.EXTERNAL_READ_PERMISSION_GRANT: {
-                if (grantResults.length == 0
-                        || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+
+            case FilePickerDialog.EXTERNAL_READ_PERMISSION_GRANT:
+                if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)
                     UIUtils.askForStoragePermission(this);
-                }
+
                 break;
-            }
         }
     }
 
@@ -726,5 +725,4 @@ public class MainFrameActivity extends BaseActivity {
             mLoginDialog = null;
         }
     }
-
 }

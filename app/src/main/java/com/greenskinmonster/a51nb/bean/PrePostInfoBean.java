@@ -58,7 +58,6 @@ public class PrePostInfoBean {
     private boolean mPollOvert;
     private List<String> mPollChoices = new ArrayList<>(0);
 
-
     public List<String> getDeleteAttaches() {
         return mDeleteAttaches;
     }

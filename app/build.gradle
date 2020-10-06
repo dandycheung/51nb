@@ -46,6 +46,10 @@ android {
         // but continue the build even when errors are found:
         abortOnError false
     }
+
+    dexOptions {
+        jumboMode true
+    }
 }
 
 dependencies {
@@ -102,7 +106,7 @@ dependencies {
         exclude group: 'com.android.support'
     }
 
-    //compile fileTree(dir: 'libs', include: ['*.jar'])
+    // compile fileTree(dir: 'libs', include: ['*.jar'])
     compile(name: 'calligraphy-release-2.3.0', ext: 'aar')
     compile(name: 'filepicker-release-1.1.1', ext: 'aar')
     compile project(':emoji')
@@ -110,4 +114,6 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
         transitive = true;
     }
+
+    // debugCompile('com.squareup.leakcanary:leakcanary-android:2.4')
 }

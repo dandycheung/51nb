@@ -18,7 +18,6 @@ import com.greenskinmonster.a51nb.utils.Utils;
  * Created by GreenSkinMonster on 2016-11-13.
  */
 public class XRecyclerView extends RecyclerView {
-
     private final static int SCROLL_BACK_HEADER = 0;
     private final static int SCROLL_BACK_FOOTER = 1;
 
@@ -104,11 +103,10 @@ public class XRecyclerView extends RecyclerView {
             @Override
             public void run() {
                 mHeaderView.setState(state);
-                if (state == XHeaderView.STATE_HIDDEN) {
+                if (state == XHeaderView.STATE_HIDDEN)
                     mAdapter.removeHeaderView();
-                } else {
+                else
                     mAdapter.setHeaderView(mHeaderView);
-                }
             }
         });
     }
@@ -118,11 +116,10 @@ public class XRecyclerView extends RecyclerView {
             @Override
             public void run() {
                 mFooterView.setState(state);
-                if (state == XFooterView.STATE_HIDDEN) {
+                if (state == XFooterView.STATE_HIDDEN)
                     mAdapter.removeFooterView();
-                } else {
+                else
                     mAdapter.setFooterView(mFooterView);
-                }
             }
         });
     }
@@ -136,7 +133,9 @@ public class XRecyclerView extends RecyclerView {
 
         if (mHeaderView.getTopMargin() > mPullDelta) {
             stopScroll();
+
             mDispatchEvent = false;
+
             onHeaderReady();
             resetHeaderHeight();
         } else {
@@ -159,7 +158,9 @@ public class XRecyclerView extends RecyclerView {
 
         if (bottomMargin > mPullDelta) {
             stopScroll();
+
             mDispatchEvent = false;
+
             onFooterReady();
             resetFooterHeight();
         } else {
@@ -181,17 +182,17 @@ public class XRecyclerView extends RecyclerView {
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN)
             mDispatchEvent = true;
+
         if (mDispatchEvent)
             return super.dispatchTouchEvent(ev);
-        else
-            return true;
+
+        return true;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if (mLastY == -1) {
+        if (mLastY == -1)
             mLastY = ev.getRawY();
-        }
 
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -227,11 +228,13 @@ public class XRecyclerView extends RecyclerView {
                 }
                 break;
         }
+
         try {
             return super.onTouchEvent(ev);
         } catch (IndexOutOfBoundsException | IllegalArgumentException ingored) {
             // avoid random  error
         }
+
         return true;
     }
 
@@ -246,44 +249,40 @@ public class XRecyclerView extends RecyclerView {
     @Override
     public void computeScroll() {
         if (mScroller.computeScrollOffset()) {
-            if (mScrollBack == SCROLL_BACK_HEADER) {
+            if (mScrollBack == SCROLL_BACK_HEADER)
                 mHeaderView.setTopMargin(mScroller.getCurrY());
-            } else {
+            else
                 mFooterView.setBottomMargin(mScroller.getCurrY());
-            }
+
             postInvalidate();
         }
+
         super.computeScroll();
     }
 
     private void onHeaderReady() {
-        if (null != mListener) {
+        if (null != mListener)
             mListener.onHeaderReady();
-        }
     }
 
     private void onFooterReady() {
-        if (null != mListener) {
+        if (null != mListener)
             mListener.onFooterReady();
-        }
     }
 
     private void atEnd() {
-        if (null != mListener) {
+        if (null != mListener)
             mListener.atEnd();
-        }
     }
 
     private void onHeaderError() {
-        if (null != mListener) {
+        if (null != mListener)
             mListener.onHeaderError();
-        }
     }
 
     private void onFooterError() {
-        if (null != mListener) {
+        if (null != mListener)
             mListener.onFooterError();
-        }
     }
 
     public void stopScroll() {
@@ -313,13 +312,9 @@ public class XRecyclerView extends RecyclerView {
 
     public interface XRecyclerListener {
         void onHeaderReady();
-
         void onFooterReady();
-
         void atEnd();
-
         void onHeaderError();
-
         void onFooterError();
     }
 }

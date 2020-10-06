@@ -39,7 +39,6 @@ import org.greenrobot.eventbus.ThreadMode;
  * Created by GreenSkinMonster on 2015-11-07.
  */
 public class ThreadImageLayout extends RelativeLayout {
-
     private static final int MIN_WIDTH = 120;
 
     private GlideImageView mImageView;
@@ -66,9 +65,9 @@ public class ThreadImageLayout extends RelativeLayout {
         mUrl = url;
 
         ImageInfo imageInfo = ImageContainer.getImageInfo(url);
-        if (!imageInfo.isReady()) {
+        if (!imageInfo.isReady())
             mImageView.setImageDrawable(ContextCompat.getDrawable(mFragment.getActivity(), R.drawable.ic_action_image));
-        }
+
         mImageView.setFragment(mFragment);
         mImageView.setVisibility(View.VISIBLE);
         mImageView.setImageIndex(mImageIndex);
@@ -94,14 +93,16 @@ public class ThreadImageLayout extends RelativeLayout {
     }
 
     private void loadImage() {
-        ImageInfo imageInfo = ImageContainer.getImageInfo(mUrl);
         mProgressBar.setVisibility(View.GONE);
+
+        ImageInfo imageInfo = ImageContainer.getImageInfo(mUrl);
         if (imageInfo.getStatus() == ImageInfo.SUCCESS) {
             mTextView.setVisibility(GONE);
             if (getLayoutParams().height != imageInfo.getDisplayHeight()) {
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, imageInfo.getDisplayHeight());
                 setLayoutParams(params);
             }
+
             if (imageInfo.getWidth() >= MIN_WIDTH || imageInfo.isGif()) {
                 mImageView.setOnLongClickListener(new OnLongClickListener() {
                     @Override
@@ -159,9 +160,10 @@ public class ThreadImageLayout extends RelativeLayout {
                     mTextView.setText(Utils.toSizeText(mParsedFileSize));
             }
         }
-        if (imageInfo.getStatus() == ImageInfo.SUCCESS) {
+
+        if (imageInfo.getStatus() == ImageInfo.SUCCESS)
             loadImage();
-        } else if (imageInfo.getStatus() == ImageInfo.FAIL) {
+        else if (imageInfo.getStatus() == ImageInfo.FAIL) {
             mImageView.setImageResource(R.drawable.image_broken);
             mProgressBar.setVisibility(View.GONE);
         } else if (imageInfo.getStatus() == ImageInfo.IN_PROGRESS) {
@@ -169,11 +171,7 @@ public class ThreadImageLayout extends RelativeLayout {
             mProgressBar.setProgress(imageInfo.getProgress());
         } else {
             boolean autoload = HiSettingsHelper.getInstance().isImageLoadable(mParsedFileSize, isThumb);
-            JobMgr.addJob(new GlideImageJob(
-                    mUrl,
-                    JobMgr.PRIORITY_LOW,
-                    mParentSessionId,
-                    autoload));
+            JobMgr.addJob(new GlideImageJob(mUrl, JobMgr.PRIORITY_LOW, mParentSessionId, autoload));
         }
     }
 
@@ -203,7 +201,6 @@ public class ThreadImageLayout extends RelativeLayout {
         popupMenu.show();
     }
 
-
     @Override
     protected void onDetachedFromWindow() {
         EventBus.getDefault().unregister(this);
@@ -215,13 +212,14 @@ public class ThreadImageLayout extends RelativeLayout {
     public void onEvent(GlideImageEvent event) {
         if (!event.getImageUrl().equals(mUrl))
             return;
+
         final ImageInfo imageInfo = ImageContainer.getImageInfo(mUrl);
         imageInfo.setMessage(event.getMessage());
 
-        if (event.getStatus() == ImageInfo.IN_PROGRESS
-                && imageInfo.getStatus() != ImageInfo.SUCCESS) {
+        if (event.getStatus() == ImageInfo.IN_PROGRESS && imageInfo.getStatus() != ImageInfo.SUCCESS) {
             if (mProgressBar.getVisibility() != View.VISIBLE)
                 mProgressBar.setVisibility(View.VISIBLE);
+
             mProgressBar.setProgress(event.getProgress());
 
             imageInfo.setProgress(event.getProgress());
@@ -229,13 +227,16 @@ public class ThreadImageLayout extends RelativeLayout {
         } else if (event.getStatus() == ImageInfo.SUCCESS) {
             if (mProgressBar.getVisibility() == View.VISIBLE)
                 mProgressBar.setVisibility(View.GONE);
+
             if (mTextView.getVisibility() == View.VISIBLE)
                 mTextView.setVisibility(View.GONE);
+
             if (GlideHelper.isOkToLoad(mFragment))
                 loadImage();
         } else {
             mProgressBar.setVisibility(GONE);
             mImageView.setImageResource(R.drawable.image_broken);
+
             if (!TextUtils.isEmpty(imageInfo.getMessage())) {
                 mTextView.setText("加载错误");
                 mTextView.setClickable(true);
@@ -248,5 +249,4 @@ public class ThreadImageLayout extends RelativeLayout {
             }
         }
     }
-
 }

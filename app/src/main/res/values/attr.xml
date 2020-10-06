@@ -29,7 +29,7 @@
 
     <attr name="SwipeBackLayoutStyle" format="reference"/>
 
-    <declare-styleable name="ValueChagerView">
+    <declare-styleable name="ValueChangerView">
         <attr name="title" format="string"/>
         <attr name="maxValue" format="integer"/>
         <attr name="minValue" format="integer"/>

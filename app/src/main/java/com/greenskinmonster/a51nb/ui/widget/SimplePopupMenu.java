@@ -21,7 +21,6 @@ import java.util.List;
  */
 
 public class SimplePopupMenu {
-
     private Context mContext;
     private LayoutInflater mInflater;
 
@@ -49,9 +48,9 @@ public class SimplePopupMenu {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long row) {
                 String actionKey = (String) view.getTag();
-                if (mListeners.containsKey(actionKey) && mListeners.get(actionKey) != null) {
+                if (mListeners.containsKey(actionKey) && mListeners.get(actionKey) != null)
                     mListeners.get(actionKey).onItemClick(adapterView, view, position, row);
-                }
+
                 dialog.dismiss();
             }
         });
@@ -65,11 +64,11 @@ public class SimplePopupMenu {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View view;
-            if (convertView == null) {
+            if (convertView == null)
                 view = mInflater.inflate(R.layout.item_menu_action, parent, false);
-            } else {
+            else
                 view = convertView;
-            }
+
             String actionKey = mActionKeys.get(position);
             view.setTag(actionKey);
             TextView text = (TextView) view.findViewById(R.id.action_text);
@@ -83,5 +82,4 @@ public class SimplePopupMenu {
         mActions.put(actionKey, actionName);
         mListeners.put(actionKey, listener);
     }
-
 }

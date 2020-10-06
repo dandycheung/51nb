@@ -5,7 +5,6 @@ package com.greenskinmonster.a51nb.cache;
  * Created by GreenSkinMonster on 2015-05-21.
  */
 public class ImageContainer {
-
     private static LRUCache<String, ImageInfo> IMAGES = new LRUCache<>(1024);
 
     public static void markImageReady(String url, ImageInfo imageInfo) {
@@ -13,9 +12,8 @@ public class ImageContainer {
     }
 
     public static void markImageIdle(String url) {
-        if (IMAGES.containsKey(url)) {
+        if (IMAGES.containsKey(url))
             IMAGES.get(url).setStatus(ImageInfo.IDLE);
-        }
     }
 
     public static ImageInfo getImageInfo(String url) {
@@ -24,7 +22,7 @@ public class ImageContainer {
             imageInfo = new ImageInfo(url);
             IMAGES.put(url, imageInfo);
         }
+
         return imageInfo;
     }
-
 }

@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 public class HiParser {
-
     public static SimpleListBean parseSimpleList(int type, Document doc) {
         NotiHelper.fetchNotification(doc);
 
@@ -66,9 +65,8 @@ public class HiParser {
         if (pagesES.size() != 0) {
             for (Node n : pagesES.first().childNodes()) {
                 int tmp = Utils.getIntFromString(((Element) n).text());
-                if (tmp > last_page) {
+                if (tmp > last_page)
                     last_page = tmp;
-                }
             }
         }
 
@@ -212,17 +210,16 @@ public class HiParser {
                 String tid;
                 String pid;
                 Elements linkES = tdES.get(1).select("a");
-                if (linkES.size() > 0) {
-                    title = linkES.first().text();
-                    String href = linkES.first().attr("href");
-
-                    // href 形如：thread-1954489-1-1.html
-                    String[] ids = href.split("-");
-                    tid = ids[1];
-                    pid = ids[2];
-                } else {
+                if (linkES.size() <= 0)
                     continue;
-                }
+
+                title = linkES.first().text();
+                String href = linkES.first().attr("href");
+
+                // href 形如：thread-1954489-1-1.html
+                String[] ids = href.split("-");
+                tid = ids[1];
+                pid = ids[2];
 
                 Element forumLinkEl = tdES.get(2).select("a").first();
                 // int fid = Utils.getMiddleInt(forumLinkEl.attr("href"), "forum-", "-");
@@ -247,19 +244,22 @@ public class HiParser {
                     String href = postLink.attr("href");
                     String tid = Utils.getMiddleString(href, "ptid=", "&");
                     String pid = Utils.getMiddleString(href, "pid=", "&");
+
                     SimpleListItemBean lastItem = list.getAll().get(list.getCount() - 1);
-                    if (lastItem != null && tid.equals(lastItem.getTid())) {
-                        SimplePostItemBean postItem = new SimplePostItemBean();
-                        postItem.setContent(postLink.text());
-                        postItem.setPostId(pid);
-                        lastItem.addPostItem(postItem);
-                        lastItem.setPid(pid);
-                        if (!TextUtils.isEmpty(lastItem.getInfo())) {
-                            lastItem.setInfo(lastItem.getInfo() + "<br>" + getRedirectUrl(tid, pid, postLink.text()));
-                        } else {
-                            lastItem.setInfo(getRedirectUrl(tid, pid, postLink.text()));
-                        }
-                    }
+                    if (lastItem == null || !tid.equals(lastItem.getTid()))
+                        continue;
+
+                    SimplePostItemBean postItem = new SimplePostItemBean();
+                    postItem.setContent(postLink.text());
+                    postItem.setPostId(pid);
+
+                    lastItem.addPostItem(postItem);
+                    lastItem.setPid(pid);
+
+                    if (!TextUtils.isEmpty(lastItem.getInfo()))
+                        lastItem.setInfo(lastItem.getInfo() + "<br>" + getRedirectUrl(tid, pid, postLink.text()));
+                    else
+                        lastItem.setInfo(getRedirectUrl(tid, pid, postLink.text()));
                 }
             }
         }
@@ -287,10 +287,9 @@ public class HiParser {
         Elements pagesES = doc.select("div.pgs div.pg a");
         if (pagesES.size() != 0) {
             for (Node n : pagesES) {
-                int tmp = Utils.getIntFromString(((Element) n).text());
-                if (tmp > last_page) {
-                    last_page = tmp;
-                }
+                int page = Utils.getIntFromString(((Element) n).text());
+                if (page > last_page)
+                    last_page = page;
             }
         }
 
@@ -329,16 +328,18 @@ public class HiParser {
             int lastBr = info.lastIndexOf("<br>");
             if (lastBr > 0) {
                 String text = HtmlCompat.fromHtml(info.substring(0, lastBr)).toString();
+
                 int returnIndex = text.indexOf("\n");
                 if (returnIndex > 0) {
                     String sayTo = text.substring(0, returnIndex).trim();
-                    String title = text.substring(returnIndex + 1).trim();
                     item.setSmsSayTo(sayTo);
-                    item.setTitle(title);
-                } else {
-                    item.setTitle(text);
+
+                    text = text.substring(returnIndex + 1).trim();
                 }
+
+                item.setTitle(text);
             }
+
             list.add(item);
         }
 
@@ -346,14 +347,12 @@ public class HiParser {
     }
 
     public static SimpleListBean parseNotify(Document doc) {
-        if (doc == null) {
+        if (doc == null)
             return null;
-        }
 
         Elements notiES = doc.select("div#ct div.nts dl.cl");
-        if (notiES.size() == 0) {
+        if (notiES.size() == 0)
             return null;
-        }
 
         Element notiTabEl = doc.select("div#ct > div.mn > div > ul > li.a").first();
         String title = notiTabEl.text();
@@ -363,41 +362,39 @@ public class HiParser {
         SimpleListBean list = new SimpleListBean();
         for (Element notiEl : notiES) {
             SimpleListItemBean item = parseNotificationItem(title, notiEl);
-            if (item != null) {
-                list.add(item);
-            }
+            list.add(item);
         }
+
         return list;
     }
 
     private static SimpleListItemBean parseNotificationItem(String title, Element root) {
         SimpleListItemBean item = new SimpleListItemBean();
         item.setTitle(title);
+
         Element imgEl = root.select("dd.avt img").first();
         if (imgEl != null) {
-            if ("systempm".equals(imgEl.attr("alt"))) {
+            if ("systempm".equals(imgEl.attr("alt")))
                 item.setAuthorId(HiUtils.SYSTEM_UID);
-            } else if (imgEl.attr("src").contains("uid=")) {
+            else if (imgEl.attr("src").contains("uid="))
                 item.setAuthorId(Utils.getMiddleString(imgEl.attr("src"), "uid=", "&"));
-            }
         }
 
         Element noticeEl = root.select("dd.ntc_body").first();
         if (noticeEl != null) {
             item.setInfo(noticeEl.html());
             Elements aES = root.select("a[href*=tid]");
-            if (aES.size() > 0) {
+            if (aES.size() > 0)
                 item.setTid(Utils.getMiddleString(aES.first().attr("href"), "tid=", "&"));
-            }
-            if (noticeEl.attr("style").contains("bold")) {
+
+            if (noticeEl.attr("style").contains("bold"))
                 item.setNew(true);
-            }
         }
 
         Element timeSpanEl = root.select("dt > span.xg1").first();
-        if (timeSpanEl != null) {
+        if (timeSpanEl != null)
             item.setCreateTime(timeSpanEl.text());
-        }
+
         return item;
     }
 
@@ -460,9 +457,8 @@ public class HiParser {
     }
 
     private static SimpleListBean parseSearch(Document doc) {
-        if (doc == null) {
+        if (doc == null)
             return null;
-        }
 
         SimpleListBean list = new SimpleListBean();
         int last_page = 1;
@@ -485,13 +481,14 @@ public class HiParser {
         for (Element liEl : liES) {
             SimpleListItemBean item = new SimpleListItemBean();
 
-            Elements linkES = liEl.select("a");
             String title = "";
             String tid = "";
             String author = "";
             String uid = "";
             String fid = "";
             String forum = "";
+
+            Elements linkES = liEl.select("a");
             for (Element linkEl : linkES) {
                 String href = linkEl.attr("href");
                 if (href.contains("viewthread")) {
@@ -522,8 +519,10 @@ public class HiParser {
 
             String time = "";
             String info = "";
+
             int viewCount = -1;
             int replyCount = -1;
+
             Elements pES = liEl.select("p");
             if (pES.size() == 3) {
                 String viewAndReply = pES.get(0).text();
@@ -538,6 +537,7 @@ public class HiParser {
                 if (spanTime != null)
                     time = spanTime.text();
             }
+
             item.setInfo(info);
             item.setViewCount(viewCount);
             item.setReplyCount(replyCount);
@@ -550,62 +550,61 @@ public class HiParser {
     }
 
     private static SimpleListBean parseSearchFullText(Document doc) {
-        if (doc == null) {
+        if (doc == null)
             return null;
-        }
 
         SimpleListBean list = new SimpleListBean();
+
         int last_page = 1;
 
-        //if this is the last page, page number is in <strong>
-        Elements pagesES = doc.select("div.pages_btns div.pages a");
-        pagesES.addAll(doc.select("div.pages_btns div.pages strong"));
         String searchIdUrl;
+        Elements pagesES = doc.select("div.pages_btns div.pages a");
+
+        // if this is the last page, page number is in <strong>
+        pagesES.addAll(doc.select("div.pages_btns div.pages strong"));
         if (pagesES.size() > 0) {
             searchIdUrl = pagesES.first().attr("href");
             list.setSearchId(Utils.getMiddleString(searchIdUrl, "searchid=", "&"));
             for (Node n : pagesES) {
-                int tmp = Utils.getIntFromString(((Element) n).text());
-                if (tmp > last_page) {
-                    last_page = tmp;
-                }
+                int page = Utils.getIntFromString(((Element) n).text());
+                if (page > last_page)
+                    last_page = page;
             }
         }
+
         list.setMaxPage(last_page);
 
         Elements tbodyES = doc.select("table.datatable tr");
         for (int i = 0; i < tbodyES.size(); ++i) {
             Element trowE = tbodyES.get(i);
-            SimpleListItemBean item = new SimpleListItemBean();
-
             Elements subjectES = trowE.select("div.sp_title a");
-            if (subjectES.size() == 0) {
+            if (subjectES.size() == 0)
                 continue;
-            }
+
+            SimpleListItemBean item = new SimpleListItemBean();
             item.setTitle(subjectES.first().text());
-            //gotopost.php?pid=12345
+
+            // gotopost.php?pid=12345
             String postUrl = Utils.nullToText(subjectES.first().attr("href"));
             item.setPid(Utils.getMiddleString(postUrl, "pid=", "&"));
-            if (TextUtils.isEmpty(item.getPid())) {
+            if (TextUtils.isEmpty(item.getPid()))
                 continue;
-            }
 
             Elements contentES = trowE.select("div.sp_content");
-            if (contentES.size() > 0) {
+            if (contentES.size() > 0)
                 item.setInfo(contentES.text());
-            }
 
-//            <div class="sp_theard">
-//            <span class="sp_w200">版块: <a href="forumdisplay.php?fid=2">Discovery</a></span>
-//            <span>作者: <a href="space.php?uid=189027">tsonglin</a></span>
-//            <span>查看: 1988</span>
-//            <span>回复: 56</span>
-//            <span class="sp_w200">最后发表: 2015-4-4 21:58</span>
-//            </div>
+            // <div class="sp_theard">
+            // <span class="sp_w200">版块: <a href="forumdisplay.php?fid=2">Discovery</a></span>
+            // <span>作者: <a href="space.php?uid=189027">tsonglin</a></span>
+            // <span>查看: 1988</span>
+            // <span>回复: 56</span>
+            // <span class="sp_w200">最后发表: 2015-4-4 21:58</span>
+            // </div>
             Elements postInfoES = trowE.select("div.sp_theard span");
-            if (postInfoES.size() != 5) {
+            if (postInfoES.size() != 5)
                 continue;
-            }
+
             Elements authorES = postInfoES.get(1).select("a");
             if (authorES.size() > 0) {
                 item.setAuthor(authorES.first().text());
@@ -613,7 +612,7 @@ public class HiParser {
                 if (!TextUtils.isEmpty(spaceUrl)) {
                     String uid = Utils.getMiddleString(spaceUrl, "uid=", "&");
                     item.setAuthorId(uid);
-//                    item.setAvatarUrl(HiUtils.getAvatarUrlByUid(uid));
+                    // item.setAvatarUrl(HiUtils.getAvatarUrlByUid(uid));
                 }
             }
 
@@ -633,32 +632,32 @@ public class HiParser {
         if (doc == null)
             return null;
 
-        SimpleListBean list = new SimpleListBean();
-
         int last_page = 1;
+
         // the current page number is in <strong>
         Elements pagesES = doc.select("div.pgs div.pg a");
         pagesES.addAll(doc.select("div.pgs div.pg strong"));
         if (pagesES.size() > 0) {
             for (Node n : pagesES) {
-                int tmp = Utils.getIntFromString(((Element) n).text());
-                if (tmp > last_page) {
-                    last_page = tmp;
-                }
+                int page = Utils.getIntFromString(((Element) n).text());
+                if (page > last_page)
+                    last_page = page;
             }
         }
+
+        SimpleListBean list = new SimpleListBean();
         list.setMaxPage(last_page);
 
         Elements liEs = doc.select("ul#favorite_ul li[id^=fav_]");
         for (Element liEl : liEs) {
-            SimpleListItemBean item = new SimpleListItemBean();
-
             String favid = Utils.getMiddleString(liEl.attr("id"), "fav_", "");
             Element linkEl = liEl.select("a[href^=thread-]").first();
             if (linkEl == null)
                 continue;
 
+            SimpleListItemBean item = new SimpleListItemBean();
             item.setTitle(linkEl.text());
+
             String tid = Utils.getMiddleString(linkEl.attr("href"), "thread-", "-");
             item.setTid(tid);
 
@@ -684,63 +683,69 @@ public class HiParser {
 
     public static UserInfoBean parseUserInfo(String rsp) {
         Document doc = Jsoup.parse(rsp);
-        if (doc == null) {
+        if (doc == null)
             return null;
-        }
 
         UserInfoBean info = new UserInfoBean();
 
         Element usernameEl = doc.select("div#uhd h2.mt").first();
-        if (usernameEl != null) {
+        if (usernameEl != null)
             info.setUsername(Utils.nullToText(usernameEl.text()).trim());
-        }
 
         Element onlineEl = doc.select("h2 > img[alt=online]").first();
-        if (onlineEl != null) {
+        if (onlineEl != null)
             info.setOnline(true);
-        }
 
         Element uidEl = doc.select("div#uhd a[href*=space]").first();
-        if (uidEl != null) {
+        if (uidEl != null)
             info.setUid(Utils.getMiddleString(uidEl.attr("href"), "uid=", "&"));
-        }
+
         info.setFormhash(HiParser.parseFormhash(doc));
 
         Map<String, String> infos = new LinkedHashMap<>();
         Elements infoES = doc.select("div.pbm, div#psts");
         for (Element infoDiv : infoES) {
             Element keyEl = infoDiv.select("h2").first();
-            if (keyEl != null) {
-                String title = Utils.nullToText(keyEl.text()).trim();
-                if (TextUtils.isEmpty(title)) continue;
+            if (keyEl == null)
+                continue;
 
-                if (title.equals("新浪微博账号")) {
-                    Element weiboLink = infoDiv.select("a").first();
-                    if (weiboLink != null)
-                        infos.put(title, weiboLink.attr("href"));
+            String title = Utils.nullToText(keyEl.text()).trim();
+            if (TextUtils.isEmpty(title))
+                continue;
+
+            if (title.equals("新浪微博账号")) {
+                Element weiboLink = infoDiv.select("a").first();
+                if (weiboLink != null)
+                    infos.put(title, weiboLink.attr("href"));
+                continue;
+            }
+
+            if (title.equals("勋章")) {
+                Element img = infoDiv.select("img[src*=medal]").first();
+                if (img != null)
+                    infos.put(title, img.attr("alt"));
+                continue;
+            }
+
+            if (title.equals("管理以下版块")) {
+                infos.put(title, infoDiv.select("a").text());
+                continue;
+            }
+
+            infos.put(title, "");
+
+            Elements infoLiES = infoDiv.select("li");
+            for (Element liEl : infoLiES) {
+                Element infoKeyEl = infoLiES.select("em").first();
+                if (infoKeyEl == null)
                     continue;
-                } else if (title.equals("勋章")) {
-                    Element img = infoDiv.select("img[src*=medal]").first();
-                    if (img != null)
-                        infos.put(title, img.attr("alt"));
-                    continue;
-                } else if (title.equals("管理以下版块")) {
-                    infos.put(title, infoDiv.select("a").text());
-                    continue;
-                }
-                infos.put(title, "");
-                Elements infoLiES = infoDiv.select("li");
-                for (Element liEl : infoLiES) {
-                    Element infoKeyEl = infoLiES.select("em").first();
-                    if (infoKeyEl != null) {
-                        String infoKey = infoKeyEl.text().trim();
-                        infoKeyEl.remove();
-                        String infoValue = liEl.html();
-                        if (!TextUtils.isEmpty(infoKey) && !TextUtils.isEmpty(infoValue)) {
-                            infos.put(infoKey, infoValue);
-                        }
-                    }
-                }
+
+                String infoKey = infoKeyEl.text().trim();
+                infoKeyEl.remove();
+
+                String infoValue = liEl.html();
+                if (!TextUtils.isEmpty(infoKey) && !TextUtils.isEmpty(infoValue))
+                    infos.put(infoKey, infoValue);
             }
         }
 
@@ -749,20 +754,22 @@ public class HiParser {
     }
 
     public static String parseFormhash(Document doc) {
-        if (doc == null) {
+        if (doc == null)
             return null;
-        }
+
         Elements inputs = doc.select("input[name=formhash]");
         if (inputs.size() > 0)
             return inputs.get(0).val();
+
         return null;
     }
 
     public static String parseErrorMessage(Document doc) {
-        //div id="messagetext"  (class="alert_error" or class="alert_info")
+        // div id="messagetext"  (class="alert_error" or class="alert_info")
         Element divMessage = doc.select("div#messagetext p").first();
         if (divMessage != null)
             return divMessage.text();
+
         return null;
     }
 
@@ -771,6 +778,7 @@ public class HiParser {
         Elements liES = doc.select("div#friend_ul li[id^=friend_]");
         for (Element liEl : liES) {
             String uid = Utils.getMiddleString(liEl.attr("id"), "friend_", "_");
+
             String username = "";
             Elements usernameLinkES = liEl.select("h4 > a");
             for (Element usernameLink : usernameLinkES) {
@@ -779,6 +787,7 @@ public class HiParser {
                     break;
                 }
             }
+
             if (!TextUtils.isEmpty(username) && HiUtils.isValidId(uid)) {
                 UserBean user = new UserBean();
                 user.setUid(uid);
@@ -789,10 +798,10 @@ public class HiParser {
 
         if (blacklists.size() == 0) {
             Element divCt = doc.select("div#ct").first();
-            if (divCt == null || !divCt.text().contains("没有相关用户列表")) {
+            if (divCt == null || !divCt.text().contains("没有相关用户列表"))
                 throw new Exception("黑名单数据解析错误");
-            }
         }
+
         return blacklists;
     }
 
@@ -817,9 +826,8 @@ public class HiParser {
             return bean;
 
         Element smsLink = unEl.select("a#msg_menu").first();
-        if (smsLink != null && smsLink.hasClass("new")) {
+        if (smsLink != null && smsLink.hasClass("new"))
             bean.setHasSms(true);
-        }
 
         // 3. 回帖、系统提醒
         Element notiMenuEl = unEl.select("a#nte_menu").first();
@@ -836,12 +844,12 @@ public class HiParser {
     }
 
     public static Map<String, String> parseWarrantyInfo(String rsp) throws Exception {
-        Map<String, String> infos = new LinkedHashMap<>();
         Document doc = Jsoup.parse(rsp);
-
         String errormsg = HiParser.parseErrorMessage(doc);
         if (!TextUtils.isEmpty(errormsg))
             throw new Exception(errormsg);
+
+        Map<String, String> infos = new LinkedHashMap<>();
 
         Element tableEl = doc.select("div#wp table").get(1);
         if (tableEl != null) {
@@ -860,6 +868,7 @@ public class HiParser {
                 }
             }
         }
+
         return infos;
     }
 }

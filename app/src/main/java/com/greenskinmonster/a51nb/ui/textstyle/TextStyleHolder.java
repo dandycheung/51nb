@@ -7,7 +7,6 @@ import android.util.SparseArray;
  * Created by GreenSkinMonster on 2015-04-23.
  */
 public class TextStyleHolder {
-
     private SparseArray<TextStyle> textStyles = new SparseArray<>();
 
     public void addLevel(int level) {
@@ -34,5 +33,4 @@ public class TextStyleHolder {
         if (level > 0 && textStyles.get(level) != null)
             textStyles.get(level).setColor(color);
     }
-
 }

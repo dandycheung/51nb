@@ -32,24 +32,27 @@ public class PersistentCookieStore {
     private String persistentDomain;
 
     public PersistentCookieStore(Context context, String domain) {
-        cookiePrefs = context.getSharedPreferences(COOKIE_PREFS, 0);
         cookies = new HashMap<>();
+        cookiePrefs = context.getSharedPreferences(COOKIE_PREFS, 0);
         persistentDomain = domain;
-        //将持久化的cookies缓存到内存中 即map cookies
+
+        // 将持久化的 cookies 缓存到内存中，即 map cookies
         Map<String, ?> prefsMap = cookiePrefs.getAll();
         for (Map.Entry<String, ?> entry : prefsMap.entrySet()) {
             String[] cookieNames = TextUtils.split((String) entry.getValue(), ",");
             for (String name : cookieNames) {
                 String encodedCookie = cookiePrefs.getString(name, null);
-                if (encodedCookie != null) {
-                    Cookie decodedCookie = decodeCookie(encodedCookie);
-                    if (decodedCookie != null) {
-                        if (!cookies.containsKey(entry.getKey())) {
-                            cookies.put(entry.getKey(), new ConcurrentHashMap<String, Cookie>());
-                        }
-                        cookies.get(entry.getKey()).put(name, decodedCookie);
-                    }
-                }
+                if (encodedCookie == null)
+                    continue;
+
+                Cookie decodedCookie = decodeCookie(encodedCookie);
+                if (decodedCookie == null)
+                    continue;
+
+                if (!cookies.containsKey(entry.getKey()))
+                    cookies.put(entry.getKey(), new ConcurrentHashMap<String, Cookie>());
+
+                cookies.get(entry.getKey()).put(name, decodedCookie);
             }
         }
     }
@@ -73,15 +76,17 @@ public class PersistentCookieStore {
                 return;
             }
         }
+
         if (cookie.persistent()) {
             boolean isExpired = cookie.expiresAt() - System.currentTimeMillis() < 0;
-            if (isExpired) {
+            if (isExpired)
                 remove(url, cookie);
-            } else {
-                if (!cookies.containsKey(host)) {
+            else {
+                if (!cookies.containsKey(host))
                     cookies.put(host, new ConcurrentHashMap<String, Cookie>());
-                }
+
                 cookies.get(host).put(name, cookie);
+
                 if (matchDomainPolicy(host)) {
                     SharedPreferences.Editor prefsWriter = cookiePrefs.edit();
                     prefsWriter.putString(host, TextUtils.join(",", cookies.get(host).keySet()));
@@ -90,9 +95,9 @@ public class PersistentCookieStore {
                 }
             }
         } else {
-            if (!cookies.containsKey(host)) {
+            if (!cookies.containsKey(host))
                 cookies.put(host, new ConcurrentHashMap<String, Cookie>());
-            }
+
             cookies.get(host).put(name, cookie);
             removeFromPrefs(url, cookie);
         }
@@ -114,24 +119,28 @@ public class PersistentCookieStore {
     }
 
     public boolean remove(HttpUrl url, Cookie cookie) {
-        String name = getCookieToken(cookie);
-        if (cookies.containsKey(url.host()) && cookies.get(url.host()).containsKey(name)) {
-            cookies.get(url.host()).remove(name);
-            removeFromPrefs(url, cookie);
-            return true;
-        } else {
+        String urlhost = url.host();
+        if (!cookies.containsKey(urlhost))
             return false;
-        }
+
+        String name = getCookieToken(cookie);
+        if (!cookies.get(urlhost).containsKey(name))
+            return false;
+
+        cookies.get(url.host()).remove(name);
+        removeFromPrefs(url, cookie);
+        return true;
     }
 
     private void removeFromPrefs(HttpUrl url, Cookie cookie) {
         String name = getCookieToken(cookie);
         SharedPreferences.Editor prefsWriter = cookiePrefs.edit();
-        if (cookiePrefs.contains(name)) {
-            prefsWriter.remove(name);
-            prefsWriter.putString(url.host(), TextUtils.join(",", cookies.get(url.host()).keySet()));
-            prefsWriter.apply();
-        }
+        if (!cookiePrefs.contains(name))
+            return;
+
+        prefsWriter.remove(name);
+        prefsWriter.putString(url.host(), TextUtils.join(",", cookies.get(url.host()).keySet()));
+        prefsWriter.apply();
     }
 
     public List<Cookie> getCookies() {
@@ -150,6 +159,7 @@ public class PersistentCookieStore {
     private String encodeCookie(SerializableCookie cookie) {
         if (cookie == null)
             return null;
+
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
             ObjectOutputStream outputStream = new ObjectOutputStream(os);
@@ -158,6 +168,7 @@ public class PersistentCookieStore {
             Log.d(LOG_TAG, "IOException in encodeCookie", e);
             return null;
         }
+
         return byteArrayToHexString(os.toByteArray());
     }
 
@@ -192,9 +203,9 @@ public class PersistentCookieStore {
         StringBuilder sb = new StringBuilder(bytes.length * 2);
         for (byte element : bytes) {
             int v = element & 0xff;
-            if (v < 16) {
+            if (v < 16)
                 sb.append('0');
-            }
+
             sb.append(Integer.toHexString(v));
         }
         return sb.toString().toUpperCase(Locale.US);
@@ -209,9 +220,9 @@ public class PersistentCookieStore {
     private byte[] hexStringToByteArray(String hexString) {
         int len = hexString.length();
         byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
+        for (int i = 0; i < len; i += 2)
             data[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4) + Character.digit(hexString.charAt(i + 1), 16));
-        }
+
         return data;
     }
 }

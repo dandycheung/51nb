@@ -7,7 +7,6 @@ import com.mikepenz.iconics.typeface.IIcon;
  * Created by GreenSkinMonster on 2016-07-21.
  */
 public class Forum {
-
     public final static int GROUP = 0;
     public final static int FORUM = 1;
     public final static int SUB_FORUM = 2;
@@ -61,13 +60,14 @@ public class Forum {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         Forum forum = (Forum) o;
-
         return mId == forum.mId;
-
     }
 
     @Override

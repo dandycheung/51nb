@@ -26,7 +26,6 @@ import java.util.List;
  */
 
 public class ThreadActionHelper {
-
     public static void support(String tid, String pid, String formhash, OkHttpHelper.ResultCallback callback) {
         OkHttpHelper.getInstance().asyncGet(
                 HiUtils.SupportUrl
@@ -47,23 +46,26 @@ public class ThreadActionHelper {
 
     public static CommentListBean fetchComments(String tid, String pid, int page) {
         CommentListBean commentList = null;
+
         try {
             String commentResp = OkHttpHelper.getInstance().get(
                     HiUtils.GetCommentsUrl
                             .replace("{tid}", tid)
                             .replace("{pid}", pid)
                             .replace("{page}", String.valueOf(page)));
+
             Document commentDoc = Jsoup.parse(ParserUtil.parseXmlMessage(commentResp));
             Elements divCommentES = commentDoc.select("div.pstl");
             List<CommentBean> comments = new ArrayList<>(divCommentES.size());
             for (Element divComment : divCommentES) {
                 CommentBean commentBean = ThreadDetailParser.parseComment(divComment);
-                if (commentBean != null)
-                    comments.add(commentBean);
+                comments.add(commentBean);
             }
+
             int nextPage = 1;
             if (commentDoc.select("a.nxt").first() != null)
                 nextPage = Utils.getMiddleInt(commentDoc.select("a.nxt").first().attr("href"), "page=", "&");
+
             commentList = new CommentListBean();
             commentList.setComments(comments);
             commentList.setHasNextPage(nextPage > page);
@@ -71,6 +73,7 @@ public class ThreadActionHelper {
         } catch (Exception e) {
             Logger.e(e);
         }
+
         return commentList;
     }
 
@@ -108,9 +111,9 @@ public class ThreadActionHelper {
             }
         }
 
-        if (TextUtils.isEmpty(bean.getScore2Left()) || TextUtils.isEmpty(bean.getScore2Limit())) {
+        if (TextUtils.isEmpty(bean.getScore2Left()) || TextUtils.isEmpty(bean.getScore2Limit()))
             return null;
-        }
+
         return bean;
     }
 
@@ -130,9 +133,8 @@ public class ThreadActionHelper {
 
         ParamsMap params = new ParamsMap();
         params.put("formhash", formhash);
-        for (String answer : answers) {
+        for (String answer : answers)
             params.put("pollanswers[]", answer);
-        }
 
         OkHttpHelper.getInstance().asyncPost(
                 HiUtils.VotePollUrl
@@ -141,5 +143,4 @@ public class ThreadActionHelper {
                 params, callback);
 
     }
-
 }

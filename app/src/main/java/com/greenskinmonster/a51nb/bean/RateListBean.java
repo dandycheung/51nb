@@ -7,7 +7,6 @@ import java.util.List;
  */
 
 public class RateListBean {
-
     private int mRatorCount;
     private String mTotalScore1;
     private String mTotalScore2;

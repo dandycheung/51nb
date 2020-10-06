@@ -13,7 +13,6 @@ import com.greenskinmonster.a51nb.R;
  */
 
 public class SmsActivity extends SwipeBaseActivity {
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,8 +41,6 @@ public class SmsActivity extends SwipeBaseActivity {
         Bundle arguments = getIntent().getExtras();
         SmsFragment fragment = new SmsFragment();
         fragment.setArguments(arguments);
-        fragmentManager.beginTransaction()
-                .replace(R.id.main_frame_container, fragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.main_frame_container, fragment).commit();
     }
-
 }

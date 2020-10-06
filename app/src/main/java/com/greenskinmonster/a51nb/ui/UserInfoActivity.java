@@ -12,7 +12,6 @@ import com.greenskinmonster.a51nb.R;
  */
 
 public class UserInfoActivity extends SwipeBaseActivity {
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,13 +27,13 @@ public class UserInfoActivity extends SwipeBaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        if (fragmentManager.findFragmentById(R.id.main_frame_container) == null) {
-            Bundle arguments = getIntent().getExtras();
-            UserinfoFragment fragment = new UserinfoFragment();
-            fragment.setArguments(arguments);
-            fragmentManager.beginTransaction()
-                    .add(R.id.main_frame_container, fragment).commit();
-        }
-    }
+        if (fragmentManager.findFragmentById(R.id.main_frame_container) != null)
+            return;
 
+        Bundle arguments = getIntent().getExtras();
+        UserinfoFragment fragment = new UserinfoFragment();
+        fragment.setArguments(arguments);
+        fragmentManager.beginTransaction()
+                .add(R.id.main_frame_container, fragment).commit();
+    }
 }

@@ -20,9 +20,9 @@ public class SerializableCookie implements Serializable {
 
     public Cookie getCookies() {
         Cookie bestCookies = cookies;
-        if (clientCookies != null) {
+        if (clientCookies != null)
             bestCookies = clientCookies;
-        }
+
         return bestCookies;
     }
 
@@ -48,6 +48,7 @@ public class SerializableCookie implements Serializable {
         boolean httpOnly = in.readBoolean();
         boolean hostOnly = in.readBoolean();
         boolean persistent = in.readBoolean();
+
         Cookie.Builder builder = new Cookie.Builder();
         builder = builder.name(name);
         builder = builder.value(value);
@@ -56,6 +57,7 @@ public class SerializableCookie implements Serializable {
         builder = builder.path(path);
         builder = secure ? builder.secure() : builder;
         builder = httpOnly ? builder.httpOnly() : builder;
+
         clientCookies = builder.build();
     }
 }

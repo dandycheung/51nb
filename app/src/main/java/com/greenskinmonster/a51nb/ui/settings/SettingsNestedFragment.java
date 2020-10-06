@@ -1,4 +1,4 @@
-package com.greenskinmonster.a51nb.ui.setting;
+package com.greenskinmonster.a51nb.ui.settings;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -28,11 +28,10 @@ import com.greenskinmonster.a51nb.utils.Utils;
 import java.util.Date;
 
 /**
- * nested setting fragment
+ * nested settings fragment
  * Created by GreenSkinMonster on 2015-09-11.
  */
-public class SettingNestedFragment extends BaseSettingFragment {
-
+public class SettingsNestedFragment extends SettingsBaseFragment {
     public static final int SCREEN_TAIL = 1;
     public static final int SCREEN_UI = 2;
     public static final int SCREEN_NOTIFICATION = 3;
@@ -61,12 +60,14 @@ public class SettingNestedFragment extends BaseSettingFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (mBlackListPreference != null) {
-            Date bSyncDate = HiSettingsHelper.getInstance().getBlacklistSyncTime();
-            mBlackListPreference.setSummary(
-                    "黑名单用户 : " + HiSettingsHelper.getInstance().getBlacklists().size() + "，上次同步 : "
-                            + Utils.shortyTime(bSyncDate));
-        }
+
+        if (mBlackListPreference == null)
+            return;
+
+        Date bSyncDate = HiSettingsHelper.getInstance().getBlacklistSyncTime();
+        mBlackListPreference.setSummary(
+                "黑名单用户: " + HiSettingsHelper.getInstance().getBlacklists().size() + "，上次同步: "
+                        + Utils.shortyTime(bSyncDate));
     }
 
     private void checkPreferenceResource() {
@@ -141,9 +142,9 @@ public class SettingNestedFragment extends BaseSettingFragment {
                 notiEnablePreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                     @Override
                     public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        if (newValue instanceof Boolean) {
+                        if (newValue instanceof Boolean)
                             enableNotiItems(preference, (Boolean) newValue);
-                        }
+
                         return true;
                     }
                 });
@@ -159,17 +160,12 @@ public class SettingNestedFragment extends BaseSettingFragment {
                         intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, Settings.System.DEFAULT_NOTIFICATION_URI);
 
                         String existingValue = HiSettingsHelper.getInstance().getStringValue(HiSettingsHelper.PERF_NOTI_SOUND, "");
-                        if (existingValue != null) {
-                            if (existingValue.length() == 0) {
-                                // Select "Silent"
-                                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) null);
-                            } else {
-                                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(existingValue));
-                            }
-                        } else {
-                            // No ringtone has been selected, set to the default
+                        if (existingValue == null) // No ringtone has been selected, set to the default
                             intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Settings.System.DEFAULT_NOTIFICATION_URI);
-                        }
+                        else if (existingValue.length() == 0) // Select "Silent"
+                            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) null);
+                        else
+                            intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(existingValue));
 
                         startActivityForResult(intent, REQUEST_CODE_ALERT_RINGTONE);
                         return true;
@@ -180,12 +176,10 @@ public class SettingNestedFragment extends BaseSettingFragment {
                 final Preference silentBeginPreference = findPreference(HiSettingsHelper.PERF_NOTI_SILENT_BEGIN);
                 final Preference silentEndPreference = findPreference(HiSettingsHelper.PERF_NOTI_SILENT_END);
 
-                silentBeginPreference.setOnPreferenceClickListener(
-                        new TimePickerListener(HiSettingsHelper.getInstance().getSilentBegin()));
+                silentBeginPreference.setOnPreferenceClickListener(new TimePickerListener(HiSettingsHelper.getInstance().getSilentBegin()));
                 silentBeginPreference.setSummary(HiSettingsHelper.getInstance().getSilentBegin());
 
-                silentEndPreference.setOnPreferenceClickListener(
-                        new TimePickerListener(HiSettingsHelper.getInstance().getSilentEnd()));
+                silentEndPreference.setOnPreferenceClickListener(new TimePickerListener(HiSettingsHelper.getInstance().getSilentEnd()));
                 silentEndPreference.setSummary(HiSettingsHelper.getInstance().getSilentEnd());
 
                 enableNotiItems(notiEnablePreference, HiSettingsHelper.getInstance().isNotiTaskEnabled());
@@ -230,11 +224,11 @@ public class SettingNestedFragment extends BaseSettingFragment {
     }
 
     private void enableNotiItems(Preference preference, boolean isNotiTaskEnabled) {
-        if (isNotiTaskEnabled) {
-            preference.setSummary("上次检查 : " + Utils.shortyTime(HiSettingsHelper.getInstance().getNotiJobLastRunTime()));
-        } else {
+        if (isNotiTaskEnabled)
+            preference.setSummary("上次检查: " + Utils.shortyTime(HiSettingsHelper.getInstance().getNotiJobLastRunTime()));
+        else
             preference.setSummary("已停用");
-        }
+
         findPreference(HiSettingsHelper.PERF_NOTI_LED_LIGHT).setEnabled(isNotiTaskEnabled);
         findPreference(HiSettingsHelper.PERF_NOTI_SILENT_MODE).setEnabled(isNotiTaskEnabled);
         findPreference(HiSettingsHelper.PERF_NOTI_SILENT_BEGIN).setEnabled(isNotiTaskEnabled);
@@ -243,17 +237,18 @@ public class SettingNestedFragment extends BaseSettingFragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_ALERT_RINGTONE && data != null) {
-            Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-            if (uri == null) {
-                HiSettingsHelper.getInstance().setStringValue(HiSettingsHelper.PERF_NOTI_SOUND, "");
-                ringtonePreference.setSummary("无");
-            } else {
-                HiSettingsHelper.getInstance().setStringValue(HiSettingsHelper.PERF_NOTI_SOUND, uri.toString());
-                ringtonePreference.setSummary(Utils.getRingtoneTitle(getActivity(), uri));
-            }
-        } else {
+        if (requestCode != REQUEST_CODE_ALERT_RINGTONE || data == null) {
             super.onActivityResult(requestCode, resultCode, data);
+            return;
+        }
+
+        Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+        if (uri == null) {
+            HiSettingsHelper.getInstance().setStringValue(HiSettingsHelper.PERF_NOTI_SOUND, "");
+            ringtonePreference.setSummary("无");
+        } else {
+            HiSettingsHelper.getInstance().setStringValue(HiSettingsHelper.PERF_NOTI_SOUND, uri.toString());
+            ringtonePreference.setSummary(Utils.getRingtoneTitle(getActivity(), uri));
         }
     }
 
@@ -268,7 +263,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
                                 new AsyncTask<Void, Void, Exception>() {
                                     @Override
                                     protected Exception doInBackground(Void... voids) {
-                                        SettingMainFragment.mCacheCleared = true;
+                                        SettingsMainFragment.mCacheCleared = true;
                                         try {
                                             OkHttpHelper.getInstance().clearCookies();
                                             Utils.clearOkhttpCache();
@@ -291,7 +286,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
                                             if (e == null)
                                                 mProgressDialog.dismiss("网络缓存已经清除");
                                             else
-                                                mProgressDialog.dismissError("发生错误 : " + e.getMessage());
+                                                mProgressDialog.dismissError("发生错误: " + e.getMessage());
                                         }
                                     }
                                 }.execute();
@@ -317,7 +312,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
                                 new AsyncTask<Void, Void, Exception>() {
                                     @Override
                                     protected Exception doInBackground(Void... voids) {
-                                        SettingMainFragment.mCacheCleared = true;
+                                        SettingsMainFragment.mCacheCleared = true;
                                         try {
                                             GlideHelper.clearAvatarFiles();
                                             Utils.clearExternalCache();
@@ -340,7 +335,7 @@ public class SettingNestedFragment extends BaseSettingFragment {
                                             if (e == null)
                                                 mProgressDialog.dismiss("图片和头像缓存已经清除");
                                             else
-                                                mProgressDialog.dismissError("发生错误 : " + e.getMessage());
+                                                mProgressDialog.dismissError("发生错误: " + e.getMessage());
                                         }
                                     }
                                 }.execute();
@@ -354,5 +349,4 @@ public class SettingNestedFragment extends BaseSettingFragment {
                         }).create();
         dialog.show();
     }
-
 }

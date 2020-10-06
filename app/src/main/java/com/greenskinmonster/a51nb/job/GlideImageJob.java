@@ -35,7 +35,6 @@ import java.util.concurrent.TimeUnit;
  * Created by GreenSkinMonster on 2015-08-27.
  */
 public class GlideImageJob extends BaseJob {
-
     private final static int MAX_TIME_SECS = 180;
 
     private String mUrl;
@@ -43,10 +42,7 @@ public class GlideImageJob extends BaseJob {
     private boolean mNetworkFetch;
 
     public GlideImageJob(String url, int priority, String tag, boolean networkFetch) {
-        super(new Params(priority)
-                .setPersistent(false)
-                .setRequiresNetwork(false)
-                .addTags(tag));
+        super(new Params(priority).setPersistent(false).setRequiresNetwork(false).addTags(tag));
         mRequestManager = Glide.with(HiApplication.getAppContext());
         mUrl = url;
         mNetworkFetch = networkFetch;
@@ -85,7 +81,7 @@ public class GlideImageJob extends BaseJob {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
 
-            //Returns null, sizes are in the options variable
+            // Returns null, sizes are in the options variable
             BitmapFactory.decodeFile(cacheFile.getPath(), options);
             int width = options.outWidth;
             int height = options.outHeight;
@@ -128,12 +124,11 @@ public class GlideImageJob extends BaseJob {
                 imageInfo.setStatus(ImageInfo.FAIL);
                 String message = "";
                 if (HiSettingsHelper.getInstance().isErrorReportMode()) {
-                    message = "url : " + mUrl + "\n\nmessage : ";
-                    if (e instanceof ExecutionException && e.getCause() != null) {
+                    message = "url: " + mUrl + "\n\nmessage: ";
+                    if (e instanceof ExecutionException && e.getCause() != null)
                         message += e.getCause().getMessage();
-                    } else {
+                    else
                         message += e.getMessage();
-                    }
                 }
                 EventBus.getDefault().post(new GlideImageEvent(mUrl, -1, ImageInfo.FAIL, message));
             }
@@ -162,7 +157,6 @@ public class GlideImageJob extends BaseJob {
 
                 @Override
                 public void cleanup() {
-
                 }
 
                 @Override
@@ -172,10 +166,8 @@ public class GlideImageJob extends BaseJob {
 
                 @Override
                 public void cancel() {
-
                 }
             };
         }
     };
-
 }

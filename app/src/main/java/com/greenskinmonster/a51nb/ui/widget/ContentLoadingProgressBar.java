@@ -56,30 +56,31 @@ public class ContentLoadingProgressBar extends ProgressBar {
         super(context, attrs, defStyleAttr);
         mIsShown = getVisibility() == View.VISIBLE;
 
-        //set indeterminate circle color
-        getIndeterminateDrawable().setColorFilter(
-                Color.LTGRAY,
-                android.graphics.PorterDuff.Mode.SRC_IN);
+        // set indeterminate circle color
+        getIndeterminateDrawable().setColorFilter(Color.LTGRAY, android.graphics.PorterDuff.Mode.SRC_IN);
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+
         mIsAttachedToWindow = true;
-        if (mIsShown && (getVisibility() != View.VISIBLE)) {
+        if (mIsShown && (getVisibility() != View.VISIBLE))
             postDelayed(mDelayedShow, MIN_DELAY);
-        }
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+
         mIsAttachedToWindow = false;
+
         removeCallbacks(mDelayedHide);
         removeCallbacks(mDelayedShow);
-        if (!mIsShown && mStartTime != -1L) {
+
+        if (!mIsShown && mStartTime != -1L)
             setVisibility(View.GONE);
-        }
+
         mStartTime = -1L;
     }
 
@@ -89,24 +90,25 @@ public class ContentLoadingProgressBar extends ProgressBar {
      * progress view was not yet visible, cancels showing the progress view.
      */
     public void hide() {
-        if (mIsShown) {
-            mIsShown = false;
-            if (mIsAttachedToWindow) {
-                removeCallbacks(mDelayedShow);
-            }
-            long diff = SystemClock.uptimeMillis() - mStartTime;
-            if (mStartTime == -1L || diff >= MIN_SHOW_TIME) {
-                // The progress spinner has been shown long enough
-                // OR was not shown yet. If it wasn't shown yet,
-                // it will just never be shown.
-                setVisibility(View.GONE);
-                mStartTime = -1L;
-            } else {
-                // The progress spinner is shown, but not long enough,
-                // so put a delayed message in to hide it when its been
-                // shown long enough.
-                postDelayed(mDelayedHide, MIN_SHOW_TIME - diff);
-            }
+        if (!mIsShown)
+            return;
+
+        mIsShown = false;
+        if (mIsAttachedToWindow)
+            removeCallbacks(mDelayedShow);
+
+        long diff = SystemClock.uptimeMillis() - mStartTime;
+        if (mStartTime == -1L || diff >= MIN_SHOW_TIME) {
+            // The progress spinner has been shown long enough
+            // OR was not shown yet. If it wasn't shown yet,
+            // it will just never be shown.
+            setVisibility(View.GONE);
+            mStartTime = -1L;
+        } else {
+            // The progress spinner is shown, but not long enough,
+            // so put a delayed message in to hide it when its been
+            // shown long enough.
+            postDelayed(mDelayedHide, MIN_SHOW_TIME - diff);
         }
     }
 
@@ -115,14 +117,14 @@ public class ContentLoadingProgressBar extends ProgressBar {
      * during that time, hide() is called, the view is never made visible.
      */
     public void show() {
-        if (!mIsShown) {
-            mIsShown = true;
-            if (mIsAttachedToWindow) {
-                removeCallbacks(mDelayedHide);
-                if (mStartTime == -1L) {
-                    postDelayed(mDelayedShow, MIN_DELAY);
-                }
-            }
+        if (mIsShown)
+            return;
+
+        mIsShown = true;
+        if (mIsAttachedToWindow) {
+            removeCallbacks(mDelayedHide);
+            if (mStartTime == -1L)
+                postDelayed(mDelayedShow, MIN_DELAY);
         }
     }
 
@@ -130,14 +132,14 @@ public class ContentLoadingProgressBar extends ProgressBar {
      * hack, show progress without delay
      */
     public void showNow() {
-        if (!mIsShown) {
-            mIsShown = true;
-            if (mIsAttachedToWindow) {
-                removeCallbacks(mDelayedHide);
-                if (mStartTime == -1L) {
-                    postDelayed(mDelayedShow, 0);
-                }
-            }
+        if (mIsShown)
+            return;
+
+        mIsShown = true;
+        if (mIsAttachedToWindow) {
+            removeCallbacks(mDelayedHide);
+            if (mStartTime == -1L)
+                postDelayed(mDelayedShow, 0);
         }
     }
 }

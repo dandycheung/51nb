@@ -21,12 +21,12 @@ import java.util.Map;
  */
 
 public class ForumParser {
-
     private static Map<Integer, String> ForumNewPostCount = new HashMap<>();
 
     public static List<Forum> fetchAllForums() {
-        List<Forum> allForums = new ArrayList<>();
         ForumNewPostCount.clear();
+
+        List<Forum> allForums = new ArrayList<>();
         try {
             String resp = OkHttpHelper.getInstance().get(HiUtils.ForumListUrl);
             Document doc = Jsoup.parse(resp);
@@ -39,8 +39,8 @@ public class ForumParser {
                 int gid = Utils.getMiddleInt(groupLink.attr("href"), "gid=", "");
                 if (gid <= 0)
                     continue;
-                String gname = groupLink.text();
 
+                String gname = groupLink.text();
                 allForums.add(new Forum(gid, Forum.GROUP, gname));
 
                 Elements forumES = forumGroup.select("div[id=category_" + gid + "] tr");
@@ -55,35 +55,37 @@ public class ForumParser {
         } catch (Exception e) {
             Logger.e(e);
         }
+
         return allForums;
     }
 
     private static List<Forum> parseForum(Element forumTrEl) {
-        if (forumTrEl.children().size() == 7) {
+        if (forumTrEl.children().size() == 7)
             return parseForumNormal(forumTrEl);
-        } else {
+        else
             return parseForumCompat(forumTrEl);
-        }
     }
 
     private static List<Forum> parseForumNormal(Element forumEl) {
-        //7个TD，第2个是论坛链接
+        // 7 个 TD，第 2 个是论坛链接
         List<Forum> forums = new ArrayList<>();
         Element forumLink = forumEl.child(1).select("h2 a[href*=forum]").first();
         if (forumLink != null) {
             Forum forum = parseForumLink(forumLink, Forum.FORUM);
             forums.add(forum);
+
             if (forum.getId() > 0) {
                 Element newPostEl = forumLink.nextElementSibling();
-                if (newPostEl != null && newPostEl.tagName().equals("em")) {
+                if (newPostEl != null && newPostEl.tagName().equals("em"))
                     ForumNewPostCount.put(forum.getId(), newPostEl.text());
-                }
             }
+
             forumLink.remove();
-            for (Element subForumLink : forumEl.select("p a[href*=forum]")) {
+
+            for (Element subForumLink : forumEl.select("p a[href*=forum]"))
                 forums.add(parseForumLink(subForumLink, Forum.SUB_FORUM));
-            }
         }
+
         return forums;
     }
 
@@ -91,21 +93,24 @@ public class ForumParser {
         List<Forum> forums = new ArrayList<>();
         for (Element tdEl : forumEl.children()) {
             Element forumLink = tdEl.select("td h2 a[href*=forum-]").first();
+
             if (forumLink != null) {
                 Forum forum = parseForumLink(forumLink, Forum.FORUM);
                 forums.add(forum);
+
                 if (forum.getId() > 0) {
                     Element newPostEl = forumLink.nextElementSibling();
-                    if (newPostEl != null && newPostEl.tagName().equals("em")) {
+                    if (newPostEl != null && newPostEl.tagName().equals("em"))
                         ForumNewPostCount.put(forum.getId(), newPostEl.text());
-                    }
                 }
+
                 forumLink.remove();
-                for (Element subForumLink : forumEl.select("p a[href*=forum]")) {
+
+                for (Element subForumLink : forumEl.select("p a[href*=forum]"))
                     forums.add(parseForumLink(subForumLink, Forum.SUB_FORUM));
-                }
             }
         }
+
         return forums;
     }
 
@@ -118,5 +123,4 @@ public class ForumParser {
     public static String getForumNewPostCount(int fid) {
         return Utils.nullToText(ForumNewPostCount.get(fid));
     }
-
 }

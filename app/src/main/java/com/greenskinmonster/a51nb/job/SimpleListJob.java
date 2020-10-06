@@ -32,7 +32,6 @@ import java.util.List;
  */
 
 public class SimpleListJob extends BaseJob {
-
     public static final int TYPE_MYPOST = 1;
     public static final int TYPE_SEARCH = 2;
     public static final int TYPE_SMS = 3;
@@ -100,13 +99,12 @@ public class SimpleListJob extends BaseJob {
 
     @Override
     public void onRun() throws Throwable {
-        if (mType == TYPE_HISTORIES) {
+        if (mType == TYPE_HISTORIES)
             processHistories();
-        } else if (mType == TYPE_THREAD_NOTIFY) {
+        else if (mType == TYPE_THREAD_NOTIFY)
             processNotifyList();
-        } else {
+        else
             processSimpleList();
-        }
 
         EventBus.getDefault().postSticky(mEvent);
     }
@@ -135,18 +133,17 @@ public class SimpleListJob extends BaseJob {
                 if (!LoginHelper.checkLoggedin(doc)) {
                     if (HiSettingsHelper.getInstance().isLoginInfoValid()) {
                         int status = new LoginHelper().login();
-                        if (status == Constants.STATUS_SUCCESS) {
+                        if (status == Constants.STATUS_SUCCESS)
                             continue;
-                        }
                     }
                 }
 
                 data = HiParser.parseSimpleList(mType, doc);
                 formhash = HiParser.parseFormhash(doc);
                 String message = HiParser.parseErrorMessage(doc);
-                if (!TextUtils.isEmpty(message)) {
+                if (!TextUtils.isEmpty(message))
                     eventMessage = message;
-                }
+
                 break;
             } catch (Exception e) {
                 Logger.e(e);
@@ -190,37 +187,38 @@ public class SimpleListJob extends BaseJob {
                     formhash = HiParser.parseFormhash(doc);
 
                     data = new SimpleListBean();
+
                     if (threads != null) {
                         for (SimpleListItemBean bean : threads.getAll()) {
-                            if (bean.isNew()) {
+                            if (bean.isNew())
                                 data.getAll().add(bean);
-                            }
                         }
                     }
+
                     if (ats != null) {
                         for (SimpleListItemBean bean : ats.getAll()) {
-                            if (bean.isNew()) {
+                            if (bean.isNew())
                                 data.getAll().add(bean);
-                            }
                         }
                     }
+
                     if (systems != null) {
                         for (SimpleListItemBean bean : systems.getAll()) {
-                            if (bean.isNew()) {
+                            if (bean.isNew())
                                 data.getAll().add(bean);
-                            }
                         }
                     }
+
                     data.setMaxPage(1);
                 } else {
                     String url;
-                    if (NOTIFY_SYSTEM.equals(extra)) {
+                    if (NOTIFY_SYSTEM.equals(extra))
                         url = HiUtils.SystemNotifyUrl;
-                    } else if (!TextUtils.isEmpty(extra)) {
+                    else if (!TextUtils.isEmpty(extra))
                         url = HiUtils.ThreadNotifyByTypeUrl.replace("{type}", extra);
-                    } else {
+                    else
                         url = HiUtils.ThreadNotifyUrl;
-                    }
+
                     String resp = OkHttpHelper.getInstance().get(url, mSessionId);
                     Document doc = Jsoup.parse(resp);
                     data = HiParser.parseSimpleList(mType, doc);
@@ -247,22 +245,26 @@ public class SimpleListJob extends BaseJob {
 
     @NonNull
     private SimpleListBean fetchHistories() {
-        SimpleListBean data;
-        data = new SimpleListBean();
+        SimpleListBean data = new SimpleListBean();
+
         List<History> histories = HistoryDao.getHistories();
         for (History history : histories) {
-            SimpleListItemBean bean = new SimpleListItemBean();
             String forumName = "";
             if (!TextUtils.isEmpty(history.getFid()) && TextUtils.isDigitsOnly(history.getFid()))
                 forumName = HiUtils.getForumNameByFid(Integer.parseInt(history.getFid()));
+
+            SimpleListItemBean bean = new SimpleListItemBean();
+
             bean.setTid(history.getTid());
             bean.setAuthorId(history.getUid());
             bean.setTitle(history.getTitle());
             bean.setAuthor(history.getUsername());
             bean.setCreateTime(history.getPostTime());
             bean.setForum(forumName);
+
             data.add(bean);
         }
+
         return data;
     }
 
@@ -283,15 +285,15 @@ public class SimpleListJob extends BaseJob {
                     url += "&page=" + mPage;
                 break;
             case TYPE_THREAD_NOTIFY:
-                if (NOTIFY_AT.equals(extra)) {
+                if (NOTIFY_AT.equals(extra))
                     url = HiUtils.ThreadNotifyByTypeUrl.replace("{type}", extra);
-                } else if (NOTIFY_THREAD.equals(extra)) {
+                else if (NOTIFY_THREAD.equals(extra))
                     url = HiUtils.ThreadNotifyByTypeUrl.replace("{type}", extra);
-                } else if (NOTIFY_SYSTEM.equals(extra)) {
+                else if (NOTIFY_SYSTEM.equals(extra))
                     url = HiUtils.SystemNotifyUrl;
-                } else {
+                else
                     url = HiUtils.ThreadNotifyUrl;
-                }
+
                 break;
             case TYPE_SMS_DETAIL:
                 url = HiUtils.SMSDetailUrl + getString("extra");
@@ -326,11 +328,11 @@ public class SimpleListJob extends BaseJob {
                 }
                 break;
             case TYPE_SEARCH_USER_THREADS:
-                if (TextUtils.isEmpty(mSearchBean.getSearchId())) {
+                if (TextUtils.isEmpty(mSearchBean.getSearchId()))
                     url = HiUtils.SearchUserThreads.replace("{srchuid}", mSearchBean.getUid());
-                } else {
+                else
                     url = HiUtils.SearchByIdUrl.replace("{searchid}", mSearchBean.getSearchId());
-                }
+
                 if (mPage > 1)
                     url += "&page=" + mPage;
                 break;
@@ -342,6 +344,7 @@ public class SimpleListJob extends BaseJob {
             default:
                 break;
         }
+
         return OkHttpHelper.getInstance().get(url, mSessionId);
     }
 
@@ -350,17 +353,16 @@ public class SimpleListJob extends BaseJob {
     }
 
     private String getString(String key, String def) {
-        if (mBundle != null && mBundle.containsKey(key)) {
+        if (mBundle != null && mBundle.containsKey(key))
             return Utils.nullToText(mBundle.getString(key));
-        }
+
         return def;
     }
 
     private int getInt(String key) {
-        if (mBundle != null && mBundle.containsKey(key)) {
+        if (mBundle != null && mBundle.containsKey(key))
             return mBundle.getInt(key);
-        }
+
         return -1;
     }
-
 }

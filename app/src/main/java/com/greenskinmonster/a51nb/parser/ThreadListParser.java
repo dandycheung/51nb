@@ -48,11 +48,10 @@ public class ThreadListParser {
         for (int i = 0; i < tbodyES.size(); ++i) {
             Element tbodyE = tbodyES.get(i);
             ThreadBean thread;
-            if (fid != HiUtils.FID_TRADE) {
+            if (fid != HiUtils.FID_TRADE)
                 thread = new ThreadBean();
-            } else {
+            else
                 thread = new TradeThreadBean();
-            }
 
             Elements tdthES = tbodyE.select("td,th");
             if (i == 0) {
@@ -87,7 +86,6 @@ public class ThreadListParser {
                         locationIndex = 5;
                         replyCountIndex = 6;
                         threadTimeIndex = 8;
-
                     } else if (tdthES.size() == 11) {
                         tdSize = 11;
                         typeIndex = 0;
@@ -104,9 +102,8 @@ public class ThreadListParser {
                 }
             }
 
-            if (tdthES.size() != tdSize) {
+            if (tdthES.size() != tdSize)
                 continue;
-            }
 
             if (tbodyE.attr("id").startsWith("stickthread")) {
                 thread.setStick(true);
@@ -117,17 +114,18 @@ public class ThreadListParser {
             Element titleTh = tdthES.get(subjectIndex);
             if (titleTh == null)
                 continue;
+
             Elements linksES = titleTh.select("a[href*=thread]");
             Element titleLink = linksES.first();
-            if (titleLink == null) {
+            if (titleLink == null)
                 continue;
-            }
+
             String title = titleLink.text();
             thread.setTitle(EmojiParser.parseToUnicode(title));
             String tid = ParserUtil.parseTid(titleLink.attr("href"));
-            if (!HiUtils.isValidId(tid)) {
+            if (!HiUtils.isValidId(tid))
                 continue;
-            }
+
             thread.setTid(tid);
 
             thread.setReadPerm(Utils.getMiddleString(titleTh.text(), "[阅读权限 ", "]").trim());
@@ -140,9 +138,8 @@ public class ThreadListParser {
             }
 
             String linkStyle = titleLink.attr("style");
-            if (!TextUtils.isEmpty(linkStyle)) {
+            if (!TextUtils.isEmpty(linkStyle))
                 thread.setTitleColor(Utils.getMiddleString(linkStyle, "color:", ";").trim());
-            }
 
             // attachment and picture
             Elements imageAttachs = titleTh.select("img[alt=attach_img]");
@@ -160,17 +157,16 @@ public class ThreadListParser {
             if (openLinkEl != null) {
                 String atitle = openLinkEl.attr("title");
                 if (!TextUtils.isEmpty(atitle)) {
-                    if (atitle.contains("投票")) {
+                    if (atitle.contains("投票"))
                         thread.setSpecial(PostHelper.SPECIAL_POLL);
-                    } else if (atitle.contains("商品")) {
+                    else if (atitle.contains("商品"))
                         thread.setSpecial(PostHelper.SPECIAL_TRADE);
-                    }
-                    if (atitle.contains("新回复")) {
+
+                    if (atitle.contains("新回复"))
                         thread.setNew(true);
-                    }
-                    if (atitle.contains("关闭的主题")) {
+
+                    if (atitle.contains("关闭的主题"))
                         thread.setLocked(true);
-                    }
                 }
             }
 
@@ -181,17 +177,17 @@ public class ThreadListParser {
 
             String userLink = authorLinkEl.attr("href");
             String authorId = Utils.getMiddleString(userLink, "space-uid-", ".");
-            if (!HiUtils.isValidId(authorId)) {
+            if (!HiUtils.isValidId(authorId))
                 continue;
-            }
+
             if (HiSettingsHelper.getInstance().isInBlacklist(authorId))
                 continue;
+
             thread.setAuthorId(authorId);
 
             linkStyle = authorLinkEl.attr("style");
-            if (!TextUtils.isEmpty(linkStyle)) {
+            if (!TextUtils.isEmpty(linkStyle))
                 thread.setAuthorColor(Utils.getMiddleString(linkStyle, "color:", ";").trim());
-            }
 
             // 发帖时间
             String threadCreateTime = tdthES.get(threadTimeIndex).text();
@@ -217,20 +213,21 @@ public class ThreadListParser {
         threads.setTypes(parseForumTypes(doc));
 
         Element divCt = doc.select("div#ct > div.mn").first();
-        if (divCt == null) return null;
+        if (divCt == null)
+            return null;
 
-        Elements pagesES = divCt.select("div#pgt div.pg");
         int last_page = 1;
         int page = 1;
+
+        Elements pagesES = divCt.select("div#pgt div.pg");
         if (pagesES.size() > 0) {
             for (Node n : pagesES.first().childNodes()) {
                 int tmp = Utils.getIntFromString(((Element) n).text());
-                if (tmp > last_page) {
+                if (tmp > last_page)
                     last_page = tmp;
-                }
-                if ("strong".equals(n.nodeName())) {
+
+                if ("strong".equals(n.nodeName()))
                     page = tmp;
-                }
             }
         }
 
@@ -243,11 +240,14 @@ public class ThreadListParser {
                 if (trHeader != null && trHeader.children().size() == 6) {
                     Elements trES = el.select("tr");
                     for (Element trEl : trES) {
-                        if (trEl.hasClass("header")) continue;
+                        if (trEl.hasClass("header"))
+                            continue;
+
                         parseStickTradeItem(threads, trEl);
                     }
                 }
             }
+
             if ("div".equals(el.tagName()) && "threadlist".equals(el.attr("id"))) {
                 Elements traderTrES = divCt.select("#moderate > table > tbody > tr > td:nth-child(1) > table tr");
                 for (Element trEl : traderTrES) {
@@ -266,12 +266,11 @@ public class ThreadListParser {
         }
 
         for (int i = 0; i < Math.max(tradeItems.size(), memberItems.size()); i++) {
-            if (i < tradeItems.size()) {
+            if (i < tradeItems.size())
                 threads.add(tradeItems.get(i));
-            }
-            if (i < memberItems.size()) {
+
+            if (i < memberItems.size())
                 threads.add(memberItems.get(i));
-            }
         }
 
         return threads;
@@ -279,82 +278,97 @@ public class ThreadListParser {
 
     private static TradeThreadBean parseTradeItem(Element trEl, boolean isTrader) {
         Elements tds = trEl.children();
-        if (tds.size() == 3) {
-            Element linkEl = tds.get(0).select("a").first();
-            if (linkEl == null)
-                return null;
-            String title = linkEl.text();
-            String tid = ParserUtil.parseTid(linkEl.attr("href"));
-            String price = tds.get(1).text();
-            Element authorEl = tds.get(2).select("a").first();
-            String author = "", authorId = "";
-            if (authorEl != null) {
-                author = authorEl.text();
-                authorId = Utils.getMiddleString(authorEl.attr("href"), "space-uid-", ".");
-            }
-            TradeThreadBean bean = new TradeThreadBean();
-//            bean.setStick(title.contains("【公告】"));
-//            if (bean.isStick() && !HiSettingsHelper.getInstance().isShowStickThreads()) {
-//                return null;
-//            }
-            bean.setTraderType(isTrader ? TradeThreadBean.TRADER : TradeThreadBean.MEMBER);
-            bean.setTitle(title);
-            bean.setTid(tid);
-            bean.setPrice(price);
-            bean.setTid(tid);
-            bean.setAuthor(author);
-            bean.setAuthorId(authorId);
+        if (tds.size() != 3)
+            return null;
 
-            String tdTitle = tds.get(0).attr("title");
-            bean.setCreateTime(Utils.getMiddleString(tdTitle, "发布时间：", "\n").trim());
-            bean.setLocation(Utils.getMiddleString(tdTitle, "交易地点：", "\n").trim());
-            bean.setReplyTime(Utils.getMiddleString(tdTitle, "最后回复：", "by").trim());
-            bean.setReplyCount(Utils.getMiddleInt(tdTitle, "回复帖子：", "\n"));
-            int lastLineIndex = tdTitle.lastIndexOf("\n");
-            if (lastLineIndex > 0)
-                bean.setReplier(Utils.getMiddleString(tdTitle.substring(lastLineIndex), "by", "").trim());
-            return bean;
+        Element linkEl = tds.get(0).select("a").first();
+        if (linkEl == null)
+            return null;
+
+        String title = linkEl.text();
+        String tid = ParserUtil.parseTid(linkEl.attr("href"));
+        String price = tds.get(1).text();
+
+        Element authorEl = tds.get(2).select("a").first();
+        String author = "", authorId = "";
+        if (authorEl != null) {
+            author = authorEl.text();
+            authorId = Utils.getMiddleString(authorEl.attr("href"), "space-uid-", ".");
         }
-        return null;
+
+        TradeThreadBean bean = new TradeThreadBean();
+        // bean.setStick(title.contains("【公告】"));
+        // if (bean.isStick() && !HiSettingsHelper.getInstance().isShowStickThreads()) {
+        //     return null;
+        // }
+        bean.setTraderType(isTrader ? TradeThreadBean.TRADER : TradeThreadBean.MEMBER);
+        bean.setTitle(title);
+        bean.setTid(tid);
+        bean.setPrice(price);
+        bean.setTid(tid);
+        bean.setAuthor(author);
+        bean.setAuthorId(authorId);
+
+        String tdTitle = tds.get(0).attr("title");
+        bean.setCreateTime(Utils.getMiddleString(tdTitle, "发布时间：", "\n").trim());
+        bean.setLocation(Utils.getMiddleString(tdTitle, "交易地点：", "\n").trim());
+        bean.setReplyTime(Utils.getMiddleString(tdTitle, "最后回复：", "by").trim());
+        bean.setReplyCount(Utils.getMiddleInt(tdTitle, "回复帖子：", "\n"));
+
+        int lastLineIndex = tdTitle.lastIndexOf("\n");
+        if (lastLineIndex > 0)
+            bean.setReplier(Utils.getMiddleString(tdTitle.substring(lastLineIndex), "by", "").trim());
+
+        return bean;
     }
 
     private static void parseStickTradeItem(ThreadListBean threads, Element trEl) {
-        //推介商品	价格	商家	推介商品	价格	商家
+        // 推介商品	价格	商家	推介商品	价格	商家
         Elements tdES = trEl.select("td");
         Logger.e(tdES.size() + "");
-        if (tdES.size() == 6 || tdES.size() == 3) {
-            for (int i = 0; i < tdES.size() / 3; i++) {
-                TradeThreadBean bean = new TradeThreadBean();
-                bean.setStick(true);
-                bean.setTraderType(TradeThreadBean.TRADER);
-                Element linkEl = tdES.get(i * 3 + 0).select("a").first();
-                if (linkEl == null) continue;
-                String title = linkEl.text();
-                String tid = ParserUtil.parseTid(linkEl.attr("href"));
-                bean.setTitle(title);
-                bean.setTid(tid);
-                String price = tdES.get(i * 3 + 1).text();
-                String author = tdES.get(i * 3 + 2).text();
-                bean.setPrice(price);
-                bean.setAuthor(author);
-                threads.add(bean);
-            }
+        if (tdES.size() != 6 && tdES.size() != 3)
+            return;
+
+        for (int i = 0; i < tdES.size() / 3; i++) {
+            TradeThreadBean bean = new TradeThreadBean();
+
+            bean.setStick(true);
+            bean.setTraderType(TradeThreadBean.TRADER);
+
+            Element linkEl = tdES.get(i * 3 + 0).select("a").first();
+            if (linkEl == null)
+                continue;
+
+            String title = linkEl.text();
+            bean.setTitle(title);
+
+            String tid = ParserUtil.parseTid(linkEl.attr("href"));
+            bean.setTid(tid);
+
+            String price = tdES.get(i * 3 + 1).text();
+            bean.setPrice(price);
+
+            String author = tdES.get(i * 3 + 2).text();
+            bean.setAuthor(author);
+
+            threads.add(bean);
         }
     }
 
-
     public static ThreadListBean parseRecommendForum(Document doc) {
-
         ThreadListBean threads = new ThreadListBean();
         threads.setFormhash(HiParser.parseFormhash(doc));
         threads.setTypes(parseForumTypes(doc));
 
         Element tableList = doc.select("table#threadlisttableid").first();
-        if (tableList == null) return null;
+        if (tableList == null)
+            return null;
+
         Elements tdES = tableList.select("#threadlisttableid > tbody > tr > td");
         for (Element tdEl : tdES) {
             Element linkEl = tdEl.select("a[href*=viewthread]").first();
-            if (linkEl == null) continue;
+            if (linkEl == null)
+                continue;
 
             RecommendThreadBean bean = new RecommendThreadBean();
             bean.setTitle(linkEl.html());
@@ -389,24 +403,28 @@ public class ThreadListParser {
 
             threads.add(bean);
         }
+
         return threads;
     }
 
     private static Map<String, String> parseForumTypes(Document doc) {
         Map<String, String> types = new LinkedHashMap<>();
+
         Elements typeLinkES = doc.select("div#second1 a");
         for (Element typeLinkEl : typeLinkES) {
             typeLinkEl.select("span").remove();
+
             String href = typeLinkEl.attr("href");
             String typeId = Utils.getMiddleString(href, "typeid=", "&");
             String typeName = typeLinkEl.text();
             if (!TextUtils.isEmpty(typeId) && !TextUtils.isEmpty(typeName)) {
                 if (types.size() == 0)
                     types.put("", "全部");
+
                 types.put(typeId, typeName);
             }
         }
+
         return types;
     }
-
 }

@@ -11,7 +11,6 @@ import java.util.Set;
  */
 
 public class ParamsMap {
-
     private Map<String, List<String>> params = new HashMap<>();
 
     public void put(String key, int value) {
@@ -21,11 +20,12 @@ public class ParamsMap {
     public void put(String key, String value) {
         if (key == null)
             return;
+
         if (!params.containsKey(key))
             params.put(key, new ArrayList<String>());
+
         params.get(key).add(value != null ? value : "");
     }
-
 
     public List<String> get(String key) {
         return params.get(key);
@@ -38,5 +38,4 @@ public class ParamsMap {
     public Set<Map.Entry<String, List<String>>> entrySet() {
         return params.entrySet();
     }
-
 }

@@ -69,7 +69,6 @@ import java.util.WeakHashMap;
  */
 
 public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
-
     private Context mCtx;
     private LayoutInflater mInflater;
     private ThreadDetailFragment mDetailFragment;
@@ -83,13 +82,12 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
     private View.OnClickListener mOnRadioCheckedListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (mPollButtons != null) {
-                for (CompoundButton radioButton : mPollButtons.keySet()) {
-                    if (radioButton != null && !radioButton.equals(v)) {
-                        radioButton.setChecked(false);
-                    }
-                }
-            }
+            if (mPollButtons == null)
+                return;
+
+            for (CompoundButton radioButton : mPollButtons.keySet())
+                if (radioButton != null && !radioButton.equals(v))
+                    radioButton.setChecked(false);
         }
     };
 
@@ -124,27 +122,28 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
 
     @Override
     public void onBindViewHolderImpl(RecyclerView.ViewHolder viewHolder, final int position) {
-        ViewHolderImpl holder;
-        if (viewHolder instanceof ViewHolderImpl)
-            holder = (ViewHolderImpl) viewHolder;
-        else return;
+        if (!(viewHolder instanceof ViewHolderImpl))
+            return;
+
+        ViewHolderImpl holder = (ViewHolderImpl) viewHolder;
 
         viewHolder.itemView.setTag(position);
         viewHolder.itemView.setOnTouchListener(mListener);
 
         final DetailBean detail = getItem(position);
 
+        if (detail.isHighlightMode())
+            viewHolder.itemView.setBackgroundColor(ContextCompat.getColor(mCtx, mBackgroundColor));
+        else
+            viewHolder.itemView.setBackgroundResource(mBackgroundResource);
+
         int pLeft = viewHolder.itemView.getPaddingLeft();
         int pRight = viewHolder.itemView.getPaddingRight();
         int pTop = viewHolder.itemView.getPaddingTop();
         int pBottom = viewHolder.itemView.getPaddingBottom();
-        if (detail.isHighlightMode()) {
-            viewHolder.itemView.setBackgroundColor(ContextCompat.getColor(mCtx, mBackgroundColor));
-        } else {
-            viewHolder.itemView.setBackgroundResource(mBackgroundResource);
-        }
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            //set background cause padding values lost, reset them
+            // set background cause padding values lost, reset them
             viewHolder.itemView.setPadding(pLeft, pTop, pRight, pBottom);
         }
 
@@ -157,16 +156,15 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
         else
             holder.author.setText(HtmlCompat.fromHtml("<font color=" + authorColor + ">" + detail.getAuthor() + "</font>"));
 
-        if (TextUtils.isEmpty(detail.getNickname())) {
+        if (TextUtils.isEmpty(detail.getNickname()))
             holder.nickname.setText("");
-        } else {
+        else
             holder.nickname.setText(" · " + detail.getNickname());
-        }
-        if (detail.isThreadAuthor()) {
+
+        if (detail.isThreadAuthor())
             holder.time.setText(HtmlCompat.fromHtml("<font color=" + ColorHelper.getColorAccent(mCtx) + ">楼主</font> · " + Utils.shortyTime(detail.getTimePost())));
-        } else {
+        else
             holder.time.setText(Utils.shortyTime(detail.getTimePost()));
-        }
 
         if (detail.isSelectMode()) {
             holder.floor.setText("X");
@@ -264,20 +262,23 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                             TextView tvInfo = new TextView(mCtx);
                             tvInfo.setText(key + " " + tradeInfos.get(key));
                             tvInfo.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
-                            if ("商品信息".equals(key) || "商家信息".equals(key)) {
+
+                            if ("商品信息".equals(key) || "商家信息".equals(key))
                                 tvInfo.setTypeface(null, Typeface.BOLD);
-                            } else {
+                            else
                                 tvInfo.setTypeface(null, Typeface.NORMAL);
-                            }
+
                             tvInfo.setBackgroundColor(ContextCompat.getColor(mCtx, i1 % 2 == 1 ? R.color.background_silver : android.R.color.transparent));
                             tvInfo.setPadding(8, 8, 8, 8);
                             contentView.addView(tvInfo);
                             i1++;
                         }
                     }
+
                     TextView tvInfo = new TextView(mCtx);
                     tvInfo.setText("  ");
                     tvInfo.setPadding(8, 8, 8, 8);
+
                     contentView.addView(tvInfo);
                 } else if (content instanceof ContentNotice) {
                     TextView tv = (TextView) mInflater.inflate(R.layout.item_textview_notice, null, false);
@@ -305,6 +306,7 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                     String cnt = content.getContent();
                     if (trimBr)
                         cnt = Utils.removeLeadingBlank(cnt);
+
                     if (!TextUtils.isEmpty(cnt)) {
                         tv.setRichText(cnt);
                         tv.setFocusable(false);
@@ -316,11 +318,10 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                     String imageUrl;
                     String thumbUrl = contentImg.getThumbUrl();
                     String fullUrl = contentImg.getContent();
-                    if (ImageContainer.getImageInfo(fullUrl).getStatus() == ImageInfo.SUCCESS) {
+                    if (ImageContainer.getImageInfo(fullUrl).getStatus() == ImageInfo.SUCCESS)
                         imageUrl = fullUrl;
-                    } else {
+                    else
                         imageUrl = TextUtils.isEmpty(thumbUrl) ? fullUrl : thumbUrl;
-                    }
 
                     int imageIndex = contentImg.getIndexInPage();
 
@@ -337,9 +338,9 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                     tv.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
                     tv.setRichText(content.getContent());
                     tv.setFocusable(false);
+
                     contentView.addView(tv);
                 } else if (content instanceof ContentGoToFloor || content instanceof ContentQuote) {
-
                     String author = "";
                     String time = "";
                     String note = "";
@@ -347,8 +348,8 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
 
                     int floor = -1;
                     if (content instanceof ContentGoToFloor) {
-                        //floor is not accurate if some user deleted post
-                        //use floor to get page, then get cache by postid
+                        // floor is not accurate if some user deleted post
+                        // use floor to get page, then get cache by postid
                         ContentGoToFloor goToFloor = (ContentGoToFloor) content;
                         author = goToFloor.getAuthor();
                         floor = goToFloor.getFloor();
@@ -364,13 +365,15 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
                     } else {
                         ContentQuote contentQuote = (ContentQuote) content;
                         DetailBean detailBean = null;
+
                         String postId = contentQuote.getPostId();
-                        if (HiUtils.isValidId(postId)) {
+                        if (HiUtils.isValidId(postId))
                             detailBean = mDetailFragment.getCachedPost(postId);
-                        }
+
                         author = contentQuote.getAuthor();
                         text = contentQuote.getContent();
                         time = contentQuote.getTime();
+
                         if (detailBean != null) {
                             floor = detailBean.getFloor();
                             note = detailBean.getFloorText() + "#";
@@ -381,11 +384,11 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
 
                     LinearLayout quoteLayout = (LinearLayout) mInflater.inflate(R.layout.item_quote_text, null, false);
                     View view = quoteLayout.findViewById(R.id.quote_header);
-                    if (TextUtils.isEmpty(author) && floor <= 0) {
+                    if (TextUtils.isEmpty(author) && floor <= 0)
                         view.setVisibility(View.GONE);
-                    } else {
+                    else
                         view.setVisibility(View.VISIBLE);
-                    }
+
                     TextView tvAuthor = (TextView) quoteLayout.findViewById(R.id.quote_author);
                     TextView tvNote = (TextView) quoteLayout.findViewById(R.id.quote_note);
                     TextViewWithEmoticon tvContent = (TextViewWithEmoticon) quoteLayout.findViewById(R.id.quote_content);
@@ -419,213 +422,218 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
         }
 
         renderPollLayout(holder, detail);
-
-        renderCommnetLayout(holder, detail);
-
+        renderCommentLayout(holder, detail);
         renderRateLayout(holder, detail);
     }
 
     private void renderRateLayout(ViewHolderImpl holder, DetailBean detail) {
-        if (detail.getRateListBean() != null && detail.getRateListBean().getRates().size() > 0) {
-            holder.ratingView.setVisibility(View.VISIBLE);
-            holder.ratingView.removeAllViews();
-            RateListBean listBean = detail.getRateListBean();
-            List<RateBean> rates = listBean.getRates();
-
-            TextView tvHeader = new TextView(mCtx);
-            String header = "评分 "
-                    + (Utils.getIntFromString(listBean.getTotalScore1()) > 0
-                    ? " · " + listBean.getTotalScore1() : "")
-                    + (Utils.getIntFromString(listBean.getTotalScore2()) > 0
-                    ? " · " + listBean.getTotalScore2() : "")
-                    + (Utils.getIntFromString(listBean.getTotalScore3()) > 0
-                    ? " · " + listBean.getTotalScore3() : "");
-            tvHeader.setText(header);
-            tvHeader.setTextColor(ContextCompat.getColor(mCtx, R.color.comment_title_font_color));
-            tvHeader.setBackgroundColor(ContextCompat.getColor(mCtx, R.color.rating_header_background_color));
-            tvHeader.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
-            tvHeader.setGravity(Gravity.CENTER);
-            tvHeader.setPadding(8, 12, 8, 12);
-            holder.ratingView.addView(tvHeader);
-
-            int i = 0;
-            for (RateBean bean : rates) {
-                TextViewWithEmoticon tv = new TextViewWithEmoticon(mCtx);
-                tv.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
-                tv.setPadding(8, 12, 8, 12);
-                tv.setRichText(bean.toHtml());
-                if (i % 2 == 1)
-                    tv.setBackgroundColor(ContextCompat.getColor(mCtx, R.color.rating_background_color));
-                holder.ratingView.addView(tv);
-                i++;
-            }
-        } else {
+        if (detail.getRateListBean() == null || detail.getRateListBean().getRates().size() <= 0) {
             holder.ratingView.setVisibility(View.GONE);
+            return;
+        }
+
+        holder.ratingView.setVisibility(View.VISIBLE);
+        holder.ratingView.removeAllViews();
+        RateListBean listBean = detail.getRateListBean();
+        List<RateBean> rates = listBean.getRates();
+
+        TextView tvHeader = new TextView(mCtx);
+        String header = "评分 "
+                + (Utils.getIntFromString(listBean.getTotalScore1()) > 0
+                ? " · " + listBean.getTotalScore1() : "")
+                + (Utils.getIntFromString(listBean.getTotalScore2()) > 0
+                ? " · " + listBean.getTotalScore2() : "")
+                + (Utils.getIntFromString(listBean.getTotalScore3()) > 0
+                ? " · " + listBean.getTotalScore3() : "");
+        tvHeader.setText(header);
+        tvHeader.setTextColor(ContextCompat.getColor(mCtx, R.color.comment_title_font_color));
+        tvHeader.setBackgroundColor(ContextCompat.getColor(mCtx, R.color.rating_header_background_color));
+        tvHeader.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
+        tvHeader.setGravity(Gravity.CENTER);
+        tvHeader.setPadding(8, 12, 8, 12);
+        holder.ratingView.addView(tvHeader);
+
+        int i = 0;
+        for (RateBean bean : rates) {
+            TextViewWithEmoticon tv = new TextViewWithEmoticon(mCtx);
+            tv.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
+            tv.setPadding(8, 12, 8, 12);
+            tv.setRichText(bean.toHtml());
+            if (i % 2 == 1)
+                tv.setBackgroundColor(ContextCompat.getColor(mCtx, R.color.rating_background_color));
+            holder.ratingView.addView(tv);
+            i++;
         }
     }
 
-    private void renderCommnetLayout(ViewHolderImpl holder, DetailBean detail) {
-        if (detail.getCommentLists() != null && detail.getCommentLists() != null) {
-            holder.commentView.setVisibility(View.VISIBLE);
-            holder.commentView.removeAllViews();
-            CommentListBean commentListBean = detail.getCommentLists();
-            List<CommentBean> comments = commentListBean.getComments();
-
-            TextView tvHeader = new TextView(mCtx);
-            tvHeader.setPadding(8, 12, 8, 12);
-            tvHeader.setText("点评");
-            tvHeader.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
-            tvHeader.setTextColor(ContextCompat.getColor(mCtx, R.color.comment_title_font_color));
-            tvHeader.setBackgroundColor(ColorHelper.getCommentTitleBackgroundColor(mCtx));
-            tvHeader.setGravity(Gravity.CENTER);
-            tvHeader.setTag(detail);
-            tvHeader.setOnClickListener(mDetailListener.getViewAllCommemtsLisener());
-            holder.commentView.addView(tvHeader);
-
-            int i = 0;
-            for (CommentBean bean : comments) {
-                TextViewWithEmoticon tv = new TextViewWithEmoticon(mCtx);
-                tv.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
-                if (i % 2 == 1)
-                    tv.setBackgroundColor(ContextCompat.getColor(mCtx, R.color.comment_background_color));
-                tv.setPadding(8, 8, 8, 8);
-                tv.setRichText(bean.toHtml());
-                holder.commentView.addView(tv);
-                i++;
-            }
-            if (commentListBean.isHasNextPage()) {
-                TextView tvFooter = new TextView(mCtx);
-                tvFooter.setPadding(8, 12, 8, 12);
-                tvFooter.setText("查看全部点评");
-                tvFooter.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
-                tvFooter.setTextColor(ContextCompat.getColor(mCtx, R.color.comment_title_font_color));
-                tvFooter.setBackgroundColor(ColorHelper.getCommentTitleBackgroundColor(mCtx));
-                tvFooter.setGravity(Gravity.CENTER);
-                tvFooter.setTag(detail);
-                tvFooter.setOnClickListener(mDetailListener.getViewAllCommemtsLisener());
-                holder.commentView.addView(tvFooter);
-            }
-        } else {
+    private void renderCommentLayout(ViewHolderImpl holder, DetailBean detail) {
+        if (detail.getCommentLists() == null || detail.getCommentLists() == null) {
             holder.commentView.setVisibility(View.GONE);
+            return;
         }
+
+        holder.commentView.setVisibility(View.VISIBLE);
+        holder.commentView.removeAllViews();
+        CommentListBean commentListBean = detail.getCommentLists();
+        List<CommentBean> comments = commentListBean.getComments();
+
+        TextView tvHeader = new TextView(mCtx);
+        tvHeader.setPadding(8, 12, 8, 12);
+        tvHeader.setText("点评");
+        tvHeader.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
+        tvHeader.setTextColor(ContextCompat.getColor(mCtx, R.color.comment_title_font_color));
+        tvHeader.setBackgroundColor(ColorHelper.getCommentTitleBackgroundColor(mCtx));
+        tvHeader.setGravity(Gravity.CENTER);
+        tvHeader.setTag(detail);
+        tvHeader.setOnClickListener(mDetailListener.getViewAllCommentsListener());
+        holder.commentView.addView(tvHeader);
+
+        int i = 0;
+        for (CommentBean bean : comments) {
+            TextViewWithEmoticon tv = new TextViewWithEmoticon(mCtx);
+            tv.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
+            if (i % 2 == 1)
+                tv.setBackgroundColor(ContextCompat.getColor(mCtx, R.color.comment_background_color));
+            tv.setPadding(8, 8, 8, 8);
+            tv.setRichText(bean.toHtml());
+            holder.commentView.addView(tv);
+            i++;
+        }
+
+        if (!commentListBean.hasNextPage())
+            return;
+
+        TextView tvFooter = new TextView(mCtx);
+        tvFooter.setPadding(8, 12, 8, 12);
+        tvFooter.setText("查看全部点评");
+        tvFooter.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
+        tvFooter.setTextColor(ContextCompat.getColor(mCtx, R.color.comment_title_font_color));
+        tvFooter.setBackgroundColor(ColorHelper.getCommentTitleBackgroundColor(mCtx));
+        tvFooter.setGravity(Gravity.CENTER);
+        tvFooter.setTag(detail);
+        tvFooter.setOnClickListener(mDetailListener.getViewAllCommentsListener());
+        holder.commentView.addView(tvFooter);
     }
 
     private void renderPollLayout(ViewHolderImpl holder, DetailBean detail) {
-        if (detail.getPoll() != null) {
-            holder.pollView.setVisibility(View.VISIBLE);
-            holder.pollView.removeAllViews();
+        if (detail.getPoll() == null) {
+            holder.pollView.setVisibility(View.GONE);
+            return;
+        }
 
-            mPollButtons = new WeakHashMap<>();
+        holder.pollView.setVisibility(View.VISIBLE);
+        holder.pollView.removeAllViews();
 
-            final PollBean pollBean = detail.getPoll();
-            TextViewWithEmoticon tvPoll = new TextViewWithEmoticon(mCtx);
-            tvPoll.setRichText(pollBean.getTitle());
-            tvPoll.setPadding(8, 12, 8, 12);
-            tvPoll.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
-            holder.pollView.addView(tvPoll);
+        mPollButtons = new WeakHashMap<>();
 
-            List<PollOptionBean> options = pollBean.getPollOptions();
-            if (options != null && options.size() > 1) {
-                boolean voteable = !TextUtils.isEmpty(options.get(0).getOptionId());
-                int i = 0;
-                for (PollOptionBean option : options) {
-                    RelativeLayout optionLayout;
-                    if (option.getImage() == null) {
-                        optionLayout = (RelativeLayout) mInflater.inflate(R.layout.item_poll_option, null, false);
-                    } else {
-                        optionLayout = (RelativeLayout) mInflater.inflate(R.layout.item_poll_option_image, null, false);
-                    }
+        final PollBean pollBean = detail.getPoll();
+        TextViewWithEmoticon tvPoll = new TextViewWithEmoticon(mCtx);
+        tvPoll.setRichText(pollBean.getTitle());
+        tvPoll.setPadding(8, 12, 8, 12);
+        tvPoll.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
+        holder.pollView.addView(tvPoll);
 
-                    CheckBox checkBox = (CheckBox) optionLayout.findViewById(R.id.cb_option);
-                    RadioButton radioButton = (RadioButton) optionLayout.findViewById(R.id.rb_option);
-                    TextView tvText = (TextView) optionLayout.findViewById(R.id.tv_text);
-                    TextView tvRates = (TextView) optionLayout.findViewById(R.id.tv_rates);
-                    ImageLayout imageLayout = (ImageLayout) optionLayout.findViewById(R.id.image_layout);
+        List<PollOptionBean> options = pollBean.getPollOptions();
+        if (options == null || options.size() <= 1)
+            return;
 
-                    if (voteable) {
-                        voteable = !TextUtils.isEmpty(option.getOptionId());
-                        if (pollBean.getMaxAnswer() > 1) {
-                            checkBox.setVisibility(View.VISIBLE);
-                            radioButton.setVisibility(View.GONE);
-                            tvText.setVisibility(View.GONE);
-                            checkBox.setText(option.getText());
-                            checkBox.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
-                            checkBox.setTextColor(ColorHelper.getTextColorPrimary(mCtx));
-                            checkBox.setTag(option.getOptionId());
-                            mPollButtons.put(checkBox, null);
-                        } else {
-                            checkBox.setVisibility(View.GONE);
-                            radioButton.setVisibility(View.VISIBLE);
-                            tvText.setVisibility(View.GONE);
-                            radioButton.setText(option.getText());
-                            radioButton.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
-                            radioButton.setTextColor(ColorHelper.getTextColorPrimary(mCtx));
-                            radioButton.setTag(option.getOptionId());
-                            radioButton.setOnClickListener(mOnRadioCheckedListener);
-                            mPollButtons.put(radioButton, null);
-                        }
-                    } else {
-                        checkBox.setVisibility(View.GONE);
-                        radioButton.setVisibility(View.GONE);
-                        tvText.setText(option.getText());
-                        tvText.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
-                    }
-                    if (imageLayout != null) {
-                        imageLayout.setUrl(option.getImage().getThumbUrl());
-                        imageLayout.setGlide(Glide.with(mDetailFragment));
-                        imageLayout.setImageInfo(i++, pollBean.getImages());
-                    }
+        boolean voteable = !TextUtils.isEmpty(options.get(0).getOptionId());
+        int i = 0;
+        for (PollOptionBean option : options) {
+            RelativeLayout optionLayout;
+            optionLayout = (RelativeLayout) mInflater.inflate(
+                    option.getImage() == null ? R.layout.item_poll_option : R.layout.item_poll_option_image,
+                    null, false);
 
-                    tvRates.setText(option.getRates());
-                    tvRates.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+            CheckBox checkBox = (CheckBox) optionLayout.findViewById(R.id.cb_option);
+            RadioButton radioButton = (RadioButton) optionLayout.findViewById(R.id.rb_option);
+            TextView tvText = (TextView) optionLayout.findViewById(R.id.tv_text);
+            TextView tvRates = (TextView) optionLayout.findViewById(R.id.tv_rates);
+            ImageLayout imageLayout = (ImageLayout) optionLayout.findViewById(R.id.image_layout);
 
-                    holder.pollView.addView(optionLayout);
+            if (voteable) {
+                voteable = !TextUtils.isEmpty(option.getOptionId());
 
+                CompoundButton targetButton;
+                if (pollBean.getMaxAnswer() > 1) {
+                    targetButton = checkBox;
+                    radioButton.setVisibility(View.GONE);
+                } else {
+                    targetButton = radioButton;
+                    checkBox.setVisibility(View.GONE);
+
+                    radioButton.setOnClickListener(mOnRadioCheckedListener);
                 }
 
-                if (!TextUtils.isEmpty(pollBean.getFooter())) {
-                    TextView footer = new TextView(mCtx);
-                    footer.setPadding(8, 8, 8, 8);
-                    footer.setText(pollBean.getFooter());
-                    footer.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
-                    holder.pollView.addView(footer);
-                }
+                targetButton.setVisibility(View.VISIBLE);
+                targetButton.setText(option.getText());
+                targetButton.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+                targetButton.setTextColor(ColorHelper.getTextColorPrimary(mCtx));
+                targetButton.setTag(option.getOptionId());
+                mPollButtons.put(targetButton, null);
 
-                if (voteable) {
-                    TextView button = new TextView(mCtx);
-                    button.setText("投票");
-                    button.setTextColor(ContextCompat.getColor(mCtx, R.color.md_white_1000));
-                    button.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
-                    ViewCompat.setBackground(button, ContextCompat.getDrawable(mCtx, R.drawable.lable_background));
-                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, Utils.dpToPx(mCtx, 40));
-                    layoutParams.setMargins(8, 8, 8, 8);
-                    button.setLayoutParams(layoutParams);
-                    button.setGravity(Gravity.CENTER);
-                    button.setOnClickListener(new OnSingleClickListener() {
-                        @Override
-                        public void onSingleClick(View v) {
-                            List<String> values = new ArrayList<>();
-                            for (CompoundButton button : mPollButtons.keySet()) {
-                                if (button.isChecked()) {
-                                    values.add(button.getTag().toString());
-                                }
-                            }
-                            if (values.size() == 0) {
-                                UIUtils.toast("请选择选项");
-                            } else if (values.size() > pollBean.getMaxAnswer()) {
-                                UIUtils.toast("最多只能选择 " + pollBean.getMaxAnswer() + " 个选项");
-                            } else {
-                                v.setTag(values);
-                                mDetailListener.getVotePollListener().onClick(v);
-                            }
-                        }
-                    });
-                    holder.pollView.addView(button);
+                tvText.setVisibility(View.GONE);
+            } else {
+                checkBox.setVisibility(View.GONE);
+                radioButton.setVisibility(View.GONE);
+                tvText.setText(option.getText());
+                tvText.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+            }
+
+            if (imageLayout != null) {
+                imageLayout.setUrl(option.getImage().getThumbUrl());
+                imageLayout.setGlide(Glide.with(mDetailFragment));
+                imageLayout.setImageInfo(i++, pollBean.getImages());
+            }
+
+            tvRates.setText(option.getRates());
+            tvRates.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+
+            holder.pollView.addView(optionLayout);
+        }
+
+        if (!TextUtils.isEmpty(pollBean.getFooter())) {
+            TextView footer = new TextView(mCtx);
+            footer.setPadding(8, 8, 8, 8);
+            footer.setText(pollBean.getFooter());
+            footer.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
+            holder.pollView.addView(footer);
+        }
+
+        if (!voteable)
+            return;
+
+        TextView button = new TextView(mCtx);
+        button.setText("投票");
+        button.setTextColor(ContextCompat.getColor(mCtx, R.color.md_white_1000));
+        button.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() - 1);
+        ViewCompat.setBackground(button, ContextCompat.getDrawable(mCtx, R.drawable.lable_background));
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, Utils.dpToPx(mCtx, 40));
+        layoutParams.setMargins(8, 8, 8, 8);
+        button.setLayoutParams(layoutParams);
+
+        button.setGravity(Gravity.CENTER);
+        button.setOnClickListener(new OnSingleClickListener() {
+            @Override
+            public void onSingleClick(View v) {
+                List<String> values = new ArrayList<>();
+                for (CompoundButton button : mPollButtons.keySet())
+                    if (button.isChecked())
+                        values.add(button.getTag().toString());
+
+                if (values.size() == 0)
+                    UIUtils.toast("请选择选项");
+                else if (values.size() > pollBean.getMaxAnswer())
+                    UIUtils.toast("最多只能选择 " + pollBean.getMaxAnswer() + " 个选项");
+                else {
+                    v.setTag(values);
+                    mDetailListener.getVotePollListener().onClick(v);
                 }
             }
-        } else {
-            holder.pollView.setVisibility(View.GONE);
-        }
+        });
+
+        holder.pollView.addView(button);
     }
 
     private void loadAvatar(final String avatarUrl, final ImageView imageView) {
@@ -636,9 +644,8 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
         List<DetailBean> datas = getDatas();
         for (int i = 0; i < datas.size(); i++) {
             DetailBean bean = datas.get(i);
-            if (bean.getFloor() == floor) {
+            if (bean.getFloor() == floor)
                 return i + getHeaderCount();
-            }
         }
         return -1;
     }
@@ -647,9 +654,8 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
         List<DetailBean> datas = getDatas();
         for (int i = 0; i < datas.size(); i++) {
             DetailBean bean = datas.get(i);
-            if (bean.getPostId().equals(postId)) {
+            if (bean.getPostId().equals(postId))
                 return i + getHeaderCount();
-            }
         }
         return -1;
     }
@@ -686,5 +692,4 @@ public class ThreadDetailAdapter extends BaseRvAdapter<DetailBean> {
             ivClient = (ImageView) itemView.findViewById(R.id.iv_client);
         }
     }
-
 }

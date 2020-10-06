@@ -20,8 +20,8 @@ public class ImageViewPager extends ViewPager {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        //to avoid following error
-        //Fatal Exception: java.lang.IllegalArgumentException: pointerIndex out of range
+        // to avoid following error
+        // Fatal Exception: java.lang.IllegalArgumentException: pointerIndex out of range
         try {
             return super.onInterceptTouchEvent(ev);
         } catch (Exception e) {

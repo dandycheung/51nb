@@ -1,4 +1,4 @@
-package com.greenskinmonster.a51nb.ui.setting;
+package com.greenskinmonster.a51nb.ui.settings;
 
 import android.support.v7.preference.Preference;
 
@@ -7,7 +7,6 @@ import android.support.v7.preference.Preference;
  */
 
 abstract class OnPreferenceClickListener implements Preference.OnPreferenceClickListener {
-
     private static final long MIN_CLICK_INTERVAL = 600;
     private long mLastClickTime;
 
@@ -24,5 +23,4 @@ abstract class OnPreferenceClickListener implements Preference.OnPreferenceClick
     }
 
     public abstract boolean onPreferenceSingleClick(Preference preference);
-
 }

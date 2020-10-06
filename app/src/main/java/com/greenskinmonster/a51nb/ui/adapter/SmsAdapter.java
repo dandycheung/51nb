@@ -28,7 +28,6 @@ import com.greenskinmonster.a51nb.utils.Utils;
  */
 
 public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
-
     private View.OnClickListener mAvatarListener;
     private LayoutInflater mInflater;
     private SmsFragment mFragment;
@@ -73,9 +72,9 @@ public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
 
             if (HiSettingsHelper.getInstance().isLoadAvatar()) {
                 holder.iv_my_avatar.setVisibility(View.VISIBLE);
-                if (!TextUtils.isEmpty(item.getAuthorId())) {
+                if (!TextUtils.isEmpty(item.getAuthorId()))
                     holder.iv_my_avatar.setOnClickListener(mAvatarListener);
-                }
+
                 GlideHelper.loadAvatar(mFragment, holder.iv_my_avatar, item.getAvatarUrl());
             }
         } else {
@@ -90,9 +89,9 @@ public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
 
             if (HiSettingsHelper.getInstance().isLoadAvatar()) {
                 holder.iv_friend_avatar.setVisibility(View.VISIBLE);
-                if (!TextUtils.isEmpty(item.getAuthorId())) {
+                if (!TextUtils.isEmpty(item.getAuthorId()))
                     holder.iv_friend_avatar.setOnClickListener(mAvatarListener);
-                }
+
                 GlideHelper.loadAvatar(mFragment, holder.iv_friend_avatar, item.getAvatarUrl());
             }
         }
@@ -109,27 +108,24 @@ public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
 
         holder.tv_time.setText(Utils.shortyTime(item.getCreateTime()));
         holder.tv_content.setFragment(mFragment);
-        //hack, replace url to link, only parse plain text
+
+        // hack, replace url to link, only parse plain text
         String text = Utils.nullToText(item.getInfo());
         if (!text.contains("<a") && text.contains("http"))
             text = Utils.textToHtmlConvertingURLsToLinks(text);
+
         holder.tv_content.setRichText(text);
         holder.tv_content.setFocusable(false);
 
         holder.tv_content.setTextSize(HiSettingsHelper.getInstance().getPostTextSize());
         holder.tv_content.setTextColor(ContextCompat.getColor(mFragment.getActivity(), R.color.black));
 
-        if (item.isNew()) {
-            holder.tv_isnew.setVisibility(View.VISIBLE);
-        } else {
-            holder.tv_isnew.setVisibility(View.GONE);
-        }
+        holder.tv_isnew.setVisibility(item.isNew() ? View.VISIBLE : View.GONE);
 
-        if (item.getStatus() == Constants.STATUS_IN_PROGRESS) {
+        if (item.getStatus() == Constants.STATUS_IN_PROGRESS)
             holder.progressBar.setVisibility(View.VISIBLE);
-        } else {
+        else
             holder.progressBar.setVisibility(View.GONE);
-        }
     }
 
     private static class ViewHolderImpl extends RecyclerView.ViewHolder {
@@ -155,5 +151,4 @@ public class SmsAdapter extends BaseRvAdapter<SimpleListItemBean> {
             progressBar = (ProgressBar) itemView.findViewById(R.id.pb_sms);
         }
     }
-
 }

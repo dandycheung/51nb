@@ -5,7 +5,6 @@ package com.greenskinmonster.a51nb.bean;
  */
 
 public class PollOptionBean {
-
     private String mOptionId = "";
     private String mText = "";
     private String mRates = "";

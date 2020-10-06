@@ -42,7 +42,6 @@ import java.util.UUID;
  * Created by GreenSkinMonster on 2015-05-20.
  */
 public class ImageViewerAdapter extends PagerAdapter {
-
     private List<ContentImg> mImages;
     private Activity mActivity;
 
@@ -68,19 +67,18 @@ public class ImageViewerAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-
         final ImageViewerLayout imageLayout = new ImageViewerLayout(mActivity);
         final ContentImg contentImg = mImages.get(position);
         final String imageUrl = contentImg.getContent();
         ImageInfo imageInfo = ImageContainer.getImageInfo(imageUrl);
 
-        //ScaleImageView has about 100ms delay, so show image with normal ImageView first
+        // ScaleImageView has about 100ms delay, so show image with normal ImageView first
         if (mFirstShow) {
             mFirstShow = false;
             if (!imageInfo.isGif() && GlideHelper.isOkToLoad(mActivity)) {
                 ImageInfo thumbInfo = ImageContainer.getImageInfo(contentImg.getThumbUrl());
                 ImageInfo info = thumbInfo.isReady() ? thumbInfo : imageInfo;
-                //load argument must match ThreadDetailFragment to hit memory cache
+                // load argument must match ThreadDetailFragment to hit memory cache
                 if (info.isReady()) {
                     Glide.with(mActivity)
                             .load(info.getUrl())
@@ -100,9 +98,11 @@ public class ImageViewerAdapter extends PagerAdapter {
         } else {
             displayImage(imageLayout, imageUrl);
         }
+
         imageLayout.setUrl(imageUrl);
         container.addView(imageLayout);
         imageViewMap.put(imageUrl, imageLayout);
+
         return imageLayout;
     }
 
@@ -112,7 +112,7 @@ public class ImageViewerAdapter extends PagerAdapter {
         final SubsamplingScaleImageView scaleImageView = imageLayout.getScaleImageView();
         final GlideImageView glideImageView = imageLayout.getGlideImageView();
 
-        //imageView could be null if display image on GlideImageEvent
+        // imageView could be null if display image on GlideImageEvent
         if (scaleImageView == null || glideImageView == null)
             return;
 
@@ -184,21 +184,20 @@ public class ImageViewerAdapter extends PagerAdapter {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(GlideImageEvent event) {
         ImageViewerLayout imageLayout = imageViewMap.get(event.getImageUrl());
-        if (imageLayout != null
-                && ViewCompat.isAttachedToWindow(imageLayout)) {
-            ProgressBar bar = imageLayout.getProgressBar();
-            if (event.isInProgress()) {
-                if (bar.getVisibility() != View.VISIBLE)
-                    bar.setVisibility(View.VISIBLE);
-                if (bar.isIndeterminate())
-                    bar.setIndeterminate(false);
-                bar.setProgress(event.getProgress());
-            } else {
-                if (bar.getVisibility() == View.VISIBLE)
-                    bar.setVisibility(View.GONE);
-                displayImage(imageLayout, event.getImageUrl());
-            }
+        if (imageLayout == null || !ViewCompat.isAttachedToWindow(imageLayout))
+            return;
+
+        ProgressBar bar = imageLayout.getProgressBar();
+        if (event.isInProgress()) {
+            if (bar.getVisibility() != View.VISIBLE)
+                bar.setVisibility(View.VISIBLE);
+            if (bar.isIndeterminate())
+                bar.setIndeterminate(false);
+            bar.setProgress(event.getProgress());
+        } else {
+            if (bar.getVisibility() == View.VISIBLE)
+                bar.setVisibility(View.GONE);
+            displayImage(imageLayout, event.getImageUrl());
         }
     }
-
 }

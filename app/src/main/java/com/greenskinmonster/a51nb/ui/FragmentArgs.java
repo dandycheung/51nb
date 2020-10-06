@@ -5,7 +5,6 @@ package com.greenskinmonster.a51nb.ui;
  * Created by GreenSkinMonster on 2015-09-01.
  */
 public class FragmentArgs {
-
     public final static int TYPE_FORUM = 0;
     public final static int TYPE_THREAD = 1;
     public final static int TYPE_USER_INFO = 2;

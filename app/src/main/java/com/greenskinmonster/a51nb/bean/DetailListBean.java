@@ -96,10 +96,9 @@ public class DetailListBean {
 
     public ArrayList<ContentImg> getContentImages() {
         ArrayList<ContentImg> result = new ArrayList<>();
-        for (DetailBean detail : mDetailBeans) {
+        for (DetailBean detail : mDetailBeans)
             result.addAll(detail.getImages());
-        }
+
         return result;
     }
-
 }

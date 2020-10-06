@@ -12,7 +12,6 @@ import java.util.List;
  */
 
 public abstract class BaseRvAdapter<V> extends RecyclerView.Adapter {
-
     private static final int TYPE_HEADER = -1;
     private static final int TYPE_FOOTER = -2;
 
@@ -66,6 +65,7 @@ public abstract class BaseRvAdapter<V> extends RecyclerView.Adapter {
     public void setHeaderView(View view) {
         if (view == null)
             removeHeaderView();
+
         if (mHeaderView != null) {
             mHeaderView = view;
             notifyItemChanged(0);
@@ -85,6 +85,7 @@ public abstract class BaseRvAdapter<V> extends RecyclerView.Adapter {
     public void setFooterView(View view) {
         if (view == null)
             removeFooterView();
+
         if (mFooterView != null) {
             mFooterView = view;
             notifyItemChanged(getItemCount() - 1);
@@ -103,37 +104,36 @@ public abstract class BaseRvAdapter<V> extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        if (hasHeader() && position == 0) {
+        if (hasHeader() && position == 0)
             return TYPE_HEADER;
-        }
-        if (hasFooter() && position == getItemCount() - 1) {
+
+        if (hasFooter() && position == getItemCount() - 1)
             return TYPE_FOOTER;
-        }
+
         return super.getItemViewType(hasHeader() ? position - 1 : position);
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = null;
-        if (viewType == TYPE_HEADER) {
+        if (viewType == TYPE_HEADER)
             itemView = mHeaderView;
-        } else if (viewType == TYPE_FOOTER) {
+        else if (viewType == TYPE_FOOTER)
             itemView = mFooterView;
-        }
+
         if (itemView != null)
-            return new RecyclerView.ViewHolder(itemView) {
-            };
+            return new RecyclerView.ViewHolder(itemView) {};
+
         return onCreateViewHolderImpl(parent, viewType);
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if (getItemViewType(position) == TYPE_HEADER || getItemViewType(position) == TYPE_FOOTER) {
+        if (getItemViewType(position) == TYPE_HEADER || getItemViewType(position) == TYPE_FOOTER)
             return;
-        }
+
         onBindViewHolderImpl(holder, position);
         holder.itemView.setTag(position);
         holder.itemView.setOnTouchListener(mListener);
     }
-
 }

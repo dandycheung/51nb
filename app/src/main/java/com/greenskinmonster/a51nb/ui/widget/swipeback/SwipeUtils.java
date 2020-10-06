@@ -49,11 +49,10 @@ public class SwipeUtils {
      * with the {@link android.R.attr#windowIsFloating} attribute.
      */
     public static void convertActivityToTranslucent(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             convertActivityToTranslucentAfterL(activity);
-        } else {
+        else
             convertActivityToTranslucentBeforeL(activity);
-        }
     }
 
     /**
@@ -63,17 +62,14 @@ public class SwipeUtils {
         try {
             Class<?>[] classes = Activity.class.getDeclaredClasses();
             Class<?> translucentConversionListenerClazz = null;
-            for (Class clazz : classes) {
-                if (clazz.getSimpleName().contains("TranslucentConversionListener")) {
+            for (Class clazz : classes)
+                if (clazz.getSimpleName().contains("TranslucentConversionListener"))
                     translucentConversionListenerClazz = clazz;
-                }
-            }
+
             Method method = Activity.class.getDeclaredMethod("convertToTranslucent",
                     translucentConversionListenerClazz);
             method.setAccessible(true);
-            method.invoke(activity, new Object[]{
-                    null
-            });
+            method.invoke(activity, new Object[]{ null });
         } catch (Throwable t) {
         }
     }
@@ -90,11 +86,10 @@ public class SwipeUtils {
 
             Class<?>[] classes = Activity.class.getDeclaredClasses();
             Class<?> translucentConversionListenerClazz = null;
-            for (Class clazz : classes) {
-                if (clazz.getSimpleName().contains("TranslucentConversionListener")) {
+            for (Class clazz : classes)
+                if (clazz.getSimpleName().contains("TranslucentConversionListener"))
                     translucentConversionListenerClazz = clazz;
-                }
-            }
+
             Method convertToTranslucent = Activity.class.getDeclaredMethod("convertToTranslucent",
                     translucentConversionListenerClazz, ActivityOptions.class);
             convertToTranslucent.setAccessible(true);

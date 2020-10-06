@@ -14,7 +14,6 @@ import com.greenskinmonster.a51nb.ui.widget.ThreadItemRecommendLayout;
 import com.greenskinmonster.a51nb.ui.widget.ThreadItemTradeLayout;
 
 public class ThreadListAdapter extends BaseRvAdapter<ThreadBean> {
-
     private final static int NORM_ITEM = 0;
     private final static int TRADE_ITEM = 1;
     private final static int RECOMMEND_ITEM = 2;
@@ -28,11 +27,12 @@ public class ThreadListAdapter extends BaseRvAdapter<ThreadBean> {
 
     @Override
     public ViewHolderImpl onCreateViewHolderImpl(ViewGroup parent, int viewType) {
-        if (viewType == TRADE_ITEM) {
+        if (viewType == TRADE_ITEM)
             return new ViewHolderImpl(new ThreadItemTradeLayout(parent.getContext(), mGlide));
-        } else if (viewType == RECOMMEND_ITEM) {
+
+        if (viewType == RECOMMEND_ITEM)
             return new ViewHolderImpl(new ThreadItemRecommendLayout(parent.getContext(), mGlide));
-        }
+
         return new ViewHolderImpl(new ThreadItemLayout(parent.getContext(), mGlide));
     }
 
@@ -40,12 +40,14 @@ public class ThreadListAdapter extends BaseRvAdapter<ThreadBean> {
     public int getItemViewType(int position) {
         if (position >= getDatas().size())
             return super.getItemViewType(position);
+
         ThreadBean bean = getDatas().get(position);
-        if (bean instanceof TradeThreadBean) {
+        if (bean instanceof TradeThreadBean)
             return TRADE_ITEM;
-        } else if (bean instanceof RecommendThreadBean) {
+
+        if (bean instanceof RecommendThreadBean)
             return RECOMMEND_ITEM;
-        }
+
         return NORM_ITEM;
     }
 
@@ -64,5 +66,4 @@ public class ThreadListAdapter extends BaseRvAdapter<ThreadBean> {
             mItemLayout = (ItemLayout) itemView;
         }
     }
-
 }

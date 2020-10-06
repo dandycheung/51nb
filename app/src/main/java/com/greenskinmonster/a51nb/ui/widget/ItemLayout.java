@@ -7,7 +7,5 @@ import com.greenskinmonster.a51nb.bean.ThreadBean;
  */
 
 public interface ItemLayout {
-
     public void fillData(ThreadBean data);
-
 }

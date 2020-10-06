@@ -1,4 +1,4 @@
-package com.greenskinmonster.a51nb.ui.setting;
+package com.greenskinmonster.a51nb.ui.settings;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -18,7 +18,6 @@ import com.greenskinmonster.a51nb.utils.Utils;
  * Created by GreenSkinMonster on 2015-05-23.
  */
 public class AboutFragment extends BaseFragment {
-
     public static final String TAG_KEY = "ABOUT_KEY";
 
     @Override
@@ -51,7 +50,6 @@ public class AboutFragment extends BaseFragment {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
             }
 
             @Override
@@ -65,17 +63,11 @@ public class AboutFragment extends BaseFragment {
     }
 
     private String getContent(int position) {
-        String file = "release-notes.txt";
-        if (position == 1) {
-            file = "license.txt";
-        }
-
+        String file = position == 1 ? "license.txt" : "release-notes.txt";
         try {
             return Utils.readFromAssets(getActivity(), file);
         } catch (Exception e) {
             return e.getMessage();
         }
-
     }
-
 }

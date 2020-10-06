@@ -38,7 +38,6 @@ import java.util.List;
  */
 
 public class CommentsDialog extends Dialog {
-
     private DetailBean mDetailBean;
     private String mTid;
     private RequestManager mGlide;
@@ -55,6 +54,7 @@ public class CommentsDialog extends Dialog {
 
     public CommentsDialog(@NonNull Context context) {
         super(context);
+
         mCtx = context;
         mGlide = Glide.with(context);
     }
@@ -62,6 +62,7 @@ public class CommentsDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mRecyclerView = new RecyclerView(mCtx);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.addItemDecoration(new SimpleDivider(getContext()));
@@ -92,6 +93,7 @@ public class CommentsDialog extends Dialog {
             public void onLoadMore(int currentPage) {
                 if (!mHasNextPage)
                     return;
+
                 mRecyclerView.post(new Runnable() {
                     @Override
                     public void run() {
@@ -102,6 +104,7 @@ public class CommentsDialog extends Dialog {
                 });
             }
         });
+
         setContentView(mRecyclerView);
     }
 
@@ -109,16 +112,16 @@ public class CommentsDialog extends Dialog {
         mTid = tid;
         mDetailBean = detailBean;
         mItemClickListener = listener;
-        mHasNextPage = detailBean.getCommentLists().isHasNextPage();
+        mHasNextPage = detailBean.getCommentLists().hasNextPage();
     }
 
     private void fetchNextPage() {
         if (mFooterLoading)
             return;
+
         mFooterLoading = true;
         mCurrentPage++;
         new AsyncTask<Void, Void, CommentListBean>() {
-
             @Override
             protected CommentListBean doInBackground(Void... params) {
                 return ThreadActionHelper.fetchComments(mTid, mDetailBean.getPostId(), mCurrentPage);
@@ -128,27 +131,29 @@ public class CommentsDialog extends Dialog {
             protected void onPostExecute(CommentListBean commentListBean) {
                 if (!isShowing())
                     return;
+
                 if (commentListBean != null) {
                     List<CommentItem> items = new ArrayList<>();
                     for (CommentBean bean : commentListBean.getComments()) {
                         CommentItem item = new CommentItem(bean);
                         items.add(item);
                     }
+
                     mFastAdapter.add(items);
-                    mHasNextPage = commentListBean.isHasNextPage();
+                    mHasNextPage = commentListBean.hasNextPage();
                 }
+
                 mFooterAdapter.clear();
-                if (!mHasNextPage) {
+
+                if (!mHasNextPage)
                     UIUtils.toast("已全部加载");
-                }
+
                 mFooterLoading = false;
             }
         }.execute();
     }
 
-
     private class CommentItem extends AbstractItem<CommentItem, CommentItem.ViewHolder> {
-
         private CommentBean mBean;
 
         CommentItem(CommentBean bean) {
@@ -187,6 +192,7 @@ public class CommentsDialog extends Dialog {
         @Override
         public void unbindView(CommentItem.ViewHolder holder) {
             super.unbindView(holder);
+
             holder.tvAuthor.setText(null);
             holder.tvTime.setText(null);
             holder.tvComment.setText(null);
@@ -211,7 +217,5 @@ public class CommentsDialog extends Dialog {
                 tvComment = (TextViewWithEmoticon) itemView.findViewById(R.id.tv_comment_content);
             }
         }
-
     }
-
 }

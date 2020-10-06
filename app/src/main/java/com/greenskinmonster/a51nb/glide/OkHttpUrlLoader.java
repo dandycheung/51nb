@@ -19,7 +19,6 @@ import okhttp3.OkHttpClient;
  * A simple model loader for fetching media over http/https using OkHttp.
  */
 public class OkHttpUrlLoader implements ModelLoader<GlideUrl, InputStream> {
-
     /**
      * The default factory for {@link OkHttpUrlLoader}s.
      */
@@ -30,11 +29,11 @@ public class OkHttpUrlLoader implements ModelLoader<GlideUrl, InputStream> {
         private static OkHttpClient getInternalClient() {
             if (internalClient == null) {
                 synchronized (Factory.class) {
-                    if (internalClient == null) {
+                    if (internalClient == null)
                         internalClient = new OkHttpClient();
-                    }
                 }
             }
+
             return internalClient;
         }
 
@@ -77,10 +76,10 @@ public class OkHttpUrlLoader implements ModelLoader<GlideUrl, InputStream> {
             forumUrl = url.getHost().endsWith(HiUtils.CookieDomain);
         } catch (Exception ignored) {
         }
-        if (forumUrl && model.toStringUrl().startsWith(HiUtils.AvatarBaseUrl)) {
+
+        if (forumUrl && model.toStringUrl().startsWith(HiUtils.AvatarBaseUrl))
             return new AvatarStreamFetcher(client, model);
-        } else {
-            return new ImageStreamFetcher(client, model, forumUrl);
-        }
+
+        return new ImageStreamFetcher(client, model, forumUrl);
     }
 }

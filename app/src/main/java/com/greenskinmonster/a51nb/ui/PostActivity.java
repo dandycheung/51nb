@@ -16,7 +16,6 @@ import com.greenskinmonster.a51nb.R;
  */
 
 public class PostActivity extends SwipeBaseActivity {
-
     public final static int PERMISSIONS_REQUEST_CODE_BOTH = 201;
 
     @Override
@@ -38,8 +37,7 @@ public class PostActivity extends SwipeBaseActivity {
             Bundle arguments = getIntent().getExtras();
             PostFragment fragment = new PostFragment();
             fragment.setArguments(arguments);
-            fragmentManager.beginTransaction()
-                    .add(R.id.main_frame_container, fragment).commit();
+            fragmentManager.beginTransaction().add(R.id.main_frame_container, fragment).commit();
         }
 
         setSwipeBackEnable(false);
@@ -58,13 +56,11 @@ public class PostActivity extends SwipeBaseActivity {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         == PackageManager.PERMISSION_GRANTED) {
                     PostFragment fragment = (PostFragment) getSupportFragmentManager().findFragmentById(R.id.main_frame_container);
-                    if (fragment != null) {
+                    if (fragment != null)
                         fragment.showImageSelector();
-                    }
                 }
                 break;
             }
         }
     }
-
 }

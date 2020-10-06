@@ -15,7 +15,6 @@ import java.util.Collection;
  * Created by GreenSkinMonster on 2016-04-01.
  */
 public class ImageUploadJob extends BaseJob implements UploadImgHelper.UploadImgListener {
-
     private String mHash;
     private Uri[] mUris;
     private Collection<ImageUploadEvent> mHoldEvents = new ArrayList<>();
@@ -28,7 +27,6 @@ public class ImageUploadJob extends BaseJob implements UploadImgHelper.UploadImg
 
     @Override
     public void onAdded() {
-
     }
 
     @Override
@@ -69,11 +67,9 @@ public class ImageUploadJob extends BaseJob implements UploadImgHelper.UploadImg
         event.message = message;
         event.mImage = image;
 
-        if (HiApplication.isAppVisible()) {
+        if (HiApplication.isAppVisible())
             EventBus.getDefault().post(event);
-        } else {
+        else
             mHoldEvents.add(event);
-        }
     }
-
 }

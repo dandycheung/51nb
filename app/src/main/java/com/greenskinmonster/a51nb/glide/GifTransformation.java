@@ -15,9 +15,7 @@ import com.greenskinmonster.a51nb.R;
  * Created by GreenSkinMonster on 2015-04-12.
  */
 public class GifTransformation extends BitmapTransformation {
-
     private final static int GIF_DECODE_WIDTH = 460;
-
     private static Bitmap scaledGifMark;
 
     private Context mCtx;
@@ -29,7 +27,6 @@ public class GifTransformation extends BitmapTransformation {
 
     @Override
     protected Bitmap transform(BitmapPool pool, Bitmap toTransform, int outWidth, int outHeight) {
-
         int resultWidth = GIF_DECODE_WIDTH;
         int markWidth = resultWidth / 5;
 

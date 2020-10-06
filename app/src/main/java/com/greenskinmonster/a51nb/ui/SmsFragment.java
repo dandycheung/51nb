@@ -63,7 +63,6 @@ import java.util.List;
 import okhttp3.Request;
 
 public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPostListener {
-
     public static final String ARG_AUTHOR = "AUTHOR";
     public static final String ARG_UID = "UID";
 
@@ -89,12 +88,11 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
 
         setHasOptionsMenu(true);
 
-        if (getArguments().containsKey(ARG_AUTHOR)) {
+        if (getArguments().containsKey(ARG_AUTHOR))
             mAuthor = getArguments().getString(ARG_AUTHOR);
-        }
-        if (getArguments().containsKey(ARG_UID)) {
+
+        if (getArguments().containsKey(ARG_UID))
             mUid = getArguments().getString(ARG_UID);
-        }
 
         RecyclerItemClickListener itemClickListener = new RecyclerItemClickListener(getActivity(), new OnItemClickListener());
         mSmsAdapter = new SmsAdapter(this, new AvatarOnClickListener(), itemClickListener);
@@ -105,6 +103,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
         View view = inflater.inflate(R.layout.fragment_sms, container, false);
         mRecyclerView = (XRecyclerView) view.findViewById(R.id.rv_sms);
         mRecyclerView.setHasFixedSize(true);
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         linearLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(linearLayoutManager);
@@ -130,9 +129,8 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
             @Override
             public void onSingleClick(View v) {
                 String replyText = mEtSms.getText().toString();
-                if (replyText.length() > 0) {
+                if (replyText.length() > 0)
                     sendSms(replyText);
-                }
             }
         });
 
@@ -146,9 +144,12 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
 
     private void sendSms(String replyText) {
         mSending = true;
+
         new PostSmsAsyncTask(getActivity(), mFormhash, mPmid, mUid, null, SmsFragment.this, null).execute(replyText);
+
         mEtSms.setText("");
         mCountdownButton.setEnabled(false);
+
         SimpleListItemBean bean = new SimpleListItemBean();
         bean.setAuthor(HiSettingsHelper.getInstance().getUsername());
         bean.setAuthorId(HiSettingsHelper.getInstance().getUid());
@@ -157,6 +158,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
         bean.setInfo(replyText);
         bean.setStatus(Constants.STATUS_IN_PROGRESS);
         mSmsAdapter.getDatas().add(bean);
+
         mSmsAdapter.notifyItemInserted(mSmsAdapter.getItemCount() - 1);
     }
 
@@ -182,6 +184,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
                 .replace("{pmid}", bean.getPmid())
                 .replace("{uid}", mUid)
                 .replace("{formhash}", mFormhash);
+
         ParamsMap params = new ParamsMap();
         params.put("op", "delete");
         params.put("deletepm_deluid[]", mUid);
@@ -288,7 +291,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
                         OkHttpHelper.getInstance().asyncPost(url, params, new OkHttpHelper.ResultCallback() {
                             @Override
                             public void onError(Request request, Exception e) {
-                                progress.dismissError("操作时发生错误 : " + OkHttpHelper.getErrorMessage(e));
+                                progress.dismissError("操作时发生错误: " + OkHttpHelper.getErrorMessage(e));
                                 EventBus.getDefault().postSticky(new SmsRefreshEvent());
                                 ((BaseActivity) getActivity()).finishWithNoSlide();
                             }
@@ -302,16 +305,16 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
                                     Logger.e(e);
                                     errorMessage = OkHttpHelper.getErrorMessage(e).getMessage();
                                 }
-                                if (TextUtils.isEmpty(errorMessage)) {
+
+                                if (TextUtils.isEmpty(errorMessage))
                                     progress.dismiss("操作完成");
-                                } else {
+                                else
                                     progress.dismissError(errorMessage);
-                                }
+
                                 EventBus.getDefault().postSticky(new SmsRefreshEvent());
                                 ((BaseActivity) getActivity()).finishWithNoSlide();
                             }
                         });
-
                     }
                 });
         popDialog.setIcon(new IconicsDrawable(getActivity(), FontAwesome.Icon.faw_exclamation_circle).sizeDp(24).color(Color.RED));
@@ -332,7 +335,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
             showSendButton();
 
             mCountdownButton.setEnabled(true);
-            //new sms has some delay, so this is a dirty hack
+            // new sms has some delay, so this is a dirty hack
             new CountDownTimer(1000, 1000) {
                 public void onTick(long millisUntilFinished) {
                 }
@@ -370,7 +373,6 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
     }
 
     private class OnItemClickListener implements RecyclerItemClickListener.OnItemClickListener {
-
         @Override
         public void onItemClick(View view, int position) {
         }
@@ -433,11 +435,10 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
     private class SmsEventCallback extends EventCallback<SimpleListEvent> {
         @Override
         public void onSuccess(SimpleListEvent event) {
-
             SimpleListBean list = event.mData;
-            if (list == null || list.getCount() == 0) {
+            if (list == null || list.getCount() == 0)
                 mLoadingView.setState(ContentLoadingView.NO_DATA);
-            } else {
+            else {
                 mPmid = list.getPmid();
                 mFormhash = list.getFormhash();
                 mLoadingView.setState(ContentLoadingView.CONTENT);
@@ -467,6 +468,7 @@ public class SmsFragment extends BaseFragment implements PostSmsAsyncTask.SmsPos
     public void onEvent(SimpleListEvent event) {
         if (!mSessionId.equals(event.mSessionId))
             return;
+
         EventBus.getDefault().removeStickyEvent(event);
         mEventCallback.process(event);
     }

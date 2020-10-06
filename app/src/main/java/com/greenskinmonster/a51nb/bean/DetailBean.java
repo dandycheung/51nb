@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class DetailBean {
-
     public final static int CLIENT_ANDROID = 1;
     public final static int CLIENT_IOS = 2;
 
@@ -60,6 +59,7 @@ public class DetailBean {
         public void addText(String text, TextStyle textStyle) {
             if (textStyle != null)
                 text = textStyle.toHtml(text);
+
             if (newString) {
                 ContentText ct = new ContentText(text);
                 list.add(ct);
@@ -96,10 +96,10 @@ public class DetailBean {
             if (!url.toLowerCase().startsWith("http://")
                     && !url.toLowerCase().startsWith("https://")) {
                 url = "http://" + url;
-                link = " <a href=\"" + url + "\">" + text + "</a> ";
-            } else {
-                link = "<a href=\"" + url + "\">" + text + "</a>";
             }
+
+            link = "<a href=\"" + url + "\">" + text + "</a>";
+
             if (newString) {
                 list.add(new ContentText(link));
                 lastTextIdx = list.size() - 1;
@@ -159,9 +159,7 @@ public class DetailBean {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < list.size(); i++) {
                 ContentAbs o = list.get(i);
-                if (o instanceof ContentText
-                        || o instanceof ContentQuote
-                        || o instanceof ContentTradeInfo)
+                if (o instanceof ContentText || o instanceof ContentQuote || o instanceof ContentTradeInfo)
                     sb.append(o.getCopyText());
             }
             return Utils.trim(sb.toString());
@@ -302,7 +300,7 @@ public class DetailBean {
         mRateListBean = rateListBean;
     }
 
-    private String unEscapeHtml(String str) {
+    private String unescapeHtml(String str) {
         str = str.replaceAll("&nbsp;", " ");
         str = str.replaceAll("&quot;", "\"");
         str = str.replaceAll("&amp;", "&");

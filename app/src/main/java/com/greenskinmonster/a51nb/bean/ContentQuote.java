@@ -6,7 +6,6 @@ import com.greenskinmonster.a51nb.utils.HtmlCompat;
 import com.greenskinmonster.a51nb.utils.Utils;
 
 public class ContentQuote extends ContentAbs {
-
     private String mAuthor;
     private String mTo;
     private String mTime;
@@ -17,19 +16,20 @@ public class ContentQuote extends ContentAbs {
     public ContentQuote(String postText, String author, String postTime, String tid, String postId) {
         mPostId = postId;
         mTid = tid;
-        //replace chinese space and trim
-        mText = HtmlCompat.fromHtml(postText).toString().replace("　", " ").replace(String.valueOf((char) 160), " ").trim();
         mAuthor = author;
         mTime = postTime;
+
+        // replace chinese space and trim
+        mText = HtmlCompat.fromHtml(postText).toString().replace("　", " ").replace(String.valueOf((char) 160), " ").trim();
         if (mText.startsWith("回复")) {
             mText = mText.substring("回复".length()).trim();
-            //this is not accurate, will use postId if available
+            // this is not accurate, will use postId if available
             int idx = mText.indexOf("    ");
-            if (idx > 0 && idx < 10) {
+            if (idx > 0 && idx < 10)
                 mTo = mText.substring(0, idx).trim();
-            } else if (mText.indexOf(" ") > 0) {
+            else if (mText.indexOf(" ") > 0)
                 mTo = mText.substring(0, mText.indexOf(" ")).trim();
-            }
+
             if (!TextUtils.isEmpty(mTo))
                 mText = mText.substring(mTo.length() + 1).trim();
         }
@@ -84,8 +84,4 @@ public class ContentQuote extends ContentAbs {
     public String getTid() {
         return mTid;
     }
-
-//    public boolean isReplyQuote() {
-//        return true;
-//    }
 }

@@ -33,25 +33,23 @@ public class TextStyle {
     }
 
     public void setColor(String color) {
-        if (!TextUtils.isEmpty(color)) {
-            color = color.toLowerCase();
-            if (COLORS.containsKey(color)) {
-                color = COLORS.get(color);
-            }
-            if (color.startsWith("#") && color.length() == 5) {
-                //color code is #1234 format
-                color = color + "00";
-            }
+        if (TextUtils.isEmpty(color))
+            return;
 
-            //ignore text color similar to background color
-            try {
-                if (color.startsWith("#") && ColorHelper.isTextColorReadable(color)) {
-                    this.color = color;
-                } else if (!color.startsWith("#")) {
-                    this.color = color;
-                }
-            } catch (Exception ignored) {
-            }
+        color = color.toLowerCase();
+        if (COLORS.containsKey(color))
+            color = COLORS.get(color);
+
+        if (color.startsWith("#") && color.length() == 5) // color code is #1234 format
+            color = color + "00";
+
+        // ignore text color similar to background color
+        try {
+            if (color.startsWith("#") && ColorHelper.isTextColorReadable(color))
+                this.color = color;
+            else if (!color.startsWith("#"))
+                this.color = color;
+        } catch (Exception ignored) {
         }
     }
 
@@ -82,41 +80,53 @@ public class TextStyle {
     public void addStyle(String nodeName) {
         if (TextUtils.isEmpty(nodeName))
             return;
-        if ("i".equals(nodeName)) {
+
+        if ("i".equals(nodeName))
             setItalic(true);
-        } else if ("strong".equals(nodeName)) {
+        else if ("strong".equals(nodeName))
             setBold(true);
-        } else if ("u".equals(nodeName)) {
+        else if ("u".equals(nodeName))
             setUnderline(true);
-        } else if ("strike".equals(nodeName)) {
+        else if ("strike".equals(nodeName))
             setStrike(true);
-        }
     }
 
     public String toHtml(String text) {
-        //strike is not supported by Html.fromHtml()
+        // strike is not supported by Html.fromHtml()
         StringBuilder sb = new StringBuilder();
+
         if (bold)
             sb.append("<b>");
+
         if (italic)
             sb.append("<i>");
+
         if (underline)
             sb.append("<u>");
+
         if (strike)
             sb.append("<strike>");
+
         if (!TextUtils.isEmpty(color))
             sb.append("<font color=").append(color).append(">");
+
         sb.append(text);
+
         if (!TextUtils.isEmpty(color))
             sb.append("</font>");
+
         if (strike)
             sb.append("</strike>");
+
         if (underline)
             sb.append("</u>");
+
         if (italic)
             sb.append("</i>");
+
         if (bold)
             sb.append("</b>");
+
         return sb.toString();
     }
 
@@ -131,12 +141,11 @@ public class TextStyle {
     }
 
     static {
-
-        //there are 140+ color names
-        //http://www.w3schools.com/html/html_colornames.asp
-        //choose only what we need
+        // there are 140+ color names
+        // http://www.w3schools.com/html/html_colornames.asp
+        // choose only what we need
         // http://www.hi-pda.com/forum/forumdata/cache/common.js
-        //var coloroptions line
+        // var coloroptions line
 
 //        COLORS.put("aliceblue", "#f0f8ff");
 //        COLORS.put("antiquewhite", "#faebd7");

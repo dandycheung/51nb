@@ -46,7 +46,6 @@ import java.util.Map;
 import okhttp3.Request;
 
 public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.SmsPostListener {
-
     public static final String ARG_USERNAME = "USERNAME";
     public static final String ARG_UID = "UID";
 
@@ -71,13 +70,11 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
 
         setHasOptionsMenu(true);
 
-        if (getArguments().containsKey(ARG_USERNAME)) {
+        if (getArguments().containsKey(ARG_USERNAME))
             mUsername = getArguments().getString(ARG_USERNAME);
-        }
 
-        if (getArguments().containsKey(ARG_UID)) {
+        if (getArguments().containsKey(ARG_UID))
             mUid = getArguments().getString(ARG_UID);
-        }
     }
 
     @Override
@@ -183,9 +180,9 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
                         try {
                             Document doc = Jsoup.parse(response);
                             String message = Utils.nullToText(HiParser.parseErrorMessage(doc));
-                            if (message.contains("成功")) {
+                            if (message.contains("成功"))
                                 BlacklistHelper.syncBlacklists();
-                            }
+
                             UIUtils.toast(message);
                         } catch (Exception e) {
                             UIUtils.toast(OkHttpHelper.getErrorMessage(e).getMessage());
@@ -208,27 +205,25 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
         @Override
         public void onResponse(String response) {
             UserInfoBean info = HiParser.parseUserInfo(response);
-            if (info != null) {
-                if (HiSettingsHelper.getInstance().isLoadAvatar()) {
-                    mAvatarView.setVisibility(View.VISIBLE);
-                    GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, info.getAvatarUrl());
-                    mAvatarUrl = info.getAvatarUrl();
-                } else {
-                    mAvatarView.setVisibility(View.GONE);
-                }
-                mUsername = info.getUsername();
-                mUsernameView.setText(mUsername);
-                mFormhash = info.getFormhash();
+            if (info == null)
+                return;
 
-                if (info.isOnline()) {
-                    mOnlineView.setText("在线");
-                } else {
-                    mOnlineView.setText("离线");
-                }
-
-                mUserInfos = info.getInfos();
-                mUserInfoAdapter.notifyDataSetChanged();
+            if (HiSettingsHelper.getInstance().isLoadAvatar()) {
+                mAvatarView.setVisibility(View.VISIBLE);
+                GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, info.getAvatarUrl());
+                mAvatarUrl = info.getAvatarUrl();
+            } else {
+                mAvatarView.setVisibility(View.GONE);
             }
+
+            mUsername = info.getUsername();
+            mUsernameView.setText(mUsername);
+            mFormhash = info.getFormhash();
+
+            mOnlineView.setText(info.isOnline() ? "在线" : "离线");
+
+            mUserInfos = info.getInfos();
+            mUserInfoAdapter.notifyDataSetChanged();
         }
     }
 
@@ -249,7 +244,6 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
     }
 
     private class UserInfoAdapter extends RecyclerView.Adapter {
-
         private LayoutInflater mInflater;
 
         UserInfoAdapter(Context context) {
@@ -263,7 +257,6 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-
             ViewHolderImpl holder = (ViewHolderImpl) viewHolder;
 
             String key = mUserInfos.keySet().toArray(new String[mUserInfos.size()])[position];
@@ -271,8 +264,8 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
 
             if (TextUtils.isEmpty(value)) {
                 holder.tvTitle.setText(key);
-                holder.tvInfo.setText("");
                 holder.tvTitle.setTypeface(null, Typeface.BOLD);
+                holder.tvInfo.setText("");
             } else {
                 holder.tvTitle.setText(key);
                 holder.tvTitle.setTypeface(null, Typeface.NORMAL);
@@ -295,7 +288,5 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
                 tvInfo = (TextViewWithEmoticon) itemView.findViewById(R.id.tv_info);
             }
         }
-
     }
-
 }

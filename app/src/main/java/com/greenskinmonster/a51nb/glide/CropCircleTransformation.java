@@ -31,7 +31,6 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapResource;
 
 public class CropCircleTransformation implements Transformation<Bitmap> {
-
     private BitmapPool mBitmapPool;
 
     public CropCircleTransformation(Context context) {
@@ -51,20 +50,21 @@ public class CropCircleTransformation implements Transformation<Bitmap> {
         int height = (source.getHeight() - size) / 2;
 
         Bitmap bitmap = mBitmapPool.get(size, size, Bitmap.Config.ARGB_8888);
-        if (bitmap == null) {
+        if (bitmap == null)
             bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-        }
 
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
         BitmapShader shader =
                 new BitmapShader(source, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP);
+
         if (width != 0 || height != 0) {
             // source isn't square, move viewport to center
             Matrix matrix = new Matrix();
             matrix.setTranslate(-width, -height);
             shader.setLocalMatrix(matrix);
         }
+
         paint.setShader(shader);
         paint.setAntiAlias(true);
 
@@ -85,5 +85,4 @@ public class CropCircleTransformation implements Transformation<Bitmap> {
     public String getId() {
         return "CropCircleTransformation()";
     }
-
 }

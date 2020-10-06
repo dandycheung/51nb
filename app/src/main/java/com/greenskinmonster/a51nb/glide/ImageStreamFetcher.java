@@ -42,9 +42,8 @@ public class ImageStreamFetcher implements DataFetcher<InputStream> {
 
         Response response = client.newCall(request).execute();
         responseBody = response.body();
-        if (!response.isSuccessful()) {
+        if (!response.isSuccessful())
             throw new IOException(OkHttpHelper.ERROR_CODE_PREFIX + response.code());
-        }
 
         long contentLength = responseBody.contentLength();
         stream = ContentLengthInputStream.obtain(responseBody.byteStream(), contentLength);
@@ -52,15 +51,14 @@ public class ImageStreamFetcher implements DataFetcher<InputStream> {
     }
 
     private Request getRequest() {
-        Request.Builder requestBuilder = new Request.Builder()
-                .url(stringUrl);
+        Request.Builder requestBuilder = new Request.Builder().url(stringUrl);
 
         for (Map.Entry<String, String> headerEntry : url.getHeaders().entrySet()) {
             String key = headerEntry.getKey();
             requestBuilder.addHeader(key, headerEntry.getValue());
         }
 
-        //hack, replace User-Agent
+        // hack, replace User-Agent
         if (isForumUrl) {
             requestBuilder.removeHeader("User-Agent");
             requestBuilder.header("User-Agent", HiUtils.getUserAgent());
@@ -78,9 +76,9 @@ public class ImageStreamFetcher implements DataFetcher<InputStream> {
                 // Ignored
             }
         }
-        if (responseBody != null) {
+
+        if (responseBody != null)
             responseBody.close();
-        }
     }
 
     @Override

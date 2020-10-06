@@ -34,7 +34,6 @@ import java.util.Map;
  * Multi-licensed: EPL / LGPL / GPL / AL / BSD.
  */
 public class LRUCache<K, V> {
-
     private static final float hashTableLoadFactor = 0.75f;
 
     private LinkedHashMap<K, V> map;
@@ -112,5 +111,4 @@ public class LRUCache<K, V> {
     public synchronized Collection<Map.Entry<K, V>> getAll() {
         return new ArrayList<Map.Entry<K, V>>(map.entrySet());
     }
-
 } // end class LRUCache

@@ -13,21 +13,20 @@ import java.util.LinkedHashSet;
  * Created by GreenSkinMonster on 2016-07-23.
  */
 public class ContentDao {
-
     private final static int MAX_SIZE = 10;
 
     public synchronized static void saveContent(String sessionId, String content) {
         SQLiteDatabase db = null;
         try {
             db = ContentDBHelper.getHelper().getWritableDatabase();
-            if (!TextUtils.isEmpty(content)) {
+            if (TextUtils.isEmpty(content)) {
+                db.delete(ContentDBHelper.TABLE_NAME, "session_id=?", new String[]{sessionId});
+            } else {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put("session_id", sessionId);
                 contentValues.put("time", System.currentTimeMillis());
                 contentValues.put("content", content);
                 db.replace(ContentDBHelper.TABLE_NAME, null, contentValues);
-            } else {
-                db.delete(ContentDBHelper.TABLE_NAME, "session_id=?", new String[]{sessionId});
             }
         } catch (Exception e) {
             Logger.e(e);
@@ -98,7 +97,7 @@ public class ContentDao {
             if (db != null)
                 db.close();
         }
+
         return contents;
     }
-
 }

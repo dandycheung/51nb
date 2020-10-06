@@ -8,7 +8,7 @@
               android:orientation="vertical"
               android:padding="16dp">
 
-    <com.greenskinmonster.a51nb.ui.widget.ValueChagerView
+    <com.greenskinmonster.a51nb.ui.widget.ValueChangerView
         android:id="@+id/value_changer_size"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
         app:minValue="-3"
         app:title="@string/title_post_text_size_adjust"/>
 
-    <com.greenskinmonster.a51nb.ui.widget.ValueChagerView
+    <com.greenskinmonster.a51nb.ui.widget.ValueChangerView
         android:id="@+id/value_changer_ls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

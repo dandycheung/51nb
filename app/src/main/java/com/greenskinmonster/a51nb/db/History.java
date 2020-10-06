@@ -4,7 +4,6 @@ package com.greenskinmonster.a51nb.db;
  * Created by GreenSkinMonster on 2016-07-23.
  */
 public class History {
-
     private String mTid;
     private String mFid;
     private String mTitle;

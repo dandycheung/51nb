@@ -37,9 +37,8 @@ public class SimpleListActivity extends SwipeBaseActivity {
             @Override
             public void onSingleClick(View v) {
                 Fragment fg = getSupportFragmentManager().findFragmentById(R.id.main_frame_container);
-                if (fg instanceof BaseFragment) {
+                if (fg instanceof BaseFragment)
                     ((BaseFragment) fg).scrollToTop();
-                }
             }
         });
 
@@ -49,9 +48,8 @@ public class SimpleListActivity extends SwipeBaseActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (intent != null) {
+        if (intent != null)
             showFragment();
-        }
     }
 
     private void showFragment() {
@@ -59,15 +57,14 @@ public class SimpleListActivity extends SwipeBaseActivity {
         Bundle arguments = getIntent().getExtras();
 
         BaseFragment fragment;
-        if (arguments.getInt(SimpleListFragment.ARG_TYPE) == SimpleListJob.TYPE_SEARCH) {
+        if (arguments.getInt(SimpleListFragment.ARG_TYPE) == SimpleListJob.TYPE_SEARCH)
             fragment = new SearchFragment();
-        } else {
+        else {
             updateAppBarScrollFlag();
             fragment = new SimpleListFragment();
         }
 
         fragment.setArguments(arguments);
-        fragmentManager.beginTransaction()
-                .replace(R.id.main_frame_container, fragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.main_frame_container, fragment).commit();
     }
 }

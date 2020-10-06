@@ -21,7 +21,6 @@ import java.io.InputStream;
  * Created by GreenSkinMonster on 2015-03-18.
  */
 public class ThreadImageDecoder implements ResourceDecoder<InputStream, Bitmap> {
-
     private final static int IN_SAMPLE_LIMIT = 10000;
     private final static int MAX_WIDTH = getMaxWidth();
     private final static Bitmap.Config BITMAP_CONFIG = getBitmapConfig();
@@ -39,8 +38,7 @@ public class ThreadImageDecoder implements ResourceDecoder<InputStream, Bitmap> 
         BufferedInputStream bis = new BufferedInputStream(source);
 
         try {
-
-            //if source is too large, we should use inSampleSize to decode it
+            // if source is too large, we should use inSampleSize to decode it
             int inSampleSize = 1;
             if (Math.max(mImageInfo.getWidth(), mImageInfo.getHeight()) > IN_SAMPLE_LIMIT) {
                 bis.mark(bis.available());
@@ -56,8 +54,8 @@ public class ThreadImageDecoder implements ResourceDecoder<InputStream, Bitmap> 
             options.inPreferredConfig = BITMAP_CONFIG;
             if (inSampleSize > 1)
                 options.inSampleSize = inSampleSize;
-            Bitmap original = BitmapFactory.decodeStream(bis, null, options);
 
+            Bitmap original = BitmapFactory.decodeStream(bis, null, options);
             if (original == null) {
                 Logger.e("decode bitmap failed, image format may not be supported");
                 return null;
@@ -94,18 +92,19 @@ public class ThreadImageDecoder implements ResourceDecoder<InputStream, Bitmap> 
         } catch (Exception e) {
             Logger.e("error when decoding image", e);
         }
+
         return result;
     }
 
     private int getRotationDegree() {
         int degree = 0;
-        if (mImageInfo.getOrientation() == ExifInterface.ORIENTATION_ROTATE_90) {
+        if (mImageInfo.getOrientation() == ExifInterface.ORIENTATION_ROTATE_90)
             degree = 90;
-        } else if (mImageInfo.getOrientation() == ExifInterface.ORIENTATION_ROTATE_180) {
+        else if (mImageInfo.getOrientation() == ExifInterface.ORIENTATION_ROTATE_180)
             degree = 180;
-        } else if (mImageInfo.getOrientation() == ExifInterface.ORIENTATION_ROTATE_270) {
+        else if (mImageInfo.getOrientation() == ExifInterface.ORIENTATION_ROTATE_270)
             degree = 270;
-        }
+
         return degree;
     }
 
@@ -116,21 +115,23 @@ public class ThreadImageDecoder implements ResourceDecoder<InputStream, Bitmap> 
 
     private static int getMaxWidth() {
         long maxMemory = Runtime.getRuntime().maxMemory();
-        if (maxMemory <= 64 * 1024 * 1024) {
+        if (maxMemory <= 64 * 1024 * 1024)
             return 460;
-        } else if (maxMemory <= 128 * 1024 * 1024) {
+
+        if (maxMemory <= 128 * 1024 * 1024)
             return 520;
-        } else if (maxMemory <= 256 * 1024 * 1024) {
+
+        if (maxMemory <= 256 * 1024 * 1024)
             return 640;
-        }
+
         return 800;
     }
 
     private static Bitmap.Config getBitmapConfig() {
         long maxMemory = Runtime.getRuntime().maxMemory();
-        if (maxMemory < 256 * 1024 * 1024) {
+        if (maxMemory < 256 * 1024 * 1024)
             return Bitmap.Config.RGB_565;
-        }
+
         return Bitmap.Config.ARGB_8888;
     }
 }

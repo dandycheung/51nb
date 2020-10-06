@@ -1,4 +1,4 @@
-package com.greenskinmonster.a51nb.ui.setting;
+package com.greenskinmonster.a51nb.ui.settings;
 
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
@@ -11,7 +11,6 @@ import com.greenskinmonster.a51nb.bean.HiSettingsHelper;
  * Created by GreenSkinMonster on 2017-06-02.
  */
 public class TimePickerListener extends OnPreferenceClickListener {
-
     private String mDefaultValue;
 
     TimePickerListener(String defaultValue) {
@@ -24,6 +23,7 @@ public class TimePickerListener extends OnPreferenceClickListener {
 
         final TimePicker timePicker = new TimePicker(preference.getContext());
         String hourMinute = HiSettingsHelper.getInstance().getStringValue(preference.getKey(), mDefaultValue);
+
         int hour = -1;
         int minute = -1;
         try {
@@ -32,6 +32,7 @@ public class TimePickerListener extends OnPreferenceClickListener {
             minute = Integer.parseInt(pieces[1]);
         } catch (Exception ignored) {
         }
+
         timePicker.setIs24HourView(true);
         if (hour >= 0 && hour < 24 && minute >= 0 && minute < 60) {
             timePicker.setCurrentHour(hour);

@@ -17,7 +17,6 @@ import com.greenskinmonster.a51nb.utils.Utils;
  * Created by GreenSkinMonster on 2016-11-08.
  */
 public class XHeaderView extends RelativeLayout {
-
     public final static int STATE_HIDDEN = 0;
     public final static int STATE_LOADING = 1;
     public final static int STATE_READY = 2;
@@ -47,6 +46,7 @@ public class XHeaderView extends RelativeLayout {
 
     protected void setState(int state) {
         mState = state;
+
         switch (state) {
             case STATE_READY:
                 mProgressBar.setVisibility(GONE);
@@ -86,5 +86,4 @@ public class XHeaderView extends RelativeLayout {
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) mLayout.getLayoutParams();
         return lp.topMargin;
     }
-
 }
