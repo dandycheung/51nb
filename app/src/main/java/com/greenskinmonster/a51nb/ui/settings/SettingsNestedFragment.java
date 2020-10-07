@@ -20,7 +20,7 @@ import com.greenskinmonster.a51nb.bean.HiSettingsHelper;
 import com.greenskinmonster.a51nb.glide.GlideHelper;
 import com.greenskinmonster.a51nb.okhttp.OkHttpHelper;
 import com.greenskinmonster.a51nb.ui.FragmentUtils;
-import com.greenskinmonster.a51nb.ui.SettingActivity;
+import com.greenskinmonster.a51nb.ui.SettingsActivity;
 import com.greenskinmonster.a51nb.ui.widget.HiProgressDialog;
 import com.greenskinmonster.a51nb.utils.UIUtils;
 import com.greenskinmonster.a51nb.utils.Utils;
@@ -86,7 +86,7 @@ public class SettingsNestedFragment extends SettingsBaseFragment {
                             UIUtils.toast("您需要登录后才能使用本功能");
                             return true;
                         }
-                        Intent intent = new Intent(getActivity(), SettingActivity.class);
+                        Intent intent = new Intent(getActivity(), SettingsActivity.class);
                         intent.putExtra(BlacklistFragment.TAG_KEY, BlacklistFragment.TAG_KEY);
                         ActivityOptionsCompat options = ActivityOptionsCompat.makeCustomAnimation(getActivity(), R.anim.slide_in_right, 0);
                         ActivityCompat.startActivity(getActivity(), intent, options.toBundle());

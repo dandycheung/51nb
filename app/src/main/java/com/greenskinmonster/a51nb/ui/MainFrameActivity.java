@@ -496,12 +496,12 @@ public class MainFrameActivity extends BaseActivity {
                             NotiHelper.getCurrentNotification().getTotalNotiCount() > 0 ? SimpleListJob.NOTIFY_UNREAD : SimpleListJob.NOTIFY_THREAD);
                     break;
                 case Constants.DRAWER_SETTINGS:
-                    Intent intent = new Intent(MainFrameActivity.this, SettingActivity.class);
+                    Intent intent = new Intent(MainFrameActivity.this, SettingsActivity.class);
                     ActivityCompat.startActivity(MainFrameActivity.this, intent,
                             FragmentUtils.getAnimBundle(MainFrameActivity.this, false));
                     break;
                 case Constants.DRAWER_ALL_FORUMS:
-                    intent = new Intent(MainFrameActivity.this, SettingActivity.class);
+                    intent = new Intent(MainFrameActivity.this, SettingsActivity.class);
                     intent.putExtra(AllForumsFragment.TAG_KEY, AllForumsFragment.TAG_KEY);
                     ActivityCompat.startActivity(MainFrameActivity.this, intent,
                             FragmentUtils.getAnimBundle(MainFrameActivity.this, false));

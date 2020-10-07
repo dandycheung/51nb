@@ -18,7 +18,7 @@ import com.greenskinmonster.a51nb.ui.settings.SettingsNestedFragment;
  * Created by GreenSkinMonster on 2017-06-16.
  */
 
-public class SettingActivity extends SwipeBaseActivity {
+public class SettingsActivity extends SwipeBaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

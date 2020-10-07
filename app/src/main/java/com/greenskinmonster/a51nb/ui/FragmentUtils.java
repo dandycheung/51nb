@@ -246,7 +246,7 @@ public class FragmentUtils {
     }
 
     public static void showPasswordActivity(Activity activity, boolean skipEnterAnim, boolean forceSetSecQuestion) {
-        Intent intent = new Intent(activity, SettingActivity.class);
+        Intent intent = new Intent(activity, SettingsActivity.class);
         intent.putExtra(PasswordFragment.TAG_KEY, PasswordFragment.TAG_KEY);
         intent.putExtra(PasswordFragment.FORCE_SECQUEST_KEY, forceSetSecQuestion);
         ActivityCompat.startActivity(activity, intent, getAnimBundle(activity, skipEnterAnim));

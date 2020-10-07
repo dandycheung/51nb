@@ -14,7 +14,7 @@ import com.greenskinmonster.a51nb.bean.HiSettingsHelper;
 import com.greenskinmonster.a51nb.glide.GlideHelper;
 import com.greenskinmonster.a51nb.service.NotiHelper;
 import com.greenskinmonster.a51nb.ui.HiApplication;
-import com.greenskinmonster.a51nb.ui.SettingActivity;
+import com.greenskinmonster.a51nb.ui.SettingsActivity;
 import com.greenskinmonster.a51nb.utils.Constants;
 import com.greenskinmonster.a51nb.utils.Utils;
 
@@ -64,7 +64,7 @@ public class SettingsMainFragment extends SettingsBaseFragment {
                     if (elapsedTime <= Constants.MIN_CLICK_INTERVAL)
                         return true;
 
-                    Intent intent = new Intent(getActivity(), SettingActivity.class);
+                    Intent intent = new Intent(getActivity(), SettingsActivity.class);
                     intent.putExtra(SettingsNestedFragment.TAG_KEY, screenKey);
                     ActivityOptionsCompat options = ActivityOptionsCompat.makeCustomAnimation(getActivity(), R.anim.slide_in_right, 0);
                     ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
@@ -138,7 +138,7 @@ public class SettingsMainFragment extends SettingsBaseFragment {
                 + (Utils.isFromGooglePlay(getActivity()) ? " (Google Play)" : ""));
         dialogPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
-                Intent intent = new Intent(getActivity(), SettingActivity.class);
+                Intent intent = new Intent(getActivity(), SettingsActivity.class);
                 intent.putExtra(AboutFragment.TAG_KEY, AboutFragment.TAG_KEY);
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeCustomAnimation(getActivity(), R.anim.slide_in_right, 0);
                 ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
