@@ -388,7 +388,7 @@ public class PostFragment extends BaseFragment {
                 mPrePostInfo.setItemLocus(mEtItemLocus.getText().toString());
             }
 
-            updatePostingDatas();
+            updatePostingData();
         }
 
         super.onPause();
@@ -626,12 +626,12 @@ public class PostFragment extends BaseFragment {
         postBean.setSubject(subjectText);
         postBean.setFloor(mFloor);
 
-        updatePostingDatas();
+        updatePostingData();
 
         JobMgr.addJob(new PostJob(mSessionId, mMode, mPrePostInfo, postBean, false));
     }
 
-    private void updatePostingDatas() {
+    private void updatePostingData() {
         if (!PostHelper.SPECIAL_POLL.equals(mSpecial))
             return;
 
