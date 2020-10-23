@@ -23,11 +23,11 @@ import com.greenskinmonster.a51nb.glide.GlideHelper;
 import com.greenskinmonster.a51nb.utils.HiUtils;
 import com.greenskinmonster.a51nb.utils.UIUtils;
 import com.greenskinmonster.a51nb.utils.Utils;
-import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.IAdapter;
-import com.mikepenz.fastadapter.adapters.FooterAdapter;
 import com.mikepenz.fastadapter.commons.adapters.FastItemAdapter;
+import com.mikepenz.fastadapter.adapters.ItemAdapter;
 import com.mikepenz.fastadapter.items.AbstractItem;
+import com.mikepenz.fastadapter.listeners.OnClickListener;
 import com.mikepenz.fastadapter_extensions.scroll.EndlessRecyclerOnScrollListener;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class CommentsDialog extends Dialog {
     private RecyclerView mRecyclerView;
     private View.OnClickListener mItemClickListener;
     private FastItemAdapter<CommentItem> mFastAdapter;
-    private FooterAdapter<FooterItem> mFooterAdapter;
+    private ItemAdapter<FooterItem> mFooterAdapter;
 
     private int mCurrentPage = 1;
     private boolean mHasNextPage;
@@ -68,9 +68,9 @@ public class CommentsDialog extends Dialog {
         mRecyclerView.addItemDecoration(new SimpleDivider(getContext()));
 
         mFastAdapter = new FastItemAdapter<>();
-        mFooterAdapter = new FooterAdapter<>();
+        mFooterAdapter = new ItemAdapter<>();
 
-        mRecyclerView.setAdapter(mFooterAdapter.wrap(mFastAdapter));
+        mRecyclerView.setAdapter(mFastAdapter);
         List<CommentItem> items = new ArrayList<>();
         for (CommentBean bean : mDetailBean.getCommentLists().getComments()) {
             CommentItem item = new CommentItem(bean);
@@ -79,7 +79,7 @@ public class CommentsDialog extends Dialog {
         mFastAdapter.add(items);
 
         mFastAdapter.withSelectable(true);
-        mFastAdapter.withOnClickListener(new FastAdapter.OnClickListener<CommentItem>() {
+        mFastAdapter.withOnClickListener(new com.mikepenz.fastadapter.listeners.OnClickListener<CommentItem>() {
             @Override
             public boolean onClick(View v, IAdapter<CommentItem> adapter, CommentItem item, int position) {
                 v.setTag(R.id.avatar_tag_username, item.getBean().getAuthor());
@@ -218,4 +218,5 @@ public class CommentsDialog extends Dialog {
             }
         }
     }
+// */
 }
