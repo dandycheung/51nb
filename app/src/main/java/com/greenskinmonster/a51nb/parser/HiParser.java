@@ -697,8 +697,17 @@ public class HiParser {
             info.setOnline(true);
 
         Element uidEl = doc.select("div#uhd a[href*=space]").first();
-        if (uidEl != null)
-            info.setUid(Utils.getMiddleString(uidEl.attr("href"), "uid=", "&"));
+        if (uidEl != null) {
+            // 先尝试解析帖子详情楼层进入的用户链接，不对再尝试登录用户自身的用户链接格式；两种形式如：
+            /*
+            <a href="home.php?mod=spacecp&amp;ac=friend&amp;op=add&amp;uid=1043069&amp;handlekey=addfriendhk_1043069">加为好友</a>
+            <a href="space-uid-1043069.html"><img src="https://forum.51nb.com/uc_server/avatar.php?uid=1043069&amp;size=small"></a>             */
+            String uid = Utils.getMiddleString(uidEl.attr("href"), "uid=", "&");
+            if (TextUtils.isEmpty(uid))
+                uid = Utils.getMiddleString(uidEl.attr("href"), "space-uid-", ".");
+
+            info.setUid(uid);
+        }
 
         info.setFormhash(HiParser.parseFormhash(doc));
 

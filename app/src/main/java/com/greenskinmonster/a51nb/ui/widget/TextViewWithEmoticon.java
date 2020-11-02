@@ -336,7 +336,11 @@ public class TextViewWithEmoticon extends AppCompatTextView {
             final UrlDrawableGlide urlDrawable = new UrlDrawableGlide();
 
             System.out.println("Downloading from: " + url);
-            Glide.with(mCtx)
+
+            // NOTE: 此处之前使用 mCtx 传入 glide，会导致动画在加载过程中如果旋转屏幕的话产生崩溃，
+            // 查看 Glide.with 函数前的说明后照猫画虎改为 mFragment 的上下文问题消失。未予深究。
+            Context ctx = mFragment.getContext(); // mCtx;
+            Glide.with(ctx)
                     .load(url)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(new ImageGetterViewTarget(mTextView, urlDrawable));

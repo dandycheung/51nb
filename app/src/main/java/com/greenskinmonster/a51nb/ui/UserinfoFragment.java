@@ -1,8 +1,11 @@
 package com.greenskinmonster.a51nb.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +23,7 @@ import android.widget.TextView;
 import com.greenskinmonster.a51nb.R;
 import com.greenskinmonster.a51nb.async.BlacklistHelper;
 import com.greenskinmonster.a51nb.async.PostSmsAsyncTask;
+import com.greenskinmonster.a51nb.bean.ContentImg;
 import com.greenskinmonster.a51nb.bean.HiSettingsHelper;
 import com.greenskinmonster.a51nb.bean.UserInfoBean;
 import com.greenskinmonster.a51nb.glide.GlideHelper;
@@ -41,6 +45,7 @@ import com.mikepenz.iconics.IconicsDrawable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import okhttp3.Request;
@@ -88,13 +93,25 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
             mAvatarView.setOnClickListener(new OnSingleClickListener() {
                 @Override
                 public void onSingleClick(View v) {
-                    if (!TextUtils.isEmpty(mAvatarUrl)) {
-                        GlideHelper.clearAvatarCache(mAvatarUrl);
-                        GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, mAvatarUrl);
-                        UIUtils.toast("头像已经刷新");
-                    } else {
+                    if (TextUtils.isEmpty(mAvatarUrl)) {
                         UIUtils.toast("用户未设置头像");
+                        return;
                     }
+
+                    GlideHelper.clearAvatarCache(mAvatarUrl);
+                    GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, mAvatarUrl);
+                    UIUtils.toast("头像已经刷新");
+
+                    // try to display avatar, code copied from ThreadDetailFragment.startImageGallery
+                    Intent intent = new Intent(getActivity(), ImageViewerActivity.class);
+                    ActivityOptionsCompat options = ActivityOptionsCompat.
+                            makeScaleUpAnimation(v, 0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
+                    intent.putExtra(ImageViewerActivity.KEY_IMAGE_INDEX, 0);
+
+                    ArrayList<ContentImg> imgList = new ArrayList<>(1);
+                    imgList.add(new ContentImg(mAvatarUrl, 0, null));
+                    intent.putParcelableArrayListExtra(ImageViewerActivity.KEY_IMAGES, imgList);
+                    ActivityCompat.startActivity(getActivity(), intent, options.toBundle());
                 }
             });
         } else {

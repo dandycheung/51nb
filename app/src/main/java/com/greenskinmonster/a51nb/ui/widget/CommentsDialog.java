@@ -23,6 +23,7 @@ import com.greenskinmonster.a51nb.glide.GlideHelper;
 import com.greenskinmonster.a51nb.utils.HiUtils;
 import com.greenskinmonster.a51nb.utils.UIUtils;
 import com.greenskinmonster.a51nb.utils.Utils;
+import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.commons.adapters.FastItemAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
@@ -45,7 +46,7 @@ public class CommentsDialog extends Dialog {
 
     private RecyclerView mRecyclerView;
     private View.OnClickListener mItemClickListener;
-    private FastItemAdapter<CommentItem> mFastAdapter;
+    private FastItemAdapter mFastAdapter;
     private ItemAdapter<FooterItem> mFooterAdapter;
 
     private int mCurrentPage = 1;
@@ -67,8 +68,10 @@ public class CommentsDialog extends Dialog {
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.addItemDecoration(new SimpleDivider(getContext()));
 
-        mFastAdapter = new FastItemAdapter<>();
+        mFastAdapter = new FastItemAdapter<CommentItem>();
         mFooterAdapter = new ItemAdapter<>();
+
+        mFastAdapter.addAdapter(1, mFooterAdapter);
 
         mRecyclerView.setAdapter(mFastAdapter);
         List<CommentItem> items = new ArrayList<>();

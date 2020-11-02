@@ -522,52 +522,61 @@ public class MainFrameActivity extends BaseActivity {
     private class ProfileImageListener implements AccountHeader.OnAccountHeaderProfileImageListener {
         @Override
         public boolean onProfileImageClick(View view, IProfile profile, boolean current) {
-            if (LoginHelper.isLoggedIn()) {
-                Dialog dialog = new AlertDialog.Builder(MainFrameActivity.this)
-                        .setTitle("退出登录？")
-                        .setMessage("确认退出当前登录用户 <" + HiSettingsHelper.getInstance().getUsername() + "> ，并清除保存的登录信息？\n")
-                        .setPositiveButton(getResources().getString(android.R.string.ok),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        HiProgressDialog progressDialog = HiProgressDialog.show(MainFrameActivity.this, "正在退出...");
-                                        LoginHelper.logout();
-                                        updateAccountHeader();
-
-                                        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_frame_container);
-                                        if (fragment != null && fragment instanceof ThreadListFragment) {
-                                            ((ThreadListFragment) fragment).enterNotLoginState();
-                                        }
-
-                                        progressDialog.dismiss("已退出登录状态", 2000);
-                                        new Handler().postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                showLoginDialog();
-                                            }
-                                        }, 2000);
-                                    }
-                                })
-                        .setNegativeButton(getResources().getString(android.R.string.cancel),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                    }
-                                }).create();
-                dialog.show();
-            } else {
+            if (!LoginHelper.isLoggedIn()) {
                 showLoginDialog();
+                return true;
             }
-            return false;
+
+            String username = HiSettingsHelper.getInstance().getUsername();
+            String uid = HiSettingsHelper.getInstance().getUid();
+            FragmentUtils.showUserInfoActivity(MainFrameActivity.this, false, uid, username);
+
+            return true;
         }
 
         @Override
         public boolean onProfileImageLongClick(View view, IProfile profile, boolean current) {
-            return false;
+            if (!LoginHelper.isLoggedIn())
+                return false;
+
+            Dialog dialog = new AlertDialog.Builder(MainFrameActivity.this)
+                    .setTitle("退出登录？")
+                    .setMessage("确认退出当前登录用户 <" + HiSettingsHelper.getInstance().getUsername() + "> ，并清除保存的登录信息？\n")
+                    .setPositiveButton(getResources().getString(android.R.string.ok),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    HiProgressDialog progressDialog = HiProgressDialog.show(MainFrameActivity.this, "正在退出...");
+                                    LoginHelper.logout();
+                                    updateAccountHeader();
+
+                                    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.main_frame_container);
+                                    if (fragment instanceof ThreadListFragment) {
+                                        ((ThreadListFragment) fragment).enterNotLoginState();
+                                    }
+
+                                    progressDialog.dismiss("已退出登录状态", 2000);
+                                    new Handler().postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            showLoginDialog();
+                                        }
+                                    }, 2000);
+                                }
+                            })
+                    .setNegativeButton(getResources().getString(android.R.string.cancel),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            }).create();
+            dialog.show();
+
+            return true;
         }
     }
 
-    private class NetworkStateReceiver extends BroadcastReceiver {
+    private static class NetworkStateReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             HiSettingsHelper.updateMobileNetworkStatus(context);
@@ -693,7 +702,7 @@ public class MainFrameActivity extends BaseActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_CODE_STORAGE:
                 // If request is cancelled, the result arrays are empty.
