@@ -40,7 +40,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationVariants.all { variant ->
                 variant.outputs.each { output ->
-                    output.outputFile = new File(output.outputFile.parent, "51nb-release.apk")
+                    output.outputFile = new File(output.outputFile.parent, "51nb-release-v${variant.versionName}.apk")
                 }
             }
         }
@@ -67,8 +67,8 @@ dependencies {
     compile "com.android.support:preference-v7:$supportLibraryVersion"
     compile "com.android.support:preference-v14:$supportLibraryVersion"
 
-    compile 'org.jsoup:jsoup:1.10.2'
-    compile('com.squareup.okhttp3:okhttp:3.12.1')
+    compile 'org.jsoup:jsoup:1.13.1'
+    compile('com.squareup.okhttp3:okhttp:3.12.12')
 
     compile 'com.google.code.gson:gson:2.8.5'
 
