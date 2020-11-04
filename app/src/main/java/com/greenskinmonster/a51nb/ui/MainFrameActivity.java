@@ -614,11 +614,19 @@ public class MainFrameActivity extends BaseActivity {
     }
 
     void setDrawerSelection(int forumId) {
-        if (mDrawer != null && !mDrawer.isDrawerOpen()) {
-            int position = mDrawer.getPosition(forumId);
-            if (mDrawer.getCurrentSelectedPosition() != position)
-                mDrawer.setSelectionAtPosition(position, false);
-        }
+        if (mDrawer == null || mDrawer.isDrawerOpen())
+            return;
+
+        int position = mDrawer.getPosition(forumId);
+        if (mDrawer.getCurrentSelectedPosition() == position)
+            return;
+
+        // NOTE: 对于 -1 的判断，为 FastAdapter 升级为 3.2.1 后引入的额外判断，如果不提前判断的话，
+        // 则进入 setSelectionAtPosition 调用会引发异常
+        if (position == -1)
+            mDrawer.deselect();
+        else
+            mDrawer.setSelectionAtPosition(position, false);
     }
 
     public void setActionBarDisplayHomeAsUpEnabled(boolean showHomeAsUp) {
