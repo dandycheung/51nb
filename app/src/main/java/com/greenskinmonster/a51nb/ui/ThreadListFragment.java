@@ -89,7 +89,7 @@ public class ThreadListFragment extends BaseFragment
     private List<ThreadBean> mThreadBeans = new ArrayList<>();
     private XRecyclerView mRecyclerView;
 
-    private boolean mInloading = false;
+    private boolean mLoading = false;
     private SwipeRefreshLayout swipeLayout;
     private ContentLoadingView mLoadingView;
 
@@ -148,10 +148,10 @@ public class ThreadListFragment extends BaseFragment
         mLoadingView.setErrorStateListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mInloading)
+                if (mLoading)
                     return;
 
-                mInloading = true;
+                mLoading = true;
                 mLoadingView.setState(ContentLoadingView.LOAD_NOW);
                 refresh();
             }
@@ -195,10 +195,10 @@ public class ThreadListFragment extends BaseFragment
         if (!EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().register(this);
 
-        if (!mInloading) {
+        if (!mLoading) {
             if (mThreadBeans.size() == 0) {
                 mLoadingView.setState(ContentLoadingView.LOAD_NOW);
-                mInloading = true;
+                mLoading = true;
                 startJob();
             } else {
                 swipeLayout.setRefreshing(false);
@@ -270,7 +270,7 @@ public class ThreadListFragment extends BaseFragment
                 showForumTypesDialog();
                 return true;
             case R.id.action_order_by:
-                if (!mInloading) {
+                if (!mLoading) {
                     item.setChecked(!item.isChecked());
                     mOrderBy = item.isChecked() ? ThreadListJob.ORDER_BY_THREAD : ThreadListJob.ORDER_BY_REPLY;
                     mLoadingView.setState(ContentLoadingView.LOAD_NOW);
@@ -347,7 +347,7 @@ public class ThreadListFragment extends BaseFragment
 
         hideFooter();
 
-        mInloading = true;
+        mLoading = true;
 
         if (HiSettingsHelper.getInstance().isFabAutoHide() && mMainFab != null)
             FABHideOnScrollBehavior.hideFab(mMainFab);
@@ -390,10 +390,10 @@ public class ThreadListFragment extends BaseFragment
             if ((visibleItemCount + mFirstVisibleItem) < totalItemCount - 5)
                 return;
 
-            if (mInloading)
+            if (mLoading)
                 return;
 
-            mInloading = true;
+            mLoading = true;
 
             mPage++;
             mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
@@ -609,7 +609,7 @@ public class ThreadListFragment extends BaseFragment
     private class ThreadListEventCallback extends EventCallback<ThreadListEvent> {
         @Override
         public void onSuccess(ThreadListEvent event) {
-            mInloading = false;
+            mLoading = false;
             swipeLayout.setRefreshing(false);
             hideFooter();
 
@@ -668,7 +668,7 @@ public class ThreadListFragment extends BaseFragment
 
         @Override
         public void onFail(ThreadListEvent event) {
-            mInloading = false;
+            mLoading = false;
             swipeLayout.setRefreshing(false);
             hideFooter();
 
@@ -694,7 +694,7 @@ public class ThreadListFragment extends BaseFragment
     }
 
     protected void enterNotLoginState() {
-        mInloading = false;
+        mLoading = false;
         swipeLayout.setRefreshing(false);
 
         hideFooter();
@@ -731,7 +731,7 @@ public class ThreadListFragment extends BaseFragment
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(NetworkReadyEvent event) {
-        if (!mInloading && mThreadBeans.size() == 0)
+        if (!mLoading && mThreadBeans.size() == 0)
             refresh();
     }
 
