@@ -172,22 +172,24 @@ public class ThreadListParser {
 
             // author, authorId
             Element authorLinkEl = tdthES.get(authorIndex).select("cite a").first();
-            String author = authorLinkEl.text();
-            thread.setAuthor(author);
+            if (authorLinkEl != null) {
+                String author = authorLinkEl.text();
+                thread.setAuthor(author);
 
-            String userLink = authorLinkEl.attr("href");
-            String authorId = Utils.getMiddleString(userLink, "space-uid-", ".");
-            if (!HiUtils.isValidId(authorId))
-                continue;
+                String userLink = authorLinkEl.attr("href");
+                String authorId = Utils.getMiddleString(userLink, "space-uid-", ".");
+                if (!HiUtils.isValidId(authorId))
+                    continue;
 
-            if (HiSettingsHelper.getInstance().isInBlacklist(authorId))
-                continue;
+                if (HiSettingsHelper.getInstance().isInBlacklist(authorId))
+                    continue;
 
-            thread.setAuthorId(authorId);
+                thread.setAuthorId(authorId);
 
-            linkStyle = authorLinkEl.attr("style");
-            if (!TextUtils.isEmpty(linkStyle))
-                thread.setAuthorColor(Utils.getMiddleString(linkStyle, "color:", ";").trim());
+                linkStyle = authorLinkEl.attr("style");
+                if (!TextUtils.isEmpty(linkStyle))
+                    thread.setAuthorColor(Utils.getMiddleString(linkStyle, "color:", ";").trim());
+            }
 
             // 发帖时间
             String threadCreateTime = tdthES.get(threadTimeIndex).text();
