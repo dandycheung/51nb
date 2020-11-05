@@ -368,13 +368,13 @@ public class ThreadListParser {
 
         Elements tdES = tableList.select("#threadlisttableid > tbody > tr > td");
         for (Element tdEl : tdES) {
-            Element linkEl = tdEl.select("a[href*=viewthread]").first();
+            Element linkEl = tdEl.select("a[href^=thread-]").first();
             if (linkEl == null)
                 continue;
 
             RecommendThreadBean bean = new RecommendThreadBean();
             bean.setTitle(linkEl.html());
-            bean.setTid(Utils.getMiddleString(linkEl.attr("href"), "tid=", "&"));
+            bean.setTid(Utils.getMiddleString(linkEl.attr("href"), "thread-", "-1-1.html"));
 
             Element postInfoEl = tdEl.select("div.titleinfo").first();
             if (postInfoEl != null)
