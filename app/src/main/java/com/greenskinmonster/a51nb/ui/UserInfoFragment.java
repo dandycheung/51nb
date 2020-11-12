@@ -50,24 +50,24 @@ import java.util.Map;
 
 import okhttp3.Request;
 
-public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.SmsPostListener {
+public class UserInfoFragment extends BaseFragment implements PostSmsAsyncTask.SmsPostListener {
     public static final String ARG_USERNAME = "USERNAME";
     public static final String ARG_UID = "UID";
 
     private String mUid;
-    private String mUsername;
+    private String mUserName;
     private String mAvatarUrl;
-    private String mFormhash;
+    private String mFormHash;
 
     private ImageView mAvatarView;
-    private TextView mUsernameView;
+    private TextView mUserNameView;
     private TextView mOnlineView;
 
     private RecyclerView mRecyclerView;
     private UserInfoAdapter mUserInfoAdapter;
     private Map<String, String> mUserInfos;
 
-    private HiProgressDialog smsPostProgressDialog;
+    private HiProgressDialog mSmsPostProgressDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,7 +76,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
         setHasOptionsMenu(true);
 
         if (getArguments().containsKey(ARG_USERNAME))
-            mUsername = getArguments().getString(ARG_USERNAME);
+            mUserName = getArguments().getString(ARG_USERNAME);
 
         if (getArguments().containsKey(ARG_UID))
             mUid = getArguments().getString(ARG_UID);
@@ -99,7 +99,7 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
                     }
 
                     GlideHelper.clearAvatarCache(mAvatarUrl);
-                    GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, mAvatarUrl);
+                    GlideHelper.loadAvatar(UserInfoFragment.this, mAvatarView, mAvatarUrl);
                     UIUtils.toast("头像已经刷新");
 
                     // try to display avatar, code copied from ThreadDetailFragment.startImageGallery
@@ -118,9 +118,9 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
             mAvatarView.setVisibility(View.GONE);
         }
 
-        mUsernameView = (TextView) view.findViewById(R.id.userinfo_username);
-        mUsernameView.setText(mUsername);
-        mUsernameView.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() + 2);
+        mUserNameView = (TextView) view.findViewById(R.id.userinfo_username);
+        mUserNameView.setText(mUserName);
+        mUserNameView.setTextSize(HiSettingsHelper.getInstance().getPostTextSize() + 2);
 
         mOnlineView = (TextView) view.findViewById(R.id.user_online);
 
@@ -138,9 +138,8 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
             public void onSingleClick(View view) {
                 Bundle bundle = new Bundle();
                 bundle.putString(SimpleListFragment.ARG_UID, mUid);
-                bundle.putString(SimpleListFragment.ARG_USERNAME, mUsername);
-                FragmentUtils.showSimpleListActivity(UserinfoFragment.this.getActivity(), false, SimpleListJob.TYPE_MYPOST, bundle);
-
+                bundle.putString(SimpleListFragment.ARG_USERNAME, mUserName);
+                FragmentUtils.showSimpleListActivity(UserInfoFragment.this.getActivity(), false, SimpleListJob.TYPE_MYPOST, bundle);
             }
         });
 
@@ -183,10 +182,10 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
                 // Implemented in activity
                 return false;
             case R.id.action_send_sms:
-                UIUtils.showSendSmsDialog(getActivity(), mFormhash, mUid, mUsername, this);
+                UIUtils.showSendSmsDialog(getActivity(), mFormHash, mUid, mUserName, this);
                 return true;
             case R.id.action_blacklist:
-                BlacklistHelper.addBlacklist(mFormhash, mUsername, new OkHttpHelper.ResultCallback() {
+                BlacklistHelper.addBlacklist(mFormHash, mUserName, new OkHttpHelper.ResultCallback() {
                     @Override
                     public void onError(Request request, Exception e) {
                         UIUtils.toast(OkHttpHelper.getErrorMessage(e).getMessage());
@@ -227,15 +226,15 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
 
             if (HiSettingsHelper.getInstance().isLoadAvatar()) {
                 mAvatarView.setVisibility(View.VISIBLE);
-                GlideHelper.loadAvatar(UserinfoFragment.this, mAvatarView, info.getAvatarUrl());
+                GlideHelper.loadAvatar(UserInfoFragment.this, mAvatarView, info.getAvatarUrl());
                 mAvatarUrl = info.getAvatarUrl();
             } else {
                 mAvatarView.setVisibility(View.GONE);
             }
 
-            mUsername = info.getUsername();
-            mUsernameView.setText(mUsername);
-            mFormhash = info.getFormhash();
+            mUserName = info.getUserName();
+            mUserNameView.setText(mUserName);
+            mFormHash = info.getFormHash();
 
             mOnlineView.setText(info.isOnline() ? "在线" : "离线");
 
@@ -246,17 +245,17 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
 
     @Override
     public void onSmsPrePost() {
-        smsPostProgressDialog = HiProgressDialog.show(getActivity(), "正在发送...");
+        mSmsPostProgressDialog = HiProgressDialog.show(getActivity(), "正在发送...");
     }
 
     @Override
     public void onSmsPostDone(int status, final String message, AlertDialog dialog) {
         if (status == Constants.STATUS_SUCCESS) {
-            smsPostProgressDialog.dismiss(message);
+            mSmsPostProgressDialog.dismiss(message);
             if (dialog != null)
                 dialog.dismiss();
         } else {
-            smsPostProgressDialog.dismissError(message);
+            mSmsPostProgressDialog.dismissError(message);
         }
     }
 
@@ -279,12 +278,13 @@ public class UserinfoFragment extends BaseFragment implements PostSmsAsyncTask.S
             String key = mUserInfos.keySet().toArray(new String[mUserInfos.size()])[position];
             String value = mUserInfos.get(key);
 
+            holder.tvTitle.setText(key);
+            holder.tvInfo.setFragment(UserInfoFragment.this);
+
             if (TextUtils.isEmpty(value)) {
-                holder.tvTitle.setText(key);
                 holder.tvTitle.setTypeface(null, Typeface.BOLD);
                 holder.tvInfo.setText("");
             } else {
-                holder.tvTitle.setText(key);
                 holder.tvTitle.setTypeface(null, Typeface.NORMAL);
                 holder.tvInfo.setRichText(value);
             }

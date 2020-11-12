@@ -690,7 +690,7 @@ public class HiParser {
 
         Element usernameEl = doc.select("div#uhd h2.mt").first();
         if (usernameEl != null)
-            info.setUsername(Utils.nullToText(usernameEl.text()).trim());
+            info.setUserName(Utils.nullToText(usernameEl.text()).trim());
 
         Element onlineEl = doc.select("h2 > img[alt=online]").first();
         if (onlineEl != null)
@@ -709,7 +709,7 @@ public class HiParser {
             info.setUid(uid);
         }
 
-        info.setFormhash(HiParser.parseFormhash(doc));
+        info.setFormHash(HiParser.parseFormhash(doc));
 
         Map<String, String> infos = new LinkedHashMap<>();
         Elements infoES = doc.select("div.pbm, div#psts");

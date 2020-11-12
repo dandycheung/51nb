@@ -31,7 +31,7 @@ public class UserInfoActivity extends SwipeBaseActivity {
             return;
 
         Bundle arguments = getIntent().getExtras();
-        UserinfoFragment fragment = new UserinfoFragment();
+        UserInfoFragment fragment = new UserInfoFragment();
         fragment.setArguments(arguments);
         fragmentManager.beginTransaction().add(R.id.main_frame_container, fragment).commit();
     }

@@ -240,8 +240,8 @@ public class FragmentUtils {
 
     public static void showUserInfoActivity(Activity activity, boolean skipEnterAnim, String uid, String username) {
         Intent intent = new Intent(activity, UserInfoActivity.class);
-        intent.putExtra(UserinfoFragment.ARG_UID, uid);
-        intent.putExtra(UserinfoFragment.ARG_USERNAME, username);
+        intent.putExtra(UserInfoFragment.ARG_UID, uid);
+        intent.putExtra(UserInfoFragment.ARG_USERNAME, username);
         ActivityCompat.startActivity(activity, intent, getAnimBundle(activity, skipEnterAnim));
     }
 

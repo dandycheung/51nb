@@ -91,7 +91,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     private EditText mSearchTextView;
 
     private EditText mEtAuthor;
-    private CheckBox mCbFulltext;
+    private CheckBox mCbFullText;
     private Spinner mSpForum;
     private KeyValueArrayAdapter mSpAdapter;
     private SearchHistoryAdapter mHistoryAdapter;
@@ -106,7 +106,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
     private String mSearchId;
 
     private int mPage = 1;
-    private boolean mInloading = false;
+    private boolean mLoading = false;
     private int mMaxPage;
     private Drawable mIconDrawable;
     private Drawable mIbDrawable;
@@ -177,8 +177,8 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         mEtAuthor = (EditText) view.findViewById(R.id.et_author);
         mEtAuthor.setOnEditorActionListener(mSearchEditorActionListener);
 
-        mCbFulltext = (CheckBox) view.findViewById(R.id.cb_fulltext);
-        mCbFulltext.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mCbFullText = (CheckBox) view.findViewById(R.id.cb_fulltext);
+        mCbFullText.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (mSearchView == null)
@@ -266,6 +266,10 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mEtAuthor.setText("");
+                mSpForum.setSelection(0);
+                mCbFullText.setChecked(false);
+
                 if (TextUtils.isEmpty(mSearchTextView.getText()) &&
                         (mSearchFilterLayout.getVisibility() != View.VISIBLE
                                 || TextUtils.isEmpty(mEtAuthor.getText()))) {
@@ -273,15 +277,9 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
                     mSearchView.setQuery("", false);
                     mSearchView.onActionViewCollapsed();
                     mSearchMenuItem.collapseActionView();
-                    mEtAuthor.setText("");
-                    mSpForum.setSelection(0);
-                    mCbFulltext.setChecked(false);
                     hideSearchFilter();
                 } else {
                     mSearchTextView.setText("");
-                    mEtAuthor.setText("");
-                    mSpForum.setSelection(0);
-                    mCbFulltext.setChecked(false);
                 }
             }
         });
@@ -313,7 +311,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         mSearchBean.setQuery(mSearchView.getQuery().toString());
         mSearchBean.setForum(mSpAdapter.getEntryValue(mSpForum.getSelectedItemPosition()));
         mSearchBean.setAuthor(mEtAuthor.getText().toString());
-        mSearchBean.setFulltext(mCbFulltext.isChecked());
+        mSearchBean.setFulltext(mCbFullText.isChecked());
 
         String title = mSearchBean.getDescription();
         if (TextUtils.isEmpty(title))
@@ -324,7 +322,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
 
     private void restoreSearchBean() {
         mEtAuthor.setText(mSearchBean.getAuthor());
-        mCbFulltext.setChecked(mSearchBean.isFulltext());
+        mCbFullText.setChecked(mSearchBean.isFulltext());
 
         int position = 0;
         int i = 0;
@@ -463,19 +461,20 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
             if ((visibleItemCount + firstVisibleItem) < totalItemCount - 5)
                 return;
 
-            if (mInloading)
+            if (mLoading)
                 return;
 
-            mInloading = true;
-            if (mPage < mMaxPage) {
-                mPage++;
-                mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
-                mSearchBean.setSearchId(mSearchId);
-                SimpleListJob job = new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchBean);
-                JobMgr.addJob(job);
-            } else {
+            mLoading = true;
+            if (mPage >= mMaxPage) {
                 mRecyclerView.setFooterState(XFooterView.STATE_END);
+                return;
             }
+
+            mPage++;
+            mRecyclerView.setFooterState(XFooterView.STATE_LOADING);
+
+            mSearchBean.setSearchId(mSearchId);
+            JobMgr.addJob(new SimpleListJob(getActivity(), mSessionId, mType, mPage, mSearchBean));
         }
     }
 
@@ -559,8 +558,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
 
     private void saveQueries() {
         Gson gson = new Gson();
-        String v = gson.toJson(mQueries, new TypeToken<List<SearchBean>>() {
-        }.getType());
+        String v = gson.toJson(mQueries, new TypeToken<List<SearchBean>>() {}.getType());
         mPreferences.edit().putString(PREFERENCE_KEY, v).apply();
     }
 
@@ -568,8 +566,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
         String v = mPreferences.getString(PREFERENCE_KEY, "");
         try {
             Gson gson = new Gson();
-            mQueries = gson.fromJson(v, new TypeToken<List<SearchBean>>() {
-            }.getType());
+            mQueries = gson.fromJson(v, new TypeToken<List<SearchBean>>() {}.getType());
         } catch (Exception e) {
             Logger.e(e);
         }
@@ -580,10 +577,11 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
 
     private String[] getForumIds() {
         List<Forum> forums = HiSettingsHelper.getInstance().getFreqForums();
+
         String[] forumIds = new String[forums.size() + 1];
         forumIds[0] = "all";
-        int i = 1;
 
+        int i = 1;
         for (Forum forum : forums)
             forumIds[i++] = String.valueOf(forum.getId());
 
@@ -592,10 +590,11 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
 
     private String[] getForumNames() {
         List<Forum> forums = HiSettingsHelper.getInstance().getFreqForums();
+
         String[] forumNames = new String[forums.size() + 1];
         forumNames[0] = "全部版块";
-        int i = 1;
 
+        int i = 1;
         for (Forum forum : forums)
             forumNames[i++] = forum.getName();
 
@@ -614,7 +613,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
                 mLoadingView.setState(ContentLoadingView.CONTENT);
 
             mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
-            mInloading = false;
+            mLoading = false;
 
             UIUtils.errorSnack(getView(), event.mMessage, event.mDetail);
         }
@@ -624,7 +623,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
             mSwipeLayout.setEnabled(true);
             mSwipeLayout.setRefreshing(false);
             mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
-            mInloading = false;
+            mLoading = false;
 
             SimpleListBean list = event.mData;
             if (list == null || list.getCount() == 0) {
@@ -655,7 +654,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
             mSimpleListAdapter.notifyDataSetChanged();
             mLoadingView.setState(ContentLoadingView.NOT_LOGIN);
             mRecyclerView.setFooterState(XFooterView.STATE_HIDDEN);
-            mInloading = false;
+            mLoading = false;
         }
     }
 
@@ -678,6 +677,7 @@ public class SearchFragment extends BaseFragment implements SwipeRefreshLayout.O
 
             SearchBean item = getItem(position);
             holder.textview.setText(item.getDescription());
+
             Forum forum = HiUtils.getForumByFid(Utils.parseInt(item.getForum()));
             if (forum != null)
                 holder.imageview.setImageDrawable(new IconicsDrawable(getActivity(), forum.getIcon()).sizeDp(16).color(Color.GRAY));

@@ -5,12 +5,11 @@ import com.greenskinmonster.a51nb.utils.HiUtils;
 import java.util.Map;
 
 public class UserInfoBean {
-
-    private String mUsername;
+    private String mUserName;
     private String mUid;
-    private String mFormhash;
+    private String mFormHash;
     private Map<String, String> mInfos;
-    private boolean online;
+    private boolean mOnline;
 
     public UserInfoBean() {
     }
@@ -27,20 +26,20 @@ public class UserInfoBean {
         this.mUid = mUid;
     }
 
-    public String getUsername() {
-        return mUsername;
+    public String getUserName() {
+        return mUserName;
     }
 
-    public void setUsername(String mUsername) {
-        this.mUsername = mUsername;
+    public void setUserName(String userName) {
+        this.mUserName = userName;
     }
 
-    public String getFormhash() {
-        return mFormhash;
+    public String getFormHash() {
+        return mFormHash;
     }
 
-    public void setFormhash(String formhash) {
-        mFormhash = formhash;
+    public void setFormHash(String formHash) {
+        mFormHash = formHash;
     }
 
     public Map<String, String> getInfos() {
@@ -52,10 +51,10 @@ public class UserInfoBean {
     }
 
     public boolean isOnline() {
-        return online;
+        return mOnline;
     }
 
     public void setOnline(boolean online) {
-        this.online = online;
+        this.mOnline = online;
     }
 }

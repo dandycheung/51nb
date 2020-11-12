@@ -90,12 +90,12 @@ public class ThreadListFragment extends BaseFragment
     private XRecyclerView mRecyclerView;
 
     private boolean mLoading = false;
-    private SwipeRefreshLayout swipeLayout;
+    private SwipeRefreshLayout mSwipeLayout;
     private ContentLoadingView mLoadingView;
 
     private int mFirstVisibleItem = 0;
     private boolean mDataReceived = false;
-    private String mFormhash;
+    private String mFormHash;
 
     private MenuItem mForumTypeMenuItem;
     private MenuItem mOrderByMenuItem;
@@ -139,10 +139,10 @@ public class ThreadListFragment extends BaseFragment
         mRecyclerView.setAdapter(mThreadListAdapter);
         mRecyclerView.addOnScrollListener(new OnScrollListener());
 
-        swipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
-        swipeLayout.setOnRefreshListener(this);
-        swipeLayout.setColorSchemeColors(ColorHelper.getSwipeColor(getActivity()));
-        swipeLayout.setProgressBackgroundColorSchemeColor(ColorHelper.getSwipeBackgroundColor(getActivity()));
+        mSwipeLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
+        mSwipeLayout.setOnRefreshListener(this);
+        mSwipeLayout.setColorSchemeColors(ColorHelper.getSwipeColor(getActivity()));
+        mSwipeLayout.setProgressBackgroundColorSchemeColor(ColorHelper.getSwipeBackgroundColor(getActivity()));
 
         mLoadingView = (ContentLoadingView) view.findViewById(R.id.content_loading);
         mLoadingView.setErrorStateListener(new View.OnClickListener() {
@@ -201,7 +201,7 @@ public class ThreadListFragment extends BaseFragment
                 mLoading = true;
                 startJob();
             } else {
-                swipeLayout.setRefreshing(false);
+                mSwipeLayout.setRefreshing(false);
                 mLoadingView.setState(ContentLoadingView.CONTENT);
                 hideFooter();
             }
@@ -301,8 +301,8 @@ public class ThreadListFragment extends BaseFragment
                 public void onClick(View view) {
                     mLoadingView.setState(ContentLoadingView.LOAD_NOW);
 
-                    if (swipeLayout.isShown())
-                        swipeLayout.setRefreshing(false);
+                    if (mSwipeLayout.isShown())
+                        mSwipeLayout.setRefreshing(false);
 
                     refresh();
                 }
@@ -329,7 +329,7 @@ public class ThreadListFragment extends BaseFragment
                         FragmentUtils.showNotifyListActivity(getActivity(), false, SimpleListJob.TYPE_THREAD_NOTIFY, SimpleListJob.NOTIFY_UNREAD);
                         mNotificationFab.hide();
                     } else if (bean.isQiandao()) {
-                        QianDaoHelper.qiandao(mFormhash);
+                        QianDaoHelper.qiandao(mFormHash);
                         bean.setQiandao(false);
                         showNotification();
                     } else {
@@ -610,11 +610,11 @@ public class ThreadListFragment extends BaseFragment
         @Override
         public void onSuccess(ThreadListEvent event) {
             mLoading = false;
-            swipeLayout.setRefreshing(false);
+            mSwipeLayout.setRefreshing(false);
             hideFooter();
 
             ThreadListBean threads = event.mData;
-            mFormhash = threads.getFormhash();
+            mFormHash = threads.getFormhash();
 
             if (mPage == 1) {
                 mThreadBeans.clear();
@@ -669,7 +669,7 @@ public class ThreadListFragment extends BaseFragment
         @Override
         public void onFail(ThreadListEvent event) {
             mLoading = false;
-            swipeLayout.setRefreshing(false);
+            mSwipeLayout.setRefreshing(false);
             hideFooter();
 
             if (mPage > 1)
@@ -695,7 +695,7 @@ public class ThreadListFragment extends BaseFragment
 
     protected void enterNotLoginState() {
         mLoading = false;
-        swipeLayout.setRefreshing(false);
+        mSwipeLayout.setRefreshing(false);
 
         hideFooter();
 
