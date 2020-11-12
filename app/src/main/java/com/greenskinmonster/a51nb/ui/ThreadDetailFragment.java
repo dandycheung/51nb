@@ -1087,7 +1087,7 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
             return;
         }
 
-        new AsyncTask<Void, Void, PreRateBean>() {
+        class PreRateTask extends AsyncTask<Void, Void, PreRateBean> {
             private HiProgressDialog mProgressDialog;
             private String mMessage;
 
@@ -1115,22 +1115,20 @@ public class ThreadDetailFragment extends BaseFragment implements ThreadDetailLi
 
             @Override
             protected PreRateBean doInBackground(Void... params) {
-                PreRateBean bean = new PreRateBean();
-                bean.setTid(mTid);
+                PreRateBean bean = null;
                 try {
                     bean = ThreadActionHelper.fetchPreRateInfo(mTid, detailBean.getPostId());
-                    if (bean == null) {
+                    if (bean == null)
                         mMessage = "无法获取必要信息";
-                        return null;
-                    } else {
-                        return bean;
-                    }
                 } catch (Exception e) {
                     mMessage = OkHttpHelper.getErrorMessage(e).getMessage();
                 }
-                return null;
+
+                return bean;
             }
-        }.execute();
+        }
+
+        new PreRateTask().execute();
     }
 
     private void showSoftKeyboard() {

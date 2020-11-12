@@ -447,7 +447,7 @@ public class Utils {
                 end_idx = source.length();
         }
 
-        if (end_idx == -1 || end_idx <= start_idx)
+        if (end_idx <= start_idx)
             return "";
 
         return source.substring(start_idx, end_idx);
@@ -568,7 +568,7 @@ public class Utils {
             return activity.isDestroyed() || activity.isFinishing();
 
         return activity.isFinishing();
- }
+    }
 
     public static void writeFile(File destFile, String content) throws IOException {
         FileWriter fWriter = new FileWriter(destFile, true);

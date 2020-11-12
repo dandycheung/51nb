@@ -10,11 +10,9 @@ import com.evernote.android.job.JobCreator;
 public class NotiJobCreator implements JobCreator {
     @Override
     public Job create(String tag) {
-        switch (tag) {
-            case NotiJob.TAG:
-                return new NotiJob();
-            default:
-                return null;
-        }
+        if (NotiJob.TAG.equals(tag))
+            return new NotiJob();
+
+        return null;
     }
 }

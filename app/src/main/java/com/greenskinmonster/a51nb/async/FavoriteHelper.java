@@ -203,7 +203,7 @@ public class FavoriteHelper {
         }
     }
 
-    private class ParseResult {
+    private static class ParseResult {
         Set<String> tids;
         int lastPage = 1;
         boolean error = false;

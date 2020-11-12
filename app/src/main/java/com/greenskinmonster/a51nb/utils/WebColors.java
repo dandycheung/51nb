@@ -27,7 +27,7 @@ public class WebColors {
     private static final HashMap<String, Integer> sColorNameMap;
 
     static {
-        sColorNameMap = new HashMap<String, Integer>();
+        sColorNameMap = new HashMap<>();
         sColorNameMap.put("AliceBlue", 0xFFF0F8FF);
         sColorNameMap.put("AntiqueWhite", 0xFFFAEBD7);
         sColorNameMap.put("Aqua", 0xFF00FFFF);

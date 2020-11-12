@@ -59,7 +59,7 @@ public class SimpleListJob extends BaseJob {
 
     private Context mCtx;
     private int mType;
-    private int mPage = 1;
+    private int mPage;
     private SearchBean mSearchBean;
     private Bundle mBundle;
 

@@ -124,7 +124,7 @@ public class PrePostAsyncTask extends AsyncTask<PostBean, Void, PrePostInfoBean>
                 // sizeText : 100KB 8MB
                 try {
                     float size = Float.parseFloat(sizeText.substring(0, sizeText.length() - 1));
-                    String unit = sizeText.substring(sizeText.length() - 1, sizeText.length());
+                    String unit = sizeText.substring(sizeText.length() - 1);
                     if (size > 0) {
                         int maxFileSize = 0;
                         if ("K".equals(unit))
@@ -209,9 +209,8 @@ public class PrePostAsyncTask extends AsyncTask<PostBean, Void, PrePostInfoBean>
             Elements readPerms = doc.select("select#readperm > option");
             for (Element readPermEl : readPerms) {
                 perms.put(readPermEl.val(), readPermEl.text());
-                if (prePostInfo.getReadPerm() == null || "selected".equals(readPermEl.attr("selected"))) {
+                if (prePostInfo.getReadPerm() == null || "selected".equals(readPermEl.attr("selected")))
                     prePostInfo.setReadPerm(readPermEl.val());
-                }
             }
             prePostInfo.setReadPerms(perms);
 
@@ -225,17 +224,15 @@ public class PrePostAsyncTask extends AsyncTask<PostBean, Void, PrePostInfoBean>
                 int creditRandom = 100;
                 Elements creditRandomES = doc.select("select#replycredit_random > option");
                 for (Element optionEl : creditRandomES) {
-                    if ("selected".equals(optionEl.attr("selected"))) {
+                    if ("selected".equals(optionEl.attr("selected")))
                         creditRandom = Utils.parseInt(optionEl.val());
-                    }
                 }
 
                 prePostInfo.setExtCredit(extCredit);
                 prePostInfo.setCreditTimes(creditTimes);
-                prePostInfo.setCreditMemberTimes(creditMemberTimes < 1 ? 1 : creditMemberTimes);
+                prePostInfo.setCreditMemberTimes(Math.max(creditMemberTimes, 1));
                 prePostInfo.setCreditRandom(creditRandom);
                 prePostInfo.setCreditLeft(creditLeft);
-
             } else {
                 prePostInfo.setExtCredit(-1);
             }
@@ -297,9 +294,8 @@ public class PrePostAsyncTask extends AsyncTask<PostBean, Void, PrePostInfoBean>
             String value = null;
             Elements options = element.select("option");
             for (Element optionEl : options) {
-                if (value == null || "selected".equalsIgnoreCase(optionEl.attr("selected"))) {
+                if (value == null || "selected".equalsIgnoreCase(optionEl.attr("selected")))
                     value = optionEl.val();
-                }
             }
             return Utils.nullToText(value);
         }

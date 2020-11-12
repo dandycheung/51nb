@@ -90,7 +90,7 @@ public class AvatarStreamFetcher implements DataFetcher<InputStream> {
         }
 
         if (!f.exists()) {
-            // no memory cahce, avatar will be re-download in next ImageView
+            // no memory cache, avatar will be re-download in next ImageView
             return null;
         }
 

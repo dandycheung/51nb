@@ -322,7 +322,7 @@ public class PostHelper {
                 }
 
                 sb.append(Utils.replaceUrlWithTag(text.substring(0, tagStart)));
-                sb.append(text.substring(tagStart, tagEIndex));
+                sb.append(text, tagStart, tagEIndex);
                 text = text.substring(tagEIndex);
             }
         } catch (Exception e) {

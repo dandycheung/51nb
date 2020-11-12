@@ -37,7 +37,7 @@ public class SettingsActivity extends SwipeBaseActivity {
         if (fragmentManager.findFragmentById(R.id.main_frame_container) != null)
             return;
 
-        Fragment fragment = null;
+        Fragment fragment;
 
         Bundle arguments = getIntent().getExtras();
         if (arguments == null)

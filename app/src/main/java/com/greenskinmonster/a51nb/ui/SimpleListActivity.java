@@ -17,7 +17,6 @@ import com.greenskinmonster.a51nb.ui.widget.OnSingleClickListener;
  */
 
 public class SimpleListActivity extends SwipeBaseActivity {
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

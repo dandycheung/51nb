@@ -123,6 +123,7 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.6.7@aar') {
         transitive = true;
     }
+    compile 'androidx.exifinterface:exifinterface:1.1.0'
 
     // debugCompile('com.squareup.leakcanary:leakcanary-android:2.4')
 }

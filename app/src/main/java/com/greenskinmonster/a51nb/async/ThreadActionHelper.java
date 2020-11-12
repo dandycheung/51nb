@@ -141,6 +141,5 @@ public class ThreadActionHelper {
                         .replace("{fid}", String.valueOf(fid))
                         .replace("{tid}", tid),
                 params, callback);
-
     }
 }

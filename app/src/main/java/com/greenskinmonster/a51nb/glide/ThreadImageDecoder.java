@@ -33,7 +33,7 @@ public class ThreadImageDecoder implements ResourceDecoder<InputStream, Bitmap> 
     }
 
     @Override
-    public Resource<Bitmap> decode(InputStream source, int width, int height) throws IOException {
+    public Resource<Bitmap> decode(InputStream source, int width, int height) {
         Resource<Bitmap> result = null;
         BufferedInputStream bis = new BufferedInputStream(source);
 
@@ -71,7 +71,7 @@ public class ThreadImageDecoder implements ResourceDecoder<InputStream, Bitmap> 
                 return new SimpleResource<>(original);
             }
 
-            int newWidth = originalWidth > MAX_WIDTH ? MAX_WIDTH : originalWidth;
+            int newWidth = Math.min(originalWidth, MAX_WIDTH);
             float scale = ((float) newWidth) / originalWidth;
             int newHeight = Math.round(originalHeight * scale);
             if (newHeight > MAX_HEIGHT) {

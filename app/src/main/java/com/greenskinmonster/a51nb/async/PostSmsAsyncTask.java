@@ -75,7 +75,7 @@ public class PostSmsAsyncTask extends AsyncTask<String, Void, Void> {
         try {
             response = getInstance().post(url, params);
 
-            //response is in xml format
+            // response is in xml format
             if (TextUtils.isEmpty(response)) {
                 mResult = "发送失败: 无返回结果";
             } else if (response.contains("errorhandle_pmsend('")) {
