@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -63,6 +64,7 @@ import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.holder.BadgeStyle;
+import com.mikepenz.materialdrawer.holder.ImageHolder;
 import com.mikepenz.materialdrawer.holder.StringHolder;
 import com.mikepenz.materialdrawer.interfaces.OnCheckedChangeListener;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
@@ -74,12 +76,14 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
+import com.mikepenz.materialdrawer.view.BezelImageView;
 import com.vanniktech.emoji.EmojiHandler;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -199,6 +203,17 @@ public class MainFrameActivity extends BaseActivity {
         }
     }
 
+    static public void destroyBezelImageViewMask(BezelImageView biv) {
+        try {
+            Class cls = BezelImageView.class;
+            Field mask = cls.getDeclaredField("mMaskDrawable");
+            mask.setAccessible(true);
+            mask.set(biv, null);
+        } catch (Exception e) {
+            ;
+        }
+    }
+
     private void setupDrawer() {
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
             @Override
@@ -216,59 +231,112 @@ public class MainFrameActivity extends BaseActivity {
             }
         });
 
+        IProfile profile2 = new ProfileDrawerItem().withIcon(GoogleMaterial.Icon.gmd_email).withIdentifier(Constants.DRAWER_SMS);
+        IProfile profile3 = new ProfileDrawerItem().withIcon(GoogleMaterial.Icon.gmd_notifications).withIdentifier(Constants.DRAWER_THREADNOTIFY);
+
         // Create the AccountHeader
         mAccountHeader = new AccountHeaderBuilder()
                 .withActivity(this)
+                .withAccountHeader(R.layout.header_drawer)
                 .withHeaderBackground(R.drawable.header)
-                .withCompactStyle(true)
+                // .withCompactStyle(true)
                 .withDividerBelowHeader(false)
                 .withSelectionListEnabled(false)
-                .addProfiles(getProfileDrawerItem())
+                .addProfiles(getProfileDrawerItem(), profile2, profile3)
                 .withOnAccountHeaderProfileImageListener(new ProfileImageListener())
                 .build();
 
+        View mies = mAccountHeader.getView();
+
+        // 以下代码，设置顶行/底行通知图标；因为色彩的关系，图标要加载出来以后反色处理；
+        // 且，由于 BezelImageView 的默认实现会将要显示的图强制裁剪为圆形，会干扰图标
+        // 的正常显示，因而用反射方法将圆形遮罩强行去除。反色代码来自于：
+        // https://stackoverflow.com/questions/17841787/invert-colors-of-drawable
+
+        /**
+         * Color matrix that flips the components (<code>-1.0f * c + 255 = 255 - c</code>)
+         * and keeps the alpha intact.
+         */
+        final float[] NEGATIVE = {
+            -1.0f,     0,     0,    0, 255, // red
+                0, -1.0f,     0,    0, 255, // green
+                0,     0, -1.0f,    0, 255, // blue
+                0,     0,     0, 1.0f,   0  // alpha
+        };
+
+        final int[] viewIds = {
+            R.id.material_drawer_account_header_small_first,
+            R.id.material_drawer_account_header_small_second,
+            R.id.material_drawer_account_header_small_third
+        };
+
+        for (final int id : viewIds) {
+            BezelImageView imageView = (BezelImageView) mies.findViewById(id);
+            destroyBezelImageViewMask(imageView);
+            imageView.setColorFilter(new ColorMatrixColorFilter(NEGATIVE));
+        }
+
+        final class MyShortcut {
+            public int viewId;
+            public GoogleMaterial.Icon icon;
+            public int jobId;
+
+            public MyShortcut(int viewId, GoogleMaterial.Icon icon, int jobId) {
+                this.viewId = viewId;
+                this.icon = icon;
+                this.jobId = jobId;
+            }
+        }
+
+        MyShortcut shortcuts[] = {
+            new MyShortcut(R.id.material_drawer_account_header_my_posts, GoogleMaterial.Icon.gmd_assignment_ind, SimpleListJob.TYPE_MYPOST),
+            new MyShortcut(R.id.material_drawer_account_header_my_favorites, GoogleMaterial.Icon.gmd_favorite, SimpleListJob.TYPE_FAVORITES),
+            new MyShortcut(R.id.material_drawer_account_header_my_histories, GoogleMaterial.Icon.gmd_history, SimpleListJob.TYPE_HISTORIES),
+        };
+
+        for (final MyShortcut shortcut : shortcuts) {
+            BezelImageView imageView = (BezelImageView) mies.findViewById(shortcut.viewId);
+            destroyBezelImageViewMask(imageView);
+
+            // imageView.setBackgroundColor(-1);
+            imageView.setColorFilter(new ColorMatrixColorFilter(NEGATIVE));
+
+            ImageHolder imageHolder = new ImageHolder(shortcut.icon);
+            imageHolder.applyTo(imageView);
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, shortcut.jobId);
+                }
+            });
+        }
+
         ArrayList<IDrawerItem> drawerItems = new ArrayList<>();
         drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.SEARCH));
-        drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.SMS));
-        drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.THREAD_NOTIFY));
         drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.NEW_POSTS));
 
-        Set<String> freqMenuIds = HiSettingsHelper.getInstance().getFreqMenus();
-        Collection<IDrawerItem> subItems = new ArrayList<>();
-        if (freqMenuIds.contains("" + DrawerHelper.DrawerItem.MY_POST.id))
-            drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.MY_POST));
-        else
-            subItems.add(DrawerHelper.getSecondaryMenuItem(DrawerHelper.DrawerItem.MY_POST));
+        drawerItems.add(new DividerDrawerItem());
+        drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.ALL_FORUMS));
 
-        if (freqMenuIds.contains("" + DrawerHelper.DrawerItem.MY_FAVORITES.id))
-            drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.MY_FAVORITES));
-        else
-            subItems.add(DrawerHelper.getSecondaryMenuItem(DrawerHelper.DrawerItem.MY_FAVORITES));
-
-        if (freqMenuIds.contains("" + DrawerHelper.DrawerItem.HISTORIES.id))
-            drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.HISTORIES));
-        else
-            subItems.add(DrawerHelper.getSecondaryMenuItem(DrawerHelper.DrawerItem.HISTORIES));
-
-        if (freqMenuIds.contains("" + DrawerHelper.DrawerItem.WARRANTY.id))
-            drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.WARRANTY));
-        else
-            subItems.add(DrawerHelper.getSecondaryMenuItem(DrawerHelper.DrawerItem.WARRANTY));
-
-        if (subItems.size() > 0)
-            drawerItems.add(new ExpandableDrawerItem()
-                            .withName(R.string.title_drawer_expandable)
-                            .withIcon(GoogleMaterial.Icon.gmd_more_horiz)
-                            .withIdentifier(Constants.DRAWER_NO_ACTION)
-                            .withSelectable(false)
-                            .withSubItems(subItems.toArray(new IDrawerItem[subItems.size()])
-                            ));
+        List<Forum> forums = HiSettingsHelper.getInstance().getFreqForums();
+        for (Forum forum : forums) {
+            if (HiUtils.isForumValid(forum.getId())) {
+                drawerItems.add(new PrimaryDrawerItem()
+                        .withName(forum.getName())
+                        .withIdentifier(forum.getId())
+                        .withIcon(forum.getIcon()));
+            }
+        }
 
         drawerItems.add(new DividerDrawerItem());
+        drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.WARRANTY));
+
+        IDrawerItem settingsItem;
         if (TextUtils.isEmpty(HiSettingsHelper.getInstance().getNightTheme())) {
-            drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.SETTINGS));
+            settingsItem = DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.SETTINGS);
         } else {
-            drawerItems.add(new SwitchDrawerItem()
+            settingsItem = new SwitchDrawerItem()
                     .withName(R.string.title_drawer_setting)
                     .withIdentifier(Constants.DRAWER_SETTINGS)
                     .withIcon(GoogleMaterial.Icon.gmd_settings)
@@ -301,20 +369,10 @@ public class MainFrameActivity extends BaseActivity {
                                 mDrawer.closeDrawer();
                             }
                         }
-                    }));
+                    });
         }
-        drawerItems.add(new DividerDrawerItem());
-        drawerItems.add(DrawerHelper.getPrimaryMenuItem(DrawerHelper.DrawerItem.ALL_FORUMS));
 
-        List<Forum> forums = HiSettingsHelper.getInstance().getFreqForums();
-        for (Forum forum : forums) {
-            if (HiUtils.isForumValid(forum.getId())) {
-                drawerItems.add(new PrimaryDrawerItem()
-                        .withName(forum.getName())
-                        .withIdentifier(forum.getId())
-                        .withIcon(forum.getIcon()));
-            }
-        }
+        drawerItems.add(settingsItem);
 
         mDrawer = new DrawerBuilder()
                 .withActivity(this)
@@ -325,6 +383,7 @@ public class MainFrameActivity extends BaseActivity {
                 .withStickyFooterDivider(false)
                 .withStickyFooterShadow(false)
                 .withOnDrawerItemClickListener(new DrawerItemClickListener())
+                // .addStickyDrawerItems(settingsItem)
                 .build();
 
         mDrawer.getRecyclerView().setVerticalScrollBarEnabled(false);
@@ -522,6 +581,19 @@ public class MainFrameActivity extends BaseActivity {
     private class ProfileImageListener implements AccountHeader.OnAccountHeaderProfileImageListener {
         @Override
         public boolean onProfileImageClick(View view, IProfile profile, boolean current) {
+            if (profile != null) {
+                if (profile.getIdentifier() == Constants.DRAWER_SMS) {
+                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_SMS);
+                    return true;
+                }
+
+                if (profile.getIdentifier() == Constants.DRAWER_THREADNOTIFY) {
+                    FragmentUtils.showNotifyListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_THREAD_NOTIFY,
+                            NotiHelper.getCurrentNotification().getTotalNotiCount() > 0 ? SimpleListJob.NOTIFY_UNREAD : SimpleListJob.NOTIFY_THREAD);
+                    return true;
+                }
+            }
+
             if (!LoginHelper.isLoggedIn()) {
                 showLoginDialog();
                 return true;
@@ -536,6 +608,14 @@ public class MainFrameActivity extends BaseActivity {
 
         @Override
         public boolean onProfileImageLongClick(View view, IProfile profile, boolean current) {
+            if (profile != null) {
+                if (profile.getIdentifier() == Constants.DRAWER_SMS)
+                    return false;
+
+                if (profile.getIdentifier() == Constants.DRAWER_THREADNOTIFY)
+                    return false;
+            }
+
             if (!LoginHelper.isLoggedIn())
                 return false;
 

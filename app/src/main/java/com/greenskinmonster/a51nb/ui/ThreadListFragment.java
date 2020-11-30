@@ -457,7 +457,7 @@ public class ThreadListFragment extends BaseFragment
         });
 
         dialog.setContentView(view);
-        BottomSheetBehavior mBehavior = BottomSheetBehavior.from((View) view.getParent());
+        BottomSheetBehavior<View> mBehavior = BottomSheetBehavior.from((View) view.getParent());
         mBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         dialog.show();
     }
@@ -581,9 +581,9 @@ public class ThreadListFragment extends BaseFragment
         mRecyclerView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
     }
 
-    private class ForumTypesAdapter extends ArrayAdapter {
+    private class ForumTypesAdapter extends ArrayAdapter<String> {
         public ForumTypesAdapter(Context context) {
-            super(context, 0, mTypes.keySet().toArray(new String[mTypes.size()]));
+            super(context, 0, mTypes.keySet().toArray(new String[0]));
         }
 
         @Override
@@ -596,7 +596,7 @@ public class ThreadListFragment extends BaseFragment
                 row = convertView;
             }
 
-            String key = getItem(position).toString();
+            String key = getItem(position);
             row.setTag(key);
 
             TextView text = (TextView) row.findViewById(R.id.forum_type_text);
