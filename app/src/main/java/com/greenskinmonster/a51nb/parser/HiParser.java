@@ -142,18 +142,16 @@ public class HiParser {
 
             // 2，作者，发帖时间
             Element authorLinkEl = tdES.get(2).select("cite a").first();
-            String author = authorLinkEl.text();
-            thread.setAuthor(author);
+            if (authorLinkEl != null) {
+                String author = authorLinkEl.text();
+                thread.setAuthor(author);
 
-            String userLink = authorLinkEl.attr("href");
-            String authorId = Utils.getMiddleString(userLink, "space-uid-", ".");
-            if (!HiUtils.isValidId(authorId))
-                continue;
+                String userLink = authorLinkEl.attr("href");
+                String authorId = Utils.getMiddleString(userLink, "space-uid-", ".");
+                if (HiUtils.isValidId(authorId) && !HiSettingsHelper.getInstance().isInBlacklist(authorId))
+                    thread.setAuthorId(authorId);
+            }
 
-            if (HiSettingsHelper.getInstance().isInBlacklist(authorId))
-                continue;
-
-            thread.setAuthorId(authorId);
             thread.setForum(tdES.get(1).text());
 
             // 发帖时间

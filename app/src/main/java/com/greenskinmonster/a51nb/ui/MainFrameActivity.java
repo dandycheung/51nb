@@ -30,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 
@@ -48,6 +49,7 @@ import com.greenskinmonster.a51nb.job.ForumChangedEvent;
 import com.greenskinmonster.a51nb.job.SimpleListJob;
 import com.greenskinmonster.a51nb.service.NotiHelper;
 import com.greenskinmonster.a51nb.ui.settings.AllForumsFragment;
+import com.greenskinmonster.a51nb.ui.widget.BadgeView;
 import com.greenskinmonster.a51nb.ui.widget.FABHideOnScrollBehavior;
 import com.greenskinmonster.a51nb.ui.widget.HiProgressDialog;
 import com.greenskinmonster.a51nb.ui.widget.LoginDialog;
@@ -98,6 +100,9 @@ public class MainFrameActivity extends BaseActivity {
 
     private NetworkStateReceiver mNetworkReceiver;
     private LoginDialog mLoginDialog;
+
+    private BadgeView mMessageBadge;
+    private BadgeView mNoticeBadge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -231,9 +236,6 @@ public class MainFrameActivity extends BaseActivity {
             }
         });
 
-        IProfile profile2 = new ProfileDrawerItem().withIcon(GoogleMaterial.Icon.gmd_email).withIdentifier(Constants.DRAWER_SMS);
-        IProfile profile3 = new ProfileDrawerItem().withIcon(GoogleMaterial.Icon.gmd_notifications).withIdentifier(Constants.DRAWER_THREADNOTIFY);
-
         // Create the AccountHeader
         mAccountHeader = new AccountHeaderBuilder()
                 .withActivity(this)
@@ -242,39 +244,12 @@ public class MainFrameActivity extends BaseActivity {
                 // .withCompactStyle(true)
                 .withDividerBelowHeader(false)
                 .withSelectionListEnabled(false)
-                .addProfiles(getProfileDrawerItem(), profile2, profile3)
+                .addProfiles(getProfileDrawerItem())
                 .withOnAccountHeaderProfileImageListener(new ProfileImageListener())
                 .build();
 
+        // HACK: 以下代码对 Account Header 进行定制，以显示需要的组件，并设定适当的响应
         View mies = mAccountHeader.getView();
-
-        // 以下代码，设置顶行/底行通知图标；因为色彩的关系，图标要加载出来以后反色处理；
-        // 且，由于 BezelImageView 的默认实现会将要显示的图强制裁剪为圆形，会干扰图标
-        // 的正常显示，因而用反射方法将圆形遮罩强行去除。反色代码来自于：
-        // https://stackoverflow.com/questions/17841787/invert-colors-of-drawable
-
-        /**
-         * Color matrix that flips the components (<code>-1.0f * c + 255 = 255 - c</code>)
-         * and keeps the alpha intact.
-         */
-        final float[] NEGATIVE = {
-            -1.0f,     0,     0,    0, 255, // red
-                0, -1.0f,     0,    0, 255, // green
-                0,     0, -1.0f,    0, 255, // blue
-                0,     0,     0, 1.0f,   0  // alpha
-        };
-
-        final int[] viewIds = {
-            R.id.material_drawer_account_header_small_first,
-            R.id.material_drawer_account_header_small_second,
-            R.id.material_drawer_account_header_small_third
-        };
-
-        for (final int id : viewIds) {
-            BezelImageView imageView = (BezelImageView) mies.findViewById(id);
-            destroyBezelImageViewMask(imageView);
-            imageView.setColorFilter(new ColorMatrixColorFilter(NEGATIVE));
-        }
 
         final class MyShortcut {
             public int viewId;
@@ -289,27 +264,87 @@ public class MainFrameActivity extends BaseActivity {
         }
 
         MyShortcut shortcuts[] = {
+            new MyShortcut(R.id.material_drawer_account_header_small_first, GoogleMaterial.Icon.gmd_email, SimpleListJob.TYPE_SMS),
+            new MyShortcut(R.id.material_drawer_account_header_small_second, GoogleMaterial.Icon.gmd_notifications, -1),
+            new MyShortcut(R.id.material_drawer_account_header_small_third, null, 0),
             new MyShortcut(R.id.material_drawer_account_header_my_posts, GoogleMaterial.Icon.gmd_assignment_ind, SimpleListJob.TYPE_MYPOST),
             new MyShortcut(R.id.material_drawer_account_header_my_favorites, GoogleMaterial.Icon.gmd_favorite, SimpleListJob.TYPE_FAVORITES),
             new MyShortcut(R.id.material_drawer_account_header_my_histories, GoogleMaterial.Icon.gmd_history, SimpleListJob.TYPE_HISTORIES),
         };
 
+        // 以下代码，设置顶行/底行通知图标；因为色彩的关系，图标要加载出来以后反色处理；
+        // 且，由于 BezelImageView 的默认实现会将要显示的图强制裁剪为圆形，会干扰图标
+        // 的正常显示，因而用反射方法将圆形遮罩强行去除。反色代码来自于：
+        // https://stackoverflow.com/questions/17841787/invert-colors-of-drawable
+
+        /**
+         * Color matrix that flips the components (<code>-1.0f * c + 255 = 255 - c</code>)
+         * and keeps the alpha intact.
+         */
+        final float[] NEGATIVE = {
+            -1.0f,     0,     0,    0, 255, // red
+            0,     -1.0f,     0,    0, 255, // green
+            0,         0, -1.0f,    0, 255, // blue
+            0,         0,     0, 1.0f,   0  // alpha
+        };
+
         for (final MyShortcut shortcut : shortcuts) {
             BezelImageView imageView = (BezelImageView) mies.findViewById(shortcut.viewId);
             destroyBezelImageViewMask(imageView);
-
-            // imageView.setBackgroundColor(-1);
             imageView.setColorFilter(new ColorMatrixColorFilter(NEGATIVE));
 
-            ImageHolder imageHolder = new ImageHolder(shortcut.icon);
-            imageHolder.applyTo(imageView);
+            if (shortcut.icon != null) {
+                imageView.setVisibility(View.VISIBLE);
 
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, shortcut.jobId);
-                }
-            });
+                ImageHolder imageHolder = new ImageHolder(shortcut.icon);
+                imageHolder.applyTo(imageView);
+            }
+
+            if (shortcut.jobId > 0) {
+                imageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, shortcut.jobId);
+                    }
+                });
+            } else {
+                if (shortcut.jobId == -1)
+                    assignNotificationViewActions(imageView, SimpleListJob.TYPE_THREAD_NOTIFY);
+            }
+        }
+
+        //*
+        mMessageBadge = BadgeView.Builder.create(this)
+                .setTextColor(Color.WHITE)
+                .setWidthAndHeight(16,16)
+                .setBadgeBackground(Color.RED)
+                .setTextSize(10)
+                .setBadgeGravity(Gravity.RIGHT | Gravity.BOTTOM)
+                .setBadgeCount(0)
+                .setShape(BadgeView.SHAPE_CIRCLE)
+                .setSpace(2,2)
+                .bind(mies.findViewById(R.id.material_drawer_account_header_small_first));
+        if (mMessageBadge != null) {
+            mMessageBadge.bringToFront();
+            mMessageBadge.setVisibility(View.INVISIBLE);
+        }
+        // */
+
+        //*
+        mNoticeBadge = BadgeView.Builder.create(this)
+                .setTextColor(Color.WHITE)
+                .setWidthAndHeight(16,16)
+                .setBadgeBackground(Color.RED)
+                .setTextSize(10)
+                .setBadgeGravity(Gravity.RIGHT | Gravity.BOTTOM)
+                .setBadgeCount(0)
+                .setShape(BadgeView.SHAPE_CIRCLE)
+                .setSpace(2,2)
+                .bind(mies.findViewById(R.id.material_drawer_account_header_small_second));
+        // */
+        if (mNoticeBadge != null) {
+            mNoticeBadge.bringToFront();
+            mNoticeBadge.setVisibility(View.INVISIBLE);
         }
 
         ArrayList<IDrawerItem> drawerItems = new ArrayList<>();
@@ -420,10 +455,81 @@ public class MainFrameActivity extends BaseActivity {
         }
     }
 
+    public static View getChildById(View view, int id) {
+        ViewGroup vg = (ViewGroup) view;
+        if (view == null)
+            return null;
+
+        for (int i=0; i<vg.getChildCount(); i++) {
+            View v = vg.getChildAt(i);
+            if (v != null && v.getId() == id)
+                return v;
+        }
+
+        return null;
+    }
+
+    protected void assignNotificationViewActions(View view, int action) {
+        if (action == SimpleListJob.TYPE_SMS) {
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_SMS);
+                }
+            });
+        } else if (action == SimpleListJob.TYPE_THREAD_NOTIFY) {
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FragmentUtils.showNotifyListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_THREAD_NOTIFY,
+                            NotiHelper.getCurrentNotification().getTotalNotiCount() > 0 ? SimpleListJob.NOTIFY_UNREAD : SimpleListJob.NOTIFY_THREAD);
+                }
+            });
+        }
+    }
+
     public void updateAccountHeader() {
         if (mAccountHeader != null) {
+            IProfile profile = getProfileDrawerItem();
+
+            // mAccountHeader.updateProfile(profile);
+
             mAccountHeader.removeProfile(0);
-            mAccountHeader.addProfile(getProfileDrawerItem(), 0);
+            mAccountHeader.addProfile(profile, 0);
+
+            // mAccountHeader.setActiveProfile(profile);
+
+            // HACK: 确保信息提示控件可见
+            View mies = mAccountHeader.getView();
+            View ctrl = mies.findViewById(R.id.material_drawer_account_header_small_first);
+            if (ctrl != null) {
+                ctrl.setVisibility(View.VISIBLE);
+
+                // 如果是有 badge 的情况，则 ctrl 此时事实上是 badge 自动创建的和原控件共有的父控件，
+                // 需要找打真正的控件
+                if (mMessageBadge != null) {
+                    ctrl = getChildById(ctrl, R.id.material_drawer_account_header_small_first);
+                    if (ctrl != null)
+                        ctrl.setVisibility(View.VISIBLE);
+                }
+
+                assignNotificationViewActions(ctrl, SimpleListJob.TYPE_SMS);
+            }
+
+            ctrl = mies.findViewById(R.id.material_drawer_account_header_small_second);
+            if (ctrl != null) {
+                ctrl.setVisibility(View.VISIBLE);
+
+                // 如果是有 badge 的情况，则 ctrl 此时事实上是 badge 自动创建的和原控件共有的父控件，
+                // 需要找打真正的控件
+                if (mNoticeBadge != null) {
+                    ctrl = getChildById(ctrl, R.id.material_drawer_account_header_small_second);
+                    if (ctrl != null)
+                        ctrl.setVisibility(View.VISIBLE);
+                }
+
+                assignNotificationViewActions(ctrl, SimpleListJob.TYPE_THREAD_NOTIFY);
+            }
         }
     }
 
@@ -581,19 +687,6 @@ public class MainFrameActivity extends BaseActivity {
     private class ProfileImageListener implements AccountHeader.OnAccountHeaderProfileImageListener {
         @Override
         public boolean onProfileImageClick(View view, IProfile profile, boolean current) {
-            if (profile != null) {
-                if (profile.getIdentifier() == Constants.DRAWER_SMS) {
-                    FragmentUtils.showSimpleListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_SMS);
-                    return true;
-                }
-
-                if (profile.getIdentifier() == Constants.DRAWER_THREADNOTIFY) {
-                    FragmentUtils.showNotifyListActivity(MainFrameActivity.this, false, SimpleListJob.TYPE_THREAD_NOTIFY,
-                            NotiHelper.getCurrentNotification().getTotalNotiCount() > 0 ? SimpleListJob.NOTIFY_UNREAD : SimpleListJob.NOTIFY_THREAD);
-                    return true;
-                }
-            }
-
             if (!LoginHelper.isLoggedIn()) {
                 showLoginDialog();
                 return true;
@@ -608,14 +701,6 @@ public class MainFrameActivity extends BaseActivity {
 
         @Override
         public boolean onProfileImageLongClick(View view, IProfile profile, boolean current) {
-            if (profile != null) {
-                if (profile.getIdentifier() == Constants.DRAWER_SMS)
-                    return false;
-
-                if (profile.getIdentifier() == Constants.DRAWER_THREADNOTIFY)
-                    return false;
-            }
-
             if (!LoginHelper.isLoggedIn())
                 return false;
 
@@ -667,6 +752,16 @@ public class MainFrameActivity extends BaseActivity {
     public void updateDrawerBadge() {
         int smsCount = NotiHelper.getCurrentNotification().getSmsCount();
         int threadCount = NotiHelper.getCurrentNotification().getTotalNotiCount();
+
+        if (mMessageBadge != null) {
+            mMessageBadge.setBadgeCount(smsCount);
+            mMessageBadge.setVisibility(smsCount == 0 ? View.INVISIBLE : View.VISIBLE);
+        }
+
+        if (mNoticeBadge != null) {
+            mNoticeBadge.setBadgeCount(threadCount);
+            mNoticeBadge.setVisibility(threadCount == 0 ? View.INVISIBLE : View.VISIBLE);
+        }
 
         int threadNotifyIndex = mDrawer.getPosition(Constants.DRAWER_THREADNOTIFY);
         if (threadNotifyIndex != -1) {
