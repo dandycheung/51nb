@@ -378,7 +378,10 @@ public class TextViewWithEmoticon extends AppCompatTextView {
 
                 int size = (int) (getLineHeight() * 1.2);
                 // if (width > size)
-                    width = size;
+                    width = width * size / height;
+
+                 if (width <= 0)
+                     width = 1;
 
                 // if (height > size)
                     height = size;
