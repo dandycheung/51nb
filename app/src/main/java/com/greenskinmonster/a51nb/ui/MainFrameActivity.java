@@ -58,6 +58,7 @@ import com.greenskinmonster.a51nb.utils.ColorHelper;
 import com.greenskinmonster.a51nb.utils.Constants;
 import com.greenskinmonster.a51nb.utils.DrawerHelper;
 import com.greenskinmonster.a51nb.utils.HiUtils;
+import com.greenskinmonster.a51nb.utils.MaterialDrawerColorManager;
 import com.greenskinmonster.a51nb.utils.UIUtils;
 import com.greenskinmonster.a51nb.utils.Utils;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
@@ -422,6 +423,10 @@ public class MainFrameActivity extends BaseActivity {
                 .build();
 
         mDrawer.getRecyclerView().setVerticalScrollBarEnabled(false);
+
+        int color = HiSettingsHelper.getInstance().getPrimaryColor();
+        MaterialDrawerColorManager.setSelectedIconColor(mDrawer, color);
+        MaterialDrawerColorManager.setSelectedTextColor(mDrawer, color);
     }
 
     private ProfileDrawerItem getProfileDrawerItem() {
