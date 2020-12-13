@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- 对侧滑菜单布局修改后，此选项的作用已经失去
     <MultiSelectListPreference
         android:defaultValue="@array/default_freq_menu_values"
         android:entries="@array/pref_title_freq_menu_names"
         android:entryValues="@array/pref_title_freq_menu_values"
         android:key="PERF_FREQ_MENUS"
         android:title="@string/pref_title_freq_menus"/>
+    -->
 
     <Preference
         android:key="PERF_PASSWORD_MGT"
