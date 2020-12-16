@@ -256,6 +256,8 @@ public class MainFrameActivity extends BaseActivity {
 
             ColorFilter filter = new LightingColorFilter(Color.argb(0, r, g, b), themePrimaryColor);
             hdrBg.setColorFilter(filter);
+        } else {
+            hdrBg.setColorFilter(Color.TRANSPARENT, PorterDuff.Mode.SRC_ATOP);
         }
 
         // Create the AccountHeader
