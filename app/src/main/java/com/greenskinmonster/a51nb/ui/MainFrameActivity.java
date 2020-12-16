@@ -250,9 +250,11 @@ public class MainFrameActivity extends BaseActivity {
             int b = Color.blue(themePrimaryColor);
 
             int rgb = r + g + b;
-            r = 255 * r / rgb;
-            g = 255 * g / rgb;
-            b = 255 * b / rgb;
+            if (rgb != 0) {
+                r = 255 * r / rgb;
+                g = 255 * g / rgb;
+                b = 255 * b / rgb;
+            }
 
             ColorFilter filter = new LightingColorFilter(Color.argb(0, r, g, b), themePrimaryColor);
             hdrBg.setColorFilter(filter);
