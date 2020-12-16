@@ -8,7 +8,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.LightingColorFilter;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -237,11 +240,30 @@ public class MainFrameActivity extends BaseActivity {
             }
         });
 
+        int themePrimaryColor = HiSettingsHelper.getInstance().getPrimaryColor();
+
+        // 以下程序段试图根据亮色主题的主色调对 AccountHeader 的背景图自动进行调整
+        Drawable hdrBg = getResources().getDrawable(R.drawable.header);
+        if (HiSettingsHelper.getInstance().isUsingLightTheme()) {
+            int r = Color.red(themePrimaryColor);
+            int g = Color.green(themePrimaryColor);
+            int b = Color.blue(themePrimaryColor);
+
+            int rgb = r + g + b;
+            r = 255 * r / rgb;
+            g = 255 * g / rgb;
+            b = 255 * b / rgb;
+
+            ColorFilter filter = new LightingColorFilter(Color.argb(0, r, g, b), themePrimaryColor);
+            hdrBg.setColorFilter(filter);
+        }
+
         // Create the AccountHeader
         mAccountHeader = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withAccountHeader(R.layout.header_drawer)
-                .withHeaderBackground(R.drawable.header)
+                // .withHeaderBackground(R.drawable.header)
+                .withHeaderBackground(hdrBg)
                 // .withCompactStyle(true)
                 .withDividerBelowHeader(false)
                 .withSelectionListEnabled(false)
@@ -424,9 +446,11 @@ public class MainFrameActivity extends BaseActivity {
 
         mDrawer.getRecyclerView().setVerticalScrollBarEnabled(false);
 
-        int color = HiSettingsHelper.getInstance().getPrimaryColor();
-        MaterialDrawerColorManager.setSelectedIconColor(mDrawer, color);
-        MaterialDrawerColorManager.setSelectedTextColor(mDrawer, color);
+        if (HiSettingsHelper.getInstance().isUsingLightTheme()) {
+            MaterialDrawerColorManager.setSelectedColor(mDrawer, themePrimaryColor);
+            MaterialDrawerColorManager.setSelectedIconColor(mDrawer, Color.WHITE);
+            MaterialDrawerColorManager.setSelectedTextColor(mDrawer, Color.WHITE);
+        }
     }
 
     private ProfileDrawerItem getProfileDrawerItem() {

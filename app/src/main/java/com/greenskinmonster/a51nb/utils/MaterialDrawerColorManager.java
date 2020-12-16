@@ -210,56 +210,6 @@ public class MaterialDrawerColorManager {
         return setItemColor(item, color, ColorType.DISABLED_ICON_COLOR);
     }
 
-    /*
-    // 1. 处理 selectedColor
-    public boolean setSelectedColor(int color) {
-        if (mDrawers == null)
-            return true;
-
-        for (Drawer drawer : mDrawers)
-            setSelectedColor(drawer, color);
-
-        return true;
-    }
-
-    public static boolean setSelectedColor(Drawer drawer, int color) {
-        if (drawer == null)
-            return false;
-
-        List<IDrawerItem> items = drawer.getDrawerItems();
-        if (items == null)
-            return true;
-
-        for (IDrawerItem item : items) {
-            BaseDrawerItem bdi = (BaseDrawerItem) item;
-            if (bdi == null)
-                continue;
-
-            setItemSelectedColor(bdi, color);
-        }
-
-        return true;
-    }
-
-    public static boolean setItemSelectedColor(BaseDrawerItem item, int color) {
-        if (item == null)
-            return false;
-
-        ColorHolder ch = ColorHolder.fromColor(color);
-
-        try {
-            Class cls = BaseDrawerItem.class;
-            Field mask = cls.getDeclaredField("selectedColor");
-            mask.setAccessible(true);
-            mask.set(item, ch);
-        } catch (Exception e) {
-            return false;
-        }
-
-        return true;
-    }
-    // */
-
     // 工具方法
     public static int getRandomColor() {
         int r = 0;
