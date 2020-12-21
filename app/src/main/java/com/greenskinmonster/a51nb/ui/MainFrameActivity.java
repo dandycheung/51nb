@@ -12,6 +12,7 @@ import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.LightingColorFilter;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -245,18 +246,20 @@ public class MainFrameActivity extends BaseActivity {
         // 以下程序段试图根据亮色主题的主色调对 AccountHeader 的背景图自动进行调整
         Drawable hdrBg = getResources().getDrawable(R.drawable.header);
         if (HiSettingsHelper.getInstance().isUsingLightTheme()) {
-            int r = Color.red(themePrimaryColor);
-            int g = Color.green(themePrimaryColor);
-            int b = Color.blue(themePrimaryColor);
+            /*
+            // 此过滤器是将图转变为灰度图
+            ColorMatrixColorFilter filter = new ColorMatrixColorFilter(new float[]{
+                    0.33F, 0.59F, 0.11F, 0, 0,
+                    0.33F, 0.59F, 0.11F, 0, 0,
+                    0.33F, 0.59F, 0.11F, 0, 0,
+                    0, 0, 0, 1, 0,
+            });
+            // */
 
-            int rgb = r + g + b;
-            if (rgb != 0) {
-                r = 255 * r / rgb;
-                g = 255 * g / rgb;
-                b = 255 * b / rgb;
-            }
+            // ColorFilter filter = new LightingColorFilter(themePrimaryColor, 1);
 
-            ColorFilter filter = new LightingColorFilter(Color.argb(0, r, g, b), themePrimaryColor);
+            // 最终选定此过滤器效果
+            PorterDuffColorFilter filter = new PorterDuffColorFilter(themePrimaryColor, PorterDuff.Mode.OVERLAY);
             hdrBg.setColorFilter(filter);
         } else {
             hdrBg.setColorFilter(Color.TRANSPARENT, PorterDuff.Mode.SRC_ATOP);
