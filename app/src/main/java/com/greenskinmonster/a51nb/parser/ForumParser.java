@@ -44,8 +44,10 @@ public class ForumParser {
                 allForums.add(new Forum(gid, Forum.GROUP, gname));
 
                 Elements forumES = forumGroup.select("div[id=category_" + gid + "] tr");
+
+                boolean compactGroup = !forumES.first().hasClass("jg12");
                 for (Element forumTrEl : forumES) {
-                    List<Forum> forums = parseForum(forumTrEl);
+                    List<Forum> forums = compactGroup ? parseForumCompact(forumTrEl) : parseForumNormal(forumTrEl);
                     for (Forum f : forums) {
                         if (f.getId() > 0)
                             allForums.add(f);
@@ -59,40 +61,38 @@ public class ForumParser {
         return allForums;
     }
 
-    private static List<Forum> parseForum(Element forumTrEl) {
-        if (forumTrEl.children().size() == 7)
-            return parseForumNormal(forumTrEl);
-        else
-            return parseForumCompat(forumTrEl);
-    }
-
     private static List<Forum> parseForumNormal(Element forumEl) {
         // 7 个 TD，第 2 个是论坛链接
         List<Forum> forums = new ArrayList<>();
+
+        if (forumEl.childrenSize() <= 0)
+            return forums;
+
         Element forumLink = forumEl.child(1).select("h2 a[href*=forum]").first();
-        if (forumLink != null) {
-            Forum forum = parseForumLink(forumLink, Forum.FORUM);
-            forums.add(forum);
+        if (forumLink == null)
+            return forums;
 
-            if (forum.getId() > 0) {
-                Element newPostEl = forumLink.nextElementSibling();
-                if (newPostEl != null && newPostEl.tagName().equals("em"))
-                    ForumNewPostCount.put(forum.getId(), newPostEl.text());
-            }
+        Forum forum = parseForumLink(forumLink, Forum.FORUM);
+        forums.add(forum);
 
-            forumLink.remove();
-
-            for (Element subForumLink : forumEl.select("p a[href*=forum]"))
-                forums.add(parseForumLink(subForumLink, Forum.SUB_FORUM));
+        if (forum.getId() > 0) {
+            Element newPostEl = forumLink.nextElementSibling();
+            if (newPostEl != null && newPostEl.tagName().equals("em"))
+                ForumNewPostCount.put(forum.getId(), newPostEl.text());
         }
+
+        forumLink.remove();
+
+        for (Element subForumLink : forumEl.select("p a[href*=forum]"))
+            forums.add(parseForumLink(subForumLink, Forum.SUB_FORUM));
 
         return forums;
     }
 
-    private static List<Forum> parseForumCompat(Element forumEl) {
+    private static List<Forum> parseForumCompact(Element forumEl) {
         List<Forum> forums = new ArrayList<>();
         for (Element tdEl : forumEl.children()) {
-            Element forumLink = tdEl.select("td h2 a[href*=forum-]").first();
+            Element forumLink = tdEl.select("td dl a[href*=forum-]").first();
 
             if (forumLink != null) {
                 Forum forum = parseForumLink(forumLink, Forum.FORUM);

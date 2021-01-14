@@ -276,7 +276,7 @@
     <string name="pref_summary_support">反馈问题，最新动态，请来这里</string>
     <string name="pref_title_clear_cache">清除网络缓存</string>
     <string name="pref_title_clear_image_cache">清除图片缓存</string>
-    <string name="pref_summary_clear_cache">遇到发帖502错误时可以尝试使用</string>
+    <string name="pref_summary_clear_cache">遇到发帖 502 错误时可以尝试使用</string>
     <string name="pref_summary_clear_image_cache">清除下载的图片和头像缓存</string>
     <string name="pref_noti_task_enabled">接收通知</string>
     <string name="pref_noti_led_light">LED 通知灯</string>
