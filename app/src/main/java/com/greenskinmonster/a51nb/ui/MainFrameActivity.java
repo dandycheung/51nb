@@ -38,6 +38,7 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 
+import com.aidi.core.Aidi;
 import com.bumptech.glide.Glide;
 import com.github.angads25.filepicker.view.FilePickerDialog;
 import com.greenskinmonster.a51nb.R;
@@ -112,6 +113,8 @@ public class MainFrameActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Aidi._$();
 
         setContentView(R.layout.activity_main_frame);
         // hack, to avoid MainFrameActivity be created more than once

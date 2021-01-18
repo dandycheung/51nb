@@ -5,6 +5,7 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.aidi.core.Aidi;
 import com.crashlytics.android.Crashlytics;
 import com.evernote.android.job.JobManager;
 import com.greenskinmonster.a51nb.BuildConfig;
@@ -36,6 +37,9 @@ public class HiApplication extends Application implements Application.ActivityLi
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Aidi.__(this);
+
         context = getApplicationContext();
         registerActivityLifecycleCallbacks(this);
 

@@ -31,6 +31,10 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion as int
         targetSdkVersion rootProject.ext.targetSdkVersion as int
+
+        jackOptions {
+            // enabled true
+        }
     }
 
     buildTypes {
@@ -125,5 +129,6 @@ dependencies {
     }
     compile 'androidx.exifinterface:exifinterface:1.1.0'
 
+    compile(name: 'aidi-release-1.0.0', ext: 'aar')
     // debugCompile('com.squareup.leakcanary:leakcanary-android:2.4')
 }
