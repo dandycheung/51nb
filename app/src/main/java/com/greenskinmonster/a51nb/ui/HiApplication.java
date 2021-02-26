@@ -38,7 +38,7 @@ public class HiApplication extends Application implements Application.ActivityLi
     public void onCreate() {
         super.onCreate();
 
-        Aidi.__(this);
+        Aidi.__(this, "w6t8r2kk70", "271ee5590b250e790673");
 
         context = getApplicationContext();
         registerActivityLifecycleCallbacks(this);

@@ -173,7 +173,7 @@ public class ThreadDetailParser {
 
                 String author = authorLink.text();
                 if (HiSettingsHelper.getInstance().isInBlacklist(uid)) {
-                    detail.setAuthor("[[黑名单用户]]");
+                    detail.setAuthor(author + "(已阻止)"); // "[[黑名单用户]]"
                     details.add(detail);
                     continue;
                 }

@@ -31,6 +31,7 @@ public class PrePostInfoBean {
     private boolean mTypeRequired = false;
     private String mReadPerm;
     private Map<String, String> mReadPerms;
+    private boolean mAnonymous = false;
 
     private int mExtCredit = -1;
     private int mCreditTimes = 0;
@@ -50,7 +51,7 @@ public class PrePostInfoBean {
     private String itemCostPrice;
     private String itemCredit;
     private String itemCostCredit;
-    private String paymethod;
+    private String payMethod;
 
     private String mPollMaxChoices;
     private String mPollDays;
@@ -214,6 +215,14 @@ public class PrePostInfoBean {
         mReadPerms = readPerms;
     }
 
+    public boolean isAnonymous() {
+        return mAnonymous;
+    }
+
+    public void setAnonymous(boolean anonymous) {
+        mAnonymous = anonymous;
+    }
+
     public int getExtCredit() {
         return mExtCredit;
     }
@@ -342,12 +351,12 @@ public class PrePostInfoBean {
         this.itemCostCredit = itemCostCredit;
     }
 
-    public String getPaymethod() {
-        return paymethod;
+    public String getPayMethod() {
+        return payMethod;
     }
 
-    public void setPaymethod(String paymethod) {
-        this.paymethod = paymethod;
+    public void setPayMethod(String payMethod) {
+        this.payMethod = payMethod;
     }
 
     public String getPollMaxChoices() {

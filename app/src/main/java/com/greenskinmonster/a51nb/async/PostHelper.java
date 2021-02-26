@@ -172,7 +172,7 @@ public class PostHelper {
                 params.put("item_costprice", mInfo.getItemCostPrice());
                 params.put("item_credit", mInfo.getItemCredit());
                 params.put("item_costcredit", mInfo.getItemCostCredit());
-                params.put("paymethod", mInfo.getPaymethod());
+                params.put("paymethod", mInfo.getPayMethod());
             }
         }
 
@@ -308,18 +308,17 @@ public class PostHelper {
                 }
 
                 String tag = text.substring(tagStart + 1, tagEnd);
-                if (tag.contains("=")) {
+                if (tag.contains("="))
                     tag = tag.substring(0, tag.indexOf("="));
-                }
 
                 String tagE = "[/" + tag + "]";
                 int tagEIndex = text.indexOf(tagE);
-                if (tagEIndex != -1)
-                    tagEIndex = tagEIndex + tagE.length();
-                else {
+                if (tagEIndex == -1) {
                     sb.append(Utils.replaceUrlWithTag(text));
                     break;
                 }
+
+                tagEIndex += tagE.length();
 
                 sb.append(Utils.replaceUrlWithTag(text.substring(0, tagStart)));
                 sb.append(text, tagStart, tagEIndex);

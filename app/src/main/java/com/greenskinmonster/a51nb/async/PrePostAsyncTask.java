@@ -249,7 +249,7 @@ public class PrePostAsyncTask extends AsyncTask<PostBean, Void, PrePostInfoBean>
                 prePostInfo.setItemCostPrice(getElementValue(doc.select("#item_costprice").first()));
                 prePostInfo.setItemCredit(getElementValue(doc.select("#item_credit").first()));
                 prePostInfo.setItemCostCredit(getElementValue(doc.select("#item_costcredit").first()));
-                prePostInfo.setPaymethod(getElementValue(doc.select("#paymethod").first()));
+                prePostInfo.setPayMethod(getElementValue(doc.select("#paymethod").first()));
             }
 
             if (doc.select("#maxchoices").first() != null) {
